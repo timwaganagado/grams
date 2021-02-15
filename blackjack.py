@@ -3,7 +3,7 @@ cont = 1
 d = shelve.open('score.txt')
 highscorel = d['highscorel']
 d.close()
-#pp
+#p
 while cont == 1:
    skip = 0
    loop = 1
