@@ -43,7 +43,7 @@ while playing == True:
                     hand = hand[0] - 1
                 hand = playerprediction[-1] + 1
             else:
-                if stats.mode(winprediction)[1][0] >= 1:
+                if stats.mode(winprediction)[1][0] >= 2:
                     hand = playerprediction[-1]
                     winprediction = []
         else:
