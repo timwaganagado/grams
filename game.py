@@ -44,7 +44,7 @@ class Mysprite(pygame.sprite.Sprite):
         if self.index >=len(self.images):
             self.index = 0
         
-        self.image = self.images[slef.index]
+        self.image = self.images[self.index]
 
 def add_candy(candies):
     candy = pygame.sprite.Sprite()
