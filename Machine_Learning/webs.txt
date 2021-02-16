@@ -1,0 +1,2 @@
+https://medium.com/towards-artificial-intelligence/building-neural-networks-from-scratch-with-python-code-and-math-in-detail-i-536fae5d7bbf
+fix: https://www.kdnuggets.com/2018/10/simple-neural-network-python.html
