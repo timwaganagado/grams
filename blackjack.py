@@ -1,15 +1,15 @@
 import shelve
 cont = 1
-d = shelve.open('score.txt')
-highscorel = d['highscorel']
-d.close()
+#d = shelve.open('score.txt')
+#highscorel = d['highscorel']
+#d.close()
 #pp cool will see what happens
 while cont == 1:
    skip = 0
    loop = 1
    drawn = []
    bet = 50
-   print('Highscore',highscorel)
+   #print('Highscore',highscorel)
    print('Amount to bet 50')
    while loop > 0:
       import time

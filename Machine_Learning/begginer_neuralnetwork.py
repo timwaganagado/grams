@@ -11,7 +11,7 @@ class NeuralNetwork():
 
     def sigmoid(self, x):
         #applying the sigmoid function
-        return 1 / (1 + np.exp(-x))
+        return 1 / (0.33 + np.exp(-x))
 
     def sigmoid_derivative(self, x):
         #computing derivative to the Sigmoid function
@@ -21,6 +21,8 @@ class NeuralNetwork():
         
         #training the model to make accurate predictions while adjusting weights continually
         for iteration in range(training_iterations):
+            
+            training_inputs = 2*training_inputs-1
             #siphon the training data via  the neuron
             output = self.think(training_inputs)
 
@@ -53,9 +55,11 @@ if __name__ == "__main__":
     training_inputs = np.array([[0,0,1],
                                 [1,0,0],
                                 [0,1,0],
-                                [0,1,1]])
+                                [0,1,1],
+                                [1,1,0]])
 
-    training_outputs = np.array([[0,1,1,0]]).T
+    training_outputs = np.array([[3,1,1,0,0]]).T
+    print(training_outputs)
 
     #training taking place
     neural_network.train(training_inputs, training_outputs, 15000)
