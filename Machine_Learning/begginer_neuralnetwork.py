@@ -7,11 +7,11 @@ class NeuralNetwork():
         np.random.seed(1)
         
         #converting weights to a 3 by 1 matrix with values from -1 to 1 and mean of 0
-        self.synaptic_weights = 2 * np.random.random((3, 1)) - 1
+        self.synaptic_weights = 2 * np.random.random(3, 1) - 1
 
     def sigmoid(self, x):
         #applying the sigmoid function
-        return 1 / (0.33 + np.exp(-x))
+        return 1 / (1 + np.exp(-x))
 
     def sigmoid_derivative(self, x):
         #computing derivative to the Sigmoid function
@@ -22,7 +22,7 @@ class NeuralNetwork():
         #training the model to make accurate predictions while adjusting weights continually
         for iteration in range(training_iterations):
             
-            training_inputs = 2*training_inputs-1
+     
             #siphon the training data via  the neuron
             output = self.think(training_inputs)
 
@@ -39,6 +39,7 @@ class NeuralNetwork():
         #converting values to floats
         
         inputs = inputs.astype(float)
+        
         output = self.sigmoid(np.dot(inputs, self.synaptic_weights))
         return output
 
@@ -73,5 +74,5 @@ if __name__ == "__main__":
     
     print("Considering New Situation: ", user_input_one, user_input_two, user_input_three)
     print("New Output data: ")
-    print(neural_network.think(np.array([user_input_one, user_input_two, user_input_three])))
+    print(np.array([user_input_one, user_input_two, user_input_three]))
     print("Wow, we did it!")
