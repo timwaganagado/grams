@@ -29,22 +29,23 @@ while statspread < 180:
         addtostat(3)
     else:
         addtostat(1)
-    l = input('level up')
+    #l = input('level up')
     #print(stats)
     #print(statsold)
     
     difference()
     statsold = list(stats)
-    print(f'''Level {level}
+    statspread = 0
+    for x in stats:
+        statspread += x
+print(statspread)
+print(f'''Level {level}
 HP  {stats[0] , f'+{dif[0]}'}
 Atk {stats[1] , f'+{dif[1]}'}
 Spd {stats[2] , f'+{dif[2]}'}
 Def {stats[3] , f'+{dif[3]}'}
 Res {stats[4] , f'+{dif[4]}'}''')
-    statspread = 0
-    for x in stats:
-        statspread += x
-    print(statspread)
+    
 
 
 
