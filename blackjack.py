@@ -1,4 +1,6 @@
 import shelve
+import time
+from deck import draw
 cont = 1
 #d = shelve.open('score.txt')
 #highscorel = d['highscorel']
@@ -12,8 +14,7 @@ while cont == 1:
    #print('Highscore',highscorel)
    print('Amount to bet 50')
    while loop > 0:
-      import time
-      from deck import draw
+      
       cv = 0   #card value
       w = ''
       won = ''
