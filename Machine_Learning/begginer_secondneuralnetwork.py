@@ -101,7 +101,7 @@ if __name__ == "__main__":
     nn2 = NeuralNetwork2(X,y2)
     nn3 = NeuralNetwork3(X,y3)
     def run():
-        
+           
         for i in range(2000):
             nn.feedforward()
             nn.backprop()
