@@ -37,6 +37,8 @@ y = [99,86,87,88,111,86,103,87,94,78,77,85,86]
 
 slope, intercept, r, p, std_err = stats.linregress(x, y)
 
+print(slope)
+
 def myfunc(x):
       return slope * x + intercept
 
@@ -45,5 +47,10 @@ mymodel = list(map(myfunc, x))
 plt.scatter(x, y)
 plt.plot(x, mymodel)
 plt.show()
-print(r)
+
+
+fin = 0
+
+o = [5,7,8,7]
+X = [99,86,87,88]
 

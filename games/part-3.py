@@ -229,19 +229,19 @@ class menu:
             dif = dif
         return playing, running, pause , dif , restart
 
-home_img = pg.image.load('grams/house-1.png.png').convert_alpha()
+home_img = pg.image.load('images/house-1.png.png').convert_alpha()
 home_img = pg.transform.scale(home_img, (50, 50))
 home_ui = pg.transform.scale(home_img, (40, 40))
 home_ui.fill((0, 255, 0, 255), special_flags=pg.BLEND_RGBA_MULT)
 home_img.fill((0, 255, 0, 255), special_flags=pg.BLEND_RGBA_MULT)
 
-cross_img = pg.image.load('grams/cross-1.png.png').convert_alpha()
+cross_img = pg.image.load('images/cross-1.png.png').convert_alpha()
 cross_img = pg.transform.scale(cross_img, (50, 50))
 cross_img.fill((255, 0, 0, 255), special_flags=pg.BLEND_RGBA_MULT)
 arrows = {}
-arrow_img = pg.image.load('grams/arrow.png').convert_alpha()
+arrow_img = pg.image.load('images/arrow.png').convert_alpha()
 arrow_img = pg.transform.scale(arrow_img, (50, 50))
-circle_img = pg.image.load('grams/circle-1.png.png').convert_alpha()
+circle_img = pg.image.load('images/circle-1.png.png').convert_alpha()
 circle_img = pg.transform.scale(circle_img, (50, 50))
 circle_img.fill((255, 255, 0, 255), special_flags=pg.BLEND_RGBA_MULT)
 for dir in [(1, 0), (0, 1), (-1, 0), (0, -1), (1, 1), (-1, 1), (1, -1), (-1, -1)]:
