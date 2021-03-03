@@ -65,11 +65,13 @@ class map():
         self.ani = bool
         self.eani = bool
         self.lowestq = 0
+        self.test = []
         
     def draw(self):
         for move in self.moveable:
             rect = pg.Rect(move * TILESIZE, (TILESIZE, TILESIZE))
             pg.draw.rect(screen, LIGHTGRAY, rect)
+        
     def drawchar(self):   
        #print"draw",self.player)
         if self.turn == 'enemy' or self.turn == 'all':
@@ -80,6 +82,9 @@ class map():
             x,y = self.enemy
             rect = pg.Rect(x * TILESIZE, y * TILESIZE, TILESIZE, TILESIZE)
             pg.draw.rect(screen,RED,rect)
+        for test in self.test:
+            rect = pg.Rect(test * TILESIZE, (TILESIZE, TILESIZE))
+            pg.draw.rect(screen, YELLOW, rect)
 
     def animate(self,mpos,skip):    
         s = 2
@@ -131,30 +136,46 @@ class map():
         lowestediff = (self.player.x- avaliblemovement[0].x,self.player.y- avaliblemovement[0].y)   
         lowestcombineddiff = lowestediff[0] + lowestediff[1] 
         self.lowestq = avaliblemovement[0]
+        if lowestcombineddiff < 0:
+            lowestcombineddiff *= -1
+        elif lowestcombineddiff == 0:
+            lowestcombineddiff *= 100
+        print(lowestcombineddiff)
+        print(avaliblemovement[0])
         for a in avaliblemovement:
-           
-            if a.x <= 0 and a.y <= 0:
+            print(a)
+            if a.x < 0 and a.y < 0:
                 ediff = (self.player.x- a.x*-1,self.player.y- a.y*-1)
-            elif a.x <= 0:
+            elif a.x < 0:
                 ediff = (self.player.x- a.x*-1,self.player.y- a.y)
-            elif a.y <= 0:
+            elif a.y < 0:
                 ediff = (self.player.x- a.x,self.player.y- a.y*-1)
-            else:
-                ediff = (self.player.x- a.x,self.player.y- a.y)
-             
-            combinedediff = ediff[0] + ediff[1]  
-            if combinedediff > lowestcombineddiff:
+            elif a.x > 0:
+                ediff = (self.player.x- a.x*-1,self.player.y- a.y)
+            elif a.y > 0:
+                 ediff = (self.player.x- a.x,self.player.y- a.y*-1)
+            combinedediff = ediff[0] + ediff[1]
+            #print(a)
+            
+            if combinedediff < 0:
+                combinedediff *= -1
+            print(ediff)
+            print(combinedediff)
+            if combinedediff <= lowestcombineddiff:
+                print(self.player)
+                print(a)
                 lowestcombineddiff =  combinedediff 
                 self.lowestq = a
-        print(a)
+        #print(self.lowestq)
         self.enemyanimate()
+        self.test.append(self.lowestq)
     
     def enemyanimate(self): 
         
         s = 1
         if not self.eani:
             self.emovingani = (self.lowestq.x*TILESIZE,self.lowestq.y*TILESIZE)         
-            self.ediff = ((self.lowestq[0]*TILESIZE)- (self.enemy[0]*TILESIZE),(self.lowestq[1]*TILESIZE)- (self.enemy[1]*TILESIZE))
+            self.ediff = ((self.lowestq.x*TILESIZE)- (self.enemy[0]*TILESIZE),(self.lowestq.y*TILESIZE)- (self.enemy[1]*TILESIZE))
             self.enemy = (self.enemy[0]*TILESIZE,self.enemy[1]*TILESIZE)  
             self.eani = True
             #print(self.emovingani,self.ediff ,self.enemy )
@@ -162,6 +183,7 @@ class map():
             x,y = self.enemy
             self.ediff = (self.emovingani[0]- self.enemy[0],self.emovingani[1]- self.enemy[1])
             if self.ediff[0] == 0 and self.ediff[1] == 0 :
+                print(self.lowestq)
                 print(check)
                 self.eani = False
                 
@@ -201,10 +223,13 @@ M.fade = 200
 M.turn = 'all'
 M.ani = False
 M.eani = False
+M.test = [vec(-1,-1)]
+
 moving = False
 skip = False
 n = 2
 done = False
+
 
 
 
@@ -225,6 +250,8 @@ while running:
 
 
                         M.moveable = [movement + M.player for movement in checkmove]
+                        
+                        print(M.moveable)
                         if moving == False:
                             moving = True
 
