@@ -51,7 +51,7 @@ def draw_text(text, size, color, x, y,fade, align="topleft"):
         screen.blit(text_surface, text_rect)
 
 class map():
-    def __int__():
+    def __int__(self):
         self.moveable = []
         self.player = ()
         self.diff = []
@@ -122,7 +122,7 @@ class map():
                 elif self.diff[1] < 0:
                     y -= s
                 #print(self.player)
-                print(self.movingani,self.diff ,(self.player[0]//TILESIZE,self.player[1]//TILESIZE ))
+                #print(self.movingani,self.diff ,(self.player[0]//TILESIZE,self.player[1]//TILESIZE ))
                 self.player = int(x),int(y)
                 rect = pg.Rect(x , y , TILESIZE, TILESIZE)
                 pg.draw.rect(screen,WHITE,rect)   
@@ -142,10 +142,10 @@ class map():
         lowestcombineddiff = lowestediff[0] + lowestediff[1] 
         if lowestcombineddiff > 0:
             lowestcombineddiff *= -1
-        print(lowestcombineddiff)
+        #print(lowestcombineddiff)
         self.lowestq = avaliblemovement[0]
         for a in avaliblemovement:
-            print(a)
+            #print(a)
             
             
             if a.x < 0:
@@ -162,12 +162,12 @@ class map():
             #print(ediff)
             #print('combined',combinedediff)
             if combinedediff >= lowestcombineddiff:
-                print(self.player)
-                print('set new q',a)
+                #print(self.player)
+                #print('set new q',a)
                 lowestcombineddiff =  combinedediff 
                 self.lowestq = a
-            print(ediff)
-            print(combinedediff)
+            #print(ediff)
+            #print(combinedediff)
             
             
             
@@ -188,8 +188,8 @@ class map():
             x,y = self.enemy
             self.ediff = (self.emovingani[0]- self.enemy[0],self.emovingani[1]- self.enemy[1])
             if self.ediff[0] == 0 and self.ediff[1] == 0 :
-                print(self.lowestq)
-                print(check)
+                #print(self.lowestq)
+                #print(check)
                 self.eani = False
                 
                 M.turn = 'player'
@@ -256,7 +256,7 @@ while running:
 
                         M.moveable = [movement + M.player for movement in checkmove]
                         #M.test = [movement + M.enemy for movement in checkmove]
-                        print(M.moveable)
+                        #print(M.moveable)
                         if moving == False:
                             moving = True
 
