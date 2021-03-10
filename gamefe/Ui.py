@@ -162,12 +162,12 @@ class map():
             #print(ediff)
             #print('combined',combinedediff)
             if combinedediff >= lowestcombineddiff:
-                print(self.player)
-                print('set new q',a)
+                #print(self.player)
+                #print('set new q',a)
                 lowestcombineddiff =  combinedediff 
                 self.lowestq = a
-            print(ediff)
-            print(combinedediff)
+            #print(ediff)
+            #print(combinedediff)
             
             
             
@@ -192,7 +192,7 @@ class map():
                 print(check)
                 self.eani = False
                 
-                M.turn = 'player'
+                M.turn = 'all'
                #print"before conversion",self.player)
                 x,y = self.emovingani[0]//TILESIZE,self.emovingani[1]//TILESIZE
                 self.enemy = vec(x,y)
@@ -218,6 +218,7 @@ class map():
                 self.enemy = int(x),int(y)
                 rect = pg.Rect(x , y , TILESIZE, TILESIZE)
                 pg.draw.rect(screen,RED,rect)   
+    #def combat
         
 
 M = map()
