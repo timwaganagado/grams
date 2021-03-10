@@ -52,6 +52,7 @@ def draw_text(text, size, color, x, y,fade, align="topleft"):
 
 class map():
     def __int__(self):
+
         self.moveable = []
         self.player = ()
         self.diff = []
@@ -221,6 +222,7 @@ class map():
         
 
 M = map()
+
 M.player = vec(0,1)
 M.enemy = vec(5,5)
 M.title = vec(9, 1)
