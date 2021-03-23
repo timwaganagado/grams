@@ -674,8 +674,8 @@ while running:
             pg.draw.rect(screen, CYAN, rect)
 
 
-            #for l in range(3):
-                #screen.blit(red_image,(72,600))
+            for l in range(3):
+                screen.blit(red_image,(72,600))
             lol_center = (goal_ui.x * TILESIZE + 5 / 2, goal_ui.y * TILESIZE + 1 / 2)
             screen.blit(home_ui, home_ui.get_rect(center=lol_center))
             draw_text(disfc,45,(0,0,255),WIDTH-1240,HEIGHT-90,align='topleft')
