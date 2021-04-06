@@ -5,7 +5,7 @@ import random
 import shelve
 vec = pg.math.Vector2
 
-TILESIZE = 48
+TILESIZE = 70
 GRIDWIDTH = 35
 GRIDHEIGHT = 15
 WIDTH = 48 * 35
@@ -28,40 +28,61 @@ check = 'working'
 pg.init()
 screen = pg.display.set_mode((WIDTH, HEIGHT))
 clock = pg.time.Clock()
+class enviroment():
+    def __int__(self):
+        self.player = 0
+        self.cursor = 0
+        self.ttest = 0
+        self.pixels = 0
+    def drawchar(self):   
+        x,y = self.player
+        rect = pg.Rect(x * TILESIZE, y * TILESIZE, TILESIZE, TILESIZE)
+        pg.draw.rect(screen,BLACK,rect)
+        x,y = self.ttest
+        rect = pg.Rect(x,y,30,30)
+        pg.draw.rect(screen,GREEN,rect)
 
-def drawchar():   
-    x,y = player
-    rect = pg.Rect(x * TILESIZE, y * TILESIZE, TILESIZE, TILESIZE)
-    pg.draw.rect(screen,WHITE,rect)
-    x,y = ttest
-    rect = pg.Rect(x,y,30,30)
-    pg.draw.rect(screen,GREEN,rect)
-
-def draw_icons():    
-    start_center = (cursor.x , cursor.y)
+    def draw_icons(self):
+        for l in self.pixels:
+            start_center = (self.pixels[l].x*TILESIZE + TILESIZE/2 , self.pixels[l].y*TILESIZE + TILESIZE/2)
     
-    screen.blit(home_img, home_img.get_rect(center=start_center))
+            screen.blit(home_img, home_img.get_rect(center=start_center))
 
-home_img = pg.image.load('images/Test pixel.png').convert_alpha()
-home_img = pg.transform.scale(home_img, (1000, 1000))
-home_img.set_alpha(200)
-home_img.fill((0, 255, 0, 255), special_flags=pg.BLEND_RGBA_MULT)
+home_img = pg.image.load('images/bar_area-2.png').convert_alpha()
+home_img = pg.transform.scale(home_img, (TILESIZE, TILESIZE))
+#home_img.set_alpha(200)
+#home_img.fill((0, 255, 0, 255), special_flags=pg.BLEND_RGBA_MULT)
 
-player = vec(1,1)
-cursor = vec(100,100)
-ttest = vec(50,50)
+E = enviroment()
+E.player = vec(1,1)
+E.cursor = vec(100,500)
+E.ttest = vec(50,50)
+E.pixels = {'sink': vec(16, 2)}
+empt = {}
+print(E.pixels)
 
+
+ 
 running = True
 while running:
     clock.tick(FPS)
     for event in pg.event.get():
         if event.type == pg.MOUSEBUTTONDOWN:
-            mpos = vec(pg.mouse.get_pos())
-            ttest = mpos
+            mpos = vec(pg.mouse.get_pos())//TILESIZE
+            if event.button == 1:
+                E.pixels['sink'] = mpos
+            if event.button == 3:
+                player = mpos
+        if event.type == pg.KEYDOWN:
+            if event.key == pg.K_m:
+                empt = {}
+                for l in E.pixels:
+                    empt.update({str(l):'vec('+str(E.pixels[l].x)+','+str(E.pixels[l].y)+')'})
+                print(empt)
         if event.type == pg.QUIT:
             run = False
             pg.quit() 
     screen.fill(WHITE)
-    drawchar()
-    draw_icons()
+    E.drawchar()
+    E.draw_icons()
     pg.display.flip()

@@ -1,2 +1,6 @@
 l = {'connected':True,'conncode':0}
-print(l["connected"])
+
+l.update({'lost':True})
+
+for w in l:
+    print(l[w])
