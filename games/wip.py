@@ -64,7 +64,7 @@ G.playerorder = {'p1':0, 'p2':0, 'p3':0, 'p4':0}
 G.players = {'p1':vec(-1,-1), 'p2':vec(-1,-1),'p3':vec(-1,-1),'p4':vec(-1,-1)}
 G.playerspoints = {'p1':5, 'p2':5,'p3':5,'p4':5}
 G.attack = {}
-G.playerclass = {'p1':'ai','p2':'ai','p3':'ai','p4':'ai'}
+G.playerclass = {'p1':'player','p2':'player','p3':'ai','p4':'ai'}
 
 turn = 'roll'
 subturn = 'go'
@@ -250,8 +250,20 @@ while running:
                                     G.playerspoints[attacking] -= 1
                                 confirm = False
                                 subturn = 'go' 
-                        move_timer = pg.time.get_ticks()
-                        
+                        if confirm == False:
+                            if turnp == G.playerorder[0][0]:
+                                turnp = G.playerorder[1][0]
+                            elif turnp == G.playerorder[1][0]:
+                                turnp = G.playerorder[2][0]
+                            elif turnp == G.playerorder[2][0]:
+                                turnp = G.playerorder[3][0]
+                            elif turnp == G.playerorder[3][0]:
+                                turnp = G.playerorder[0][0]
+                            move_timer = 0
+                            subturn = 'wait'
+                            G.attack = {}
+                            attackey =[]
+                            attackeyl ={}
                         #print(G.playerorder)
                         for pointer in G.playerspoints:
                             #print(pointer)
