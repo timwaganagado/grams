@@ -6,6 +6,29 @@ import random
 import shelve
 vec = pg.math.Vector2
 
+''' Instructions
+To select player or ai scroll down to the dictionary player calsses and change from 'ai' or 'player' ai will play it self and player will allow you to be a player
+
+To Exit
+press close on the window
+
+Rules
+each player will roll for the order highest goes last
+
+each player will then choose a begging square to choose from
+
+you can move to any square as long as it isnt occupied by another player your goal is to reach zero points you do this by:
+moving to a square that has no other players adjacent 
+moving to a square adjacent to a player 
+if adjacent to one player you will give the other player a point and remove one from yourself
+if adjacent to two players you will pick a player to give a point the other player you didnt choose will lose a point and yourself will lose a point
+if adjacent to three players you will pick a player to give a point the other players you didnt choose will lose a point and yourself will lose a point
+
+when a player reachs zero points the game ends and the player with zero points wins
+
+caution 
+when completing a game the next game may skip the first persons turn  
+'''
 DISPSIZE = 30
 GRIDWIDTH = 11
 GRIDHEIGHT = 9
@@ -64,7 +87,7 @@ G.playerorder = {'p1':0, 'p2':0, 'p3':0, 'p4':0}
 G.players = {'p1':vec(-1,-1), 'p2':vec(-1,-1),'p3':vec(-1,-1),'p4':vec(-1,-1)}
 G.playerspoints = {'p1':5, 'p2':5,'p3':5,'p4':5}
 G.attack = {}
-G.playerclass = {'p1':'player','p2':'player','p3':'ai','p4':'ai'}
+G.playerclass = {'p1':'player','p2':'player','p3':'player','p4':'player'}
 
 turn = 'roll'
 subturn = 'go'
