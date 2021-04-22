@@ -9,7 +9,7 @@ vec = pg.math.Vector2
 #
 #Red, Orange, Yellow, Green, Blue, Indigo and Violet.
 TILESIZE = 2
-SIZE = 8
+SIZE = 9
 WIDTH = TILESIZE ** SIZE
 HEIGHT = TILESIZE ** SIZE
 FPS = 30
@@ -32,10 +32,16 @@ VIOLET = (238,130,238)
 check = 'working'
 
 font_name = pg.font.match_font('hack')
-def draw_text(text, size, color):
+def draw_number(text, size, color):
     font = pg.font.Font(font_name, size)
     text_surface = font.render(text, True, color)
     text_rect = text_surface.get_rect(center=(WIDTH/2,HEIGHT/2))
+    screen.blit(text_surface, text_rect)
+
+def draw_text(text, size, color, x, y, align="topleft"):
+    font = pg.font.Font(font_name, size)
+    text_surface = font.render(text, True, color)
+    text_rect = text_surface.get_rect(**{align: (x, y)})
     screen.blit(text_surface, text_rect)
 
 class numbers():
@@ -95,6 +101,7 @@ backgroundcolour = (WHITE[0],WHITE[1],WHITE[2])
 color = BLACK
 colours = [BROWN,BLACK,RED,GREEN,CYAN,MAGENTA,YELLOW,DARKGRAY,MEDGRAY,LIGHTGRAY,GREY]
 
+speed = 200
 
 A = numbers()
 
@@ -104,6 +111,10 @@ A.xyz = {"x":random.randint(0,255),"y":random.randint(0,255),"z":random.randint(
 A.xyzchanged = {"x":random.randint(0,255),"y":random.randint(0,255),"z":random.randint(0,255)}
 A.rainbow = [RED, ORANGE, YELLOW, GREEN, BLUE, INDIGO, VIOLET]
 
+fade = 0
+flip = True
+
+pg.mouse.set_visible(False)
 
 running = True
 while running:
@@ -112,16 +123,29 @@ while running:
         # write important things here 
         # duh
         if event.type == pg.MOUSEBUTTONDOWN:
-            change += 1
-            if change == 4:
-                change = 1
-                    
+            if event.button == 1:
+                change += 1
+                if change == 4:
+                    change = 1
+            if event.button == 3:
+                speed += 500
+                if speed > 2500:
+                    speed = 200
+        if event.type == pg.KEYDOWN:
+            if event.key == pg.K_SPACE:
+                if flip == True:
+                    flip = False
+                elif flip == False:
+                    flip = True
+        #mpos = pg.mouse.get_pos()
+        #n,m = mpos
+        #print(mpos)
                 
         if event.type == pg.QUIT: # allows for quit when clicking on the X 
             run = False
             pg.quit() 
     current_time = pg.time.get_ticks()
-    if current_time - timer > 200:
+    if current_time - timer > speed:
         number += random.choice([1,-1])
         if number <= 0:
             number = random.randint(0,100)
@@ -132,6 +156,7 @@ while running:
         if change == 1:
             color = random.choice(colours)
             A.xyz = {"x":color[0],"y":color[1],"z":color[2]}    
+
     if change == 2:
         A.changer()
     if change == 3:
@@ -141,13 +166,14 @@ while running:
     z = A.xyz['z']
     color = (x,y,z)
     #print((x,y,z))
-    print(backgroundcolour)
+    #print(backgroundcolour)
+    #print(flip)
     pg.display.set_caption('NUM') # changes the name of the application
-    backgroundcolour = A.background(backgroundcolour)
-    screen.fill(backgroundcolour) # fills screnn with color
+    if flip == True:
+        backgroundcolour = A.background(backgroundcolour)
+        screen.fill(backgroundcolour)
     # anything down here will be displayed ontop of anything above
-
     text = str(number)
-    
-    draw_text(text,WIDTH,color)
+    #draw_text(text, 40,color,n,m,align='topleft')
+    draw_number(text,WIDTH,color)
     pg.display.flip() # dose the changes goto doccumentation for other ways
