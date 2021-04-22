@@ -29,9 +29,9 @@ when a player reachs zero points the game ends and the player with zero points w
 caution 
 when completing a game the next game may skip the first persons turn  
 '''
-DISPSIZE = 30
-GRIDWIDTH = 11
-GRIDHEIGHT = 9
+DISPSIZE = 30 +30*2
+GRIDWIDTH = 11 #+3*2
+GRIDHEIGHT = 9 #+3*2
 WIDTH = DISPSIZE * GRIDWIDTH
 HEIGHT = DISPSIZE * GRIDHEIGHT
 TILESIZE = DISPSIZE * 3
@@ -64,9 +64,9 @@ class game():
         self.playerspoints = 0
         self.attack = 0
     def draw_grid(self):
-        for x in range(0, WIDTH, 90):
+        for x in range(0, WIDTH, TILESIZE):
             pg.draw.line(screen, LIGHTGRAY, (x, 0), (x, HEIGHT))
-        for y in range(0, HEIGHT, 90):
+        for y in range(0, HEIGHT, TILESIZE):
             pg.draw.line(screen, LIGHTGRAY, (0, y), (WIDTH, y))
 
     def drawchar(self):  
@@ -74,24 +74,29 @@ class game():
             x,y = self.players[player]
             rect = pg.Rect(x * TILESIZE +TILESIZE/3, y * TILESIZE+TILESIZE/3, TILESIZE/3, TILESIZE/3)
             pg.draw.rect(screen,BLACK,rect)
-            draw_text(str(player),30,WHITE,x* TILESIZE +TILESIZE/2.75,y * TILESIZE+TILESIZE/2.75,align='topleft')
-            draw_text(str(self.playerspoints[player]),30,BLACK,x* TILESIZE +TILESIZE/2.5,y * TILESIZE+TILESIZE/1.5,align='topleft')
+            draw_text(str(player),90,WHITE,x* TILESIZE +TILESIZE/2.75,y * TILESIZE+TILESIZE/2.75,align='topleft')
+            draw_text(str(self.playerspoints[player]),90,BLACK,x* TILESIZE +TILESIZE/2.5,y * TILESIZE+TILESIZE/1.5,align='topleft')
 
 pg.init()
+print(WIDTH,WIDTH*2/3)
 screen = pg.display.set_mode((WIDTH, HEIGHT))
 clock = pg.time.Clock()
 
 G = game()
+name1 = 'po'
+name2 = 'p2'
+name3 = 'p3'
+name4 = 'p4'
 
-G.playerorder = {'p1':0, 'p2':0, 'p3':0, 'p4':0}
-G.players = {'p1':vec(-1,-1), 'p2':vec(-1,-1),'p3':vec(-1,-1),'p4':vec(-1,-1)}
-G.playerspoints = {'p1':5, 'p2':5,'p3':5,'p4':5}
+G.playerorder = {name1:0, name2:0, name3:0, name4:0}
+G.players = {name1:vec(-1,-1), name2:vec(-1,-1),name3:vec(-1,-1),name4:vec(-1,-1)}
+G.playerspoints = {name1:5, name2:5,name3:5,name4:5}
 G.attack = {}
-G.playerclass = {'p1':'player','p2':'player','p3':'player','p4':'player'}
+G.playerclass = {name1:'player',name2:'player',name3:'player',name4:'ai'}
 
 turn = 'roll'
 subturn = 'go'
-turnp = 'p1'
+turnp = name1
 waittime = 10
 check = [vec(0,1),vec(1,0),vec(0,-1),vec(-1,0)]
 placecheck = []
@@ -100,6 +105,8 @@ attackeyl = {}
 confirm = False
 move_timer = 0
 allclasss = False
+end = False
+
 for x in G.playerclass:
         classs = G.playerclass[x]
         if classs == 'player':
@@ -148,6 +155,7 @@ while running:
                                 turn = 'play'
                                 turnp = G.playerorder[0][0]
                     elif turn == 'play':
+                        print(turnp)
                         subturn = 'wait'
                         #print(confirm)
                         #print()
@@ -296,13 +304,14 @@ while running:
                                 turn = 'end'
                                 winner = pointer
                     elif turn == 'end':
-                        G.playerorder = {'p1':0, 'p2':0, 'p3':0, 'p4':0}
-                        G.players = {'p1':vec(-1,-1), 'p2':vec(-1,-1),'p3':vec(-1,-1),'p4':vec(-1,-1)}
-                        G.playerspoints = {'p1':5, 'p2':5,'p3':5,'p4':5}
+                        G.playerorder = {name1:0, name2:0, name3:0, name4:0}
+                        G.players = {name1:vec(-1,-1), name2:vec(-1,-1),name3:vec(-1,-1),name4:vec(-1,-1)}
+                        G.playerspoints = {name1:5, name2:5,name3:5,name4:5}
                         G.attack = {}
                         turn = 'roll'
                         subturn = 'go'
-                        turnp = 'p1'
+                        turnp = name1
+    
     if G.playerclass[turnp] == 'ai':
         placecheck = []
         for pos in G.players:
@@ -310,8 +319,7 @@ while running:
         #print(move_timer)
         if turn == 'roll' :
                 if subturn == 'go':
-                    G.playerorder[turnp] = random.randint(1,6)
-                
+                    G.playerorder[turnp] = random.randint(1,6)               
         elif turn == 'place' and move_timer == 0:
             mpos = random.choice([vec(0,0),vec(0,1),vec(0,2),vec(1,0),vec(1,1),vec(1,2),vec(2,0),vec(2,1),vec(2,2)]) 
             while mpos in placecheck:
@@ -319,9 +327,11 @@ while running:
                 
             G.players[turnp] = mpos
             move_timer=pg.time.get_ticks()
+            #print(turnp)
+            end = True
     
         elif turn == 'play' and move_timer == 0:
-            
+            print(turnp)
             subturn = 'wait'
             aipos = random.choice([vec(0,0),vec(0,1),vec(0,2),vec(1,0),vec(1,1),vec(1,2),vec(2,0),vec(2,1),vec(2,2)]) 
             while aipos in placecheck:
@@ -461,12 +471,12 @@ while running:
                     turn = 'end'
                     winner = pointer
         elif turn == 'end':
-                G.playerorder = {'p1':0, 'p2':0, 'p3':0, 'p4':0}
-                G.players = {'p1':vec(-1,-1), 'p2':vec(-1,-1),'p3':vec(-1,-1),'p4':vec(-1,-1)}
-                G.playerspoints = {'p1':5, 'p2':5,'p3':5,'p4':5}
+                G.playerorder = {name1:0, name2:0, name3:0, name4:0}
+                G.players = {name1:vec(-1,-1), name2:vec(-1,-1),name3:vec(-1,-1),name4:vec(-1,-1)}
+                G.playerspoints = {name1:5, name2:5,name3:5,name4:5}
                 G.attack = {}
                 subturn = 'go'
-                turnp = 'p1'
+                turnp = name1
                 #G.playerclass[turnp] = 'player'
                 if allclasss == True:
                     G.playerclass[turnp] = 'player'
@@ -479,17 +489,24 @@ while running:
     current_time = pg.time.get_ticks()
     #print(f'current time{current_time} ai move time {move_timer}')
     if turn == 'place' and G.playerclass[turnp] == 'ai':
-        if current_time - move_timer > 2000:
-            if turnp == G.playerorder[0][0]:
-                turnp = G.playerorder[1][0]
-            elif turnp == G.playerorder[1][0]:
-                turnp = G.playerorder[2][0]
-            elif turnp == G.playerorder[2][0]:
-                turnp = G.playerorder[3][0]
-            elif turnp == G.playerorder[3][0]:
-                turn = 'play'
-                turnp = G.playerorder[0][0]
-            move_timer = 0
+        if end != True:
+            
+            if current_time - move_timer > 2000:
+                if turnp == G.playerorder[0][0]:
+                    turnp = G.playerorder[1][0]
+                elif turnp == G.playerorder[1][0]:
+                    turnp = G.playerorder[2][0]
+                elif turnp == G.playerorder[2][0]:
+                    turnp = G.playerorder[3][0]
+                elif turnp == G.playerorder[3][0]:
+                    turn = 'play'
+                    turnp = G.playerorder[0][0]
+                    subturn = 'wait'
+                move_timer = 0
+                print(subturn)
+        else:
+            print(turnp)
+            end = False
     if turn == 'play'and subturn == 'go':
         if current_time - move_timer > 2000:
             #print(move_timer)
@@ -512,6 +529,7 @@ while running:
         if current_time - move_timer > 2000:
             turn = 'roll'
             move_timer = 0
+            subturn = 'go'
     screen.fill(WHITE)
     G.draw_grid()
     G.drawchar()
@@ -523,6 +541,7 @@ while running:
                 if waittime < 0:
                     subturn = 'wait'
                     waittime = 10
+                    move_timer = 0
                 else:
                     waittime -= 1
 
@@ -532,17 +551,18 @@ while running:
             if waittime < 0:
                 subturn = 'go'
                 waittime = 10
-                if turnp == 'p1':
-                    turnp = 'p2'
-                elif turnp == 'p2':
-                    turnp = 'p3'
-                elif turnp == 'p3':
-                    turnp = 'p4'
-                elif turnp == 'p4':
+                if turnp == name1:
+                    turnp = name2
+                elif turnp == name2:
+                    turnp = name3
+                elif turnp == name3:
+                    turnp = name4
+                elif turnp == name4:
                     G.playerorder = sorted(G.playerorder.items(), key = lambda t:t[1])
                     #print(G.playerorder)
                     turnp = G.playerorder[0][0]
                     turn = 'place'
+                    print(G.playerorder)
             else:
                 waittime -= 1
     if turn == 'place' or turn == 'play':
