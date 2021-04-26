@@ -3,6 +3,8 @@ from os import path
 from collections import deque
 import random
 import shelve
+from pygame.draw import line
+from pynput import keyboard
 vec = pg.math.Vector2
 
 # 517/116 = 4.45689655
@@ -29,7 +31,7 @@ ORANGE = (255,69,0)
 BLUE = (0,0,255)
 INDIGO = (75,0,130)
 VIOLET = (238,130,238)
-check = 'working'
+check = [vec(-1,0),vec(1,0),vec(0,-1),vec(0,1)]
 
 font_name = pg.font.match_font('hack')
 def draw_number(text, size, color):
@@ -44,11 +46,74 @@ def draw_text(text, size, color, x, y, align="topleft"):
     text_rect = text_surface.get_rect(**{align: (x, y)})
     screen.blit(text_surface, text_rect)
 
+def draw_time(text, size, color):
+    if text%60 <= 10:
+        seconds = "{:0>2d}".format(text%60)
+    else:
+        seconds = str(text%60)
+    text = str(str(int(text/60))+':'+seconds)
+    font = pg.font.Font(font_name, size)
+    text_surface = font.render(text, True, color)
+    text_rect = text_surface.get_rect(center=(WIDTH/2,HEIGHT*3/4))
+    screen.blit(text_surface, text_rect)
+
+def on_press(key):
+    
+    A.number= 0
+    return False ,A.number# stop listener; remove this if want more keys
+
+class block():
+    def __int__(self):
+        self.current = 0
+        self.vel = 0 
+        self.line = 0
+    def move(self):
+        keys = pg.key.get_pressed()
+        movecheck = [self.current + l for l in check]
+        move = random.randint(1,4)
+        oldcurrent = vec(self.current)//TILESIZE
+        loopcheck = 0
+        if move == 1:
+            oldcurrent.x -= self.vel
+        if move == 2:
+            oldcurrent.x += self.vel
+        if move == 3:
+            oldcurrent.y -= self.vel
+        if move == 4:
+            oldcurrent.y += self.vel
+        #print(vec(self.current)//TILESIZE)
+        while oldcurrent in self.line :
+            if  loopcheck >= 8:
+                self.line = []
+                break
+            oldcurrent = vec(self.current)//TILESIZE
+            #print(self.line)
+            move = random.randint(1,4)
+            if move == 1:
+                oldcurrent.x -= self.vel
+            if move == 2:
+                oldcurrent.x += self.vel
+            if move == 3:
+                oldcurrent.y -= self.vel
+            if move == 4:
+                oldcurrent.y += self.vel
+            loopcheck += 1
+        self.current = vec(oldcurrent.x*TILESIZE,oldcurrent.y*TILESIZE)
+            
+        
+        self.line.append(vec(self.current.x,self.current.y)//TILESIZE)
+    def draw(self,color):
+        for i in self.line:
+            rect = pg.Rect(i.x*TILESIZE, i.y*TILESIZE, TILESIZE, TILESIZE)
+            pg.draw.rect(screen, (random.randint(0,255),random.randint(0,255),random.randint(0,255)), rect)
+
 class numbers():
     def __int__(self):
         self.xyz = 0
         self.xyzchanged = 0
         self.rainbow = 0
+        self.backorder = 0
+        self.A.number= 0
     def changer(self):
         for num in self.xyz:
             value = self.xyz[num]
@@ -68,6 +133,17 @@ class numbers():
                 self.xyzchanged[num] = random.randint(0,255)
     def background(self,back):
         current = self.rainbow[0]
+        if current == self.backorder[-1]:
+            #print(self.backorder)
+            #print(self.rainbow)
+            while len(self.rainbow) != 0:
+                l = random.choice(self.rainbow)
+                self.backorder.remove(l)
+                self.rainbow.remove(l)
+                self.backorder.append(l)
+            self.rainbow = list(self.backorder)
+            #print(self.backorder)
+            #print(self.rainbow)
         p,o,i = back
         if back == current:
             self.rainbow.remove(current)
@@ -92,27 +168,36 @@ class numbers():
         return back
 
 pg.init()
-screen = pg.display.set_mode((WIDTH, HEIGHT))
+screen = pg.display.set_mode((WIDTH, HEIGHT),pg.NOFRAME)
 clock = pg.time.Clock()
 
-number = 2 #random.randint(0,100)
+
 timer = 0
 backgroundcolour = (WHITE[0],WHITE[1],WHITE[2])
 color = BLACK
 colours = [BROWN,BLACK,RED,GREEN,CYAN,MAGENTA,YELLOW,DARKGRAY,MEDGRAY,LIGHTGRAY,GREY]
 
-speed = 200
+speed = 1000
 
 A = numbers()
+B = block()
 
 change = 1
+changenum = 2
 
 A.xyz = {"x":random.randint(0,255),"y":random.randint(0,255),"z":random.randint(0,255)}
 A.xyzchanged = {"x":random.randint(0,255),"y":random.randint(0,255),"z":random.randint(0,255)}
 A.rainbow = [RED, ORANGE, YELLOW, GREEN, BLUE, INDIGO, VIOLET]
+A.backorder = list(A.rainbow)
+A.number= 1 #random.randint(0,100)
+
+B.current = vec((WIDTH/2),int(HEIGHT/2))
+B.vel = 1
+B.line = []
 
 fade = 0
 flip = True
+screenflip = 1
 
 pg.mouse.set_visible(False)
 
@@ -132,11 +217,33 @@ while running:
                 if speed > 2500:
                     speed = 200
         if event.type == pg.KEYDOWN:
+            #print('g')
+            #print(event.key)
+            if event.key == pg.K_1:
+                speed = 1000
             if event.key == pg.K_SPACE:
                 if flip == True:
                     flip = False
                 elif flip == False:
                     flip = True
+            if event.key == pg.K_LSHIFT:
+                changenum += 1
+                if changenum == 3:
+                    changenum = 1
+            if event.key == pg.K_RETURN:
+                screenflip += 1
+                if screenflip == 2:
+                    screen = pg.display.set_mode((WIDTH, HEIGHT))
+                    screenflip = 0 
+                else:
+                    screen = pg.display.set_mode((WIDTH, HEIGHT),pg.NOFRAME)
+            if event.key == pg.K_r:
+                A.number= 0
+            if event.key == pg.K_ESCAPE:
+                run = False
+                pg.quit() 
+            
+        
         #mpos = pg.mouse.get_pos()
         #n,m = mpos
         #print(mpos)
@@ -144,19 +251,26 @@ while running:
         if event.type == pg.QUIT: # allows for quit when clicking on the X 
             run = False
             pg.quit() 
+    #listener = keyboard.Listener(on_press=on_press)
+    #listener.start()  # start to listen on a separate thread
+
     current_time = pg.time.get_ticks()
     if current_time - timer > speed:
-        number += random.choice([1,-1])
-        if number <= 0:
-            number = random.randint(0,100)
-        if number >= 100:
-            number = random.randint(0,100)
-        timer = pg.time.get_ticks()
-        #color = (random.randint(0,255),random.randint(0,255),random.randint(0,255))
+        B.move()
+        if changenum == 1:
+            A.number+= random.choice([1,-1])
+            if A.number<= 0:
+                A.number= random.randint(0,100)
+            if A.number>= 100:
+                A.number= random.randint(0,100)
+            timer = pg.time.get_ticks()
+            #color = (random.randint(0,255),random.randint(0,255),random.randint(0,255))
+        elif changenum == 2:
+            A.number+= 1
+            timer = pg.time.get_ticks()
         if change == 1:
             color = random.choice(colours)
             A.xyz = {"x":color[0],"y":color[1],"z":color[2]}    
-
     if change == 2:
         A.changer()
     if change == 3:
@@ -173,7 +287,19 @@ while running:
         backgroundcolour = A.background(backgroundcolour)
         screen.fill(backgroundcolour)
     # anything down here will be displayed ontop of anything above
-    text = str(number)
+    text = str(A.number)
+    if changenum == 1:
+        numbersize = WIDTH
+    if changenum == 2:
+        if  A.number >= 1000:
+            numbersize = int(WIDTH/2)
+        elif A.number>= 100:
+            numbersize = int(WIDTH/1.3)
+        else:
+            numbersize = WIDTH
     #draw_text(text, 40,color,n,m,align='topleft')
-    draw_number(text,WIDTH,color)
+    draw_time(A.number, 30, color)
+    draw_number(text,numbersize,color)
+    
+    B.draw(color)
     pg.display.flip() # dose the changes goto doccumentation for other ways
