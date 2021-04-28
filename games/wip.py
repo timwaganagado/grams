@@ -28,6 +28,11 @@ when a player reachs zero points the game ends and the player with zero points w
 
 caution 
 when completing a game the next game may skip the first persons turn  
+
+8.3/10 rohan
+like it jackson
+8/10 curtis
+
 '''
 DISPSIZE = 30 +30*2
 GRIDWIDTH = 11 #+3*2
@@ -83,16 +88,16 @@ screen = pg.display.set_mode((WIDTH, HEIGHT))
 clock = pg.time.Clock()
 
 G = game()
-name1 = 'po'
-name2 = 'p2'
-name3 = 'p3'
-name4 = 'p4'
+name1 = 'burton'
+name2 = 'jackson'
+name3 = 'curtis'
+name4 = 'rohan'
 
 G.playerorder = {name1:0, name2:0, name3:0, name4:0}
 G.players = {name1:vec(-1,-1), name2:vec(-1,-1),name3:vec(-1,-1),name4:vec(-1,-1)}
 G.playerspoints = {name1:5, name2:5,name3:5,name4:5}
 G.attack = {}
-G.playerclass = {name1:'player',name2:'player',name3:'player',name4:'ai'}
+G.playerclass = {name1:'player',name2:'player',name3:'player',name4:'player'}
 
 turn = 'roll'
 subturn = 'go'

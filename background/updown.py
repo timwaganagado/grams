@@ -4,7 +4,7 @@ from collections import deque
 import random
 import shelve
 from pygame.draw import line
-from pynput import keyboard
+
 vec = pg.math.Vector2
 
 # 517/116 = 4.45689655
@@ -240,7 +240,7 @@ while running:
             if event.key == pg.K_r:
                 A.number= 0
             if event.key == pg.K_ESCAPE:
-                run = False
+                running = False
                 pg.quit() 
             
         
@@ -249,7 +249,7 @@ while running:
         #print(mpos)
                 
         if event.type == pg.QUIT: # allows for quit when clicking on the X 
-            run = False
+            running = False
             pg.quit() 
     #listener = keyboard.Listener(on_press=on_press)
     #listener.start()  # start to listen on a separate thread
