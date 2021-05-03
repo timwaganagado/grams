@@ -34,7 +34,8 @@ like it jackson
 8/10 curtis
 7/10 ozzy
 4/4 dan bread
-
+4/5 scarlet
+6/5 jayden
 '''
 DISPSIZE = 30 +30*2
 GRIDWIDTH = 11 #+3*2
@@ -488,9 +489,9 @@ G = game()
 S = state()
 M = menu()
 name1 = 'burton'
-name2 = 'dan'
-name3 = 'jackson'
-name4 = 'rohan'
+name2 = 'jayden'
+name3 = 'curtis'
+name4 = 'ozzy'
 
 G.playerorder = {name1:0, name2:0, name3:0, name4:0}
 G.players = {name1:vec(-1,-1), name2:vec(-1,-1),name3:vec(-1,-1),name4:vec(-1,-1)}
