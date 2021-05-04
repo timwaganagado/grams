@@ -2,6 +2,7 @@ import pygame as pg
 from os import path
 from collections import deque
 import random
+import copy
 import shelve
 vec = pg.math.Vector2
 
@@ -42,6 +43,12 @@ class enemy():
             self.health = 0
             self.combat_animation = 0    
             self.clickaura = []
+    class magee2():
+        def __int__(self):
+            self.vec = 0
+            self.health = 0
+            self.combat_animation = 0    
+            self.clickaura = []
 
 conrift_combat_img = pg.image.load('images/Layer 1_conrift_combat1.png').convert_alpha()
 conrift_combat_img = pg.transform.scale(conrift_combat_img, (256, 256))
@@ -68,6 +75,15 @@ auras = [(0, 3), (1, 3), (2, 3), (2, 2), (1, 2), (0, 2), (0, 1), (1, 1), (2, 1),
 mage.clickaura = []
 for aura in auras:
     mage.clickaura.append(vec(aura))
+
+mage2 = enemy.magee2()
+mage2.vec = vec(43,20)
+mage2.health = 30
+mage2.combat_animation = {1:home_img,2:home_img,3:home_img}
+auras = [(0, 3), (1, 3), (2, 3), (2, 2), (1, 2), (0, 2), (0, 1), (1, 1), (2, 1), (2, 0), (1, 0), (0, 0), (0, -1), (1, -1), (2, -1), (2, -2), (1, -2), (0, -2), (0, -3), (1, -3), (2, -3)]
+mage2.clickaura = []
+for aura in auras:
+    mage2.clickaura.append(vec(aura))
 #print(mage.clickaura)
 
 def draw_grid():
@@ -132,17 +148,22 @@ M.heplanevec = vec(20,20)
 M.heplane_combat_animation = {1:heplane_combat_img,2:heplane_combat2_img,3:heplane_combat3_img}
 M.current_animation = 1
 M.enemy = {}
-for x in range(1,random.randint(2,3)):
+for x in range(1,3):#range(1,random.randint(2,3))
+    print(x)
     if x == 1:
-        enemy1 = random.choice([mage])
+        enemy1 = random.choice([C,mage])
         tout = enemy1.vec
         eat = enemy1.health
         M.enemy.update({enemy1:[tout,eat,[tout + x for x in enemy1.clickaura]]})
     if x == 2:
-        enemy2 = random.choice([C])
+        enemy2 = random.choice([C,mage])
+        if enemy2 == enemy1:
+            if enemy2 == mage:
+                enemy2 = mage2
         tout = enemy2.vec
         eat = enemy2.health
         M.enemy.update({enemy2:[tout,eat,[tout + x for x in enemy2.clickaura]]})
+        print(M.enemy)
 #M.clickaura = [vec(-1,-1)]
 
 
