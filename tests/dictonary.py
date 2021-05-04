@@ -15,8 +15,10 @@ import random
 #    print(d[he][0])
 #
 #d = random.choice(sortedd)
-x = 0
-y=0
-z=0
-xyz = {x:5,y:0,z:0}
-print(xyz[x])
+#x = 0
+#y=0
+#z=0
+#xyz = {x:5,y:0,z:0}
+#print(xyz[x])
+l = {1:'1',2:'2',3:'3'}
+print(len(l))
