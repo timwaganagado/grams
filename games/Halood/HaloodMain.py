@@ -77,11 +77,7 @@ C.attacks = {'darkness':[3,5],'conduction':[12,1]}
 
 
 
-<<<<<<< HEAD
-home_img = pg.image.load('games/Halood/Halood_images/magee_combat.png').convert_alpha()
-=======
-home_img = pg.image.load(os.path.join('images','magee_combat.png')).convert_alpha()
->>>>>>> 4ffefc2e246bcd46544a4eb7f196e418c419b60b
+home_img = pg.image.load(os.path.join('games/Halood/Halood_images','magee_combat.png')).convert_alpha()
 home_img = pg.transform.scale(home_img, (256, 256))
 
 mage = enemy.magee()
