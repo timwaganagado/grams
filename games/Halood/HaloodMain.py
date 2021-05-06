@@ -4,6 +4,7 @@ from collections import deque
 import random
 import copy
 import shelve
+import os
 vec = pg.math.Vector2
 
 TILESIZE = 30
@@ -30,6 +31,13 @@ pg.init()
 screen = pg.display.set_mode((WIDTH, HEIGHT),pg.FULLSCREEN,display = 1)
 clock = pg.time.Clock()
 
+font_name = pg.font.match_font('hack')
+def draw_text(text, size, color, x, y, align="topleft"):
+    font = pg.font.Font(font_name, size)
+    text_surface = font.render(text, True, color)
+    text_rect = text_surface.get_rect(**{align: (x, y)})
+    screen.blit(text_surface, text_rect)
+
 class enemy():
     class conrift():
         def __init__(self):
@@ -37,18 +45,21 @@ class enemy():
             self.health = 0
             self.combat_animation = 0
             self.clickaura = []
+            self.attacks = 0
     class magee():
         def __int__(self):
             self.vec = 0
             self.health = 0
             self.combat_animation = 0    
             self.clickaura = []
+            self.attacks = 0
     class magee2():
         def __int__(self):
             self.vec = 0
             self.health = 0
             self.combat_animation = 0    
             self.clickaura = []
+            self.attacks = 0
 
 conrift_combat_img = pg.image.load('games/Halood/Halood_images/Layer 1_conrift_combat1.png').convert_alpha()
 conrift_combat_img = pg.transform.scale(conrift_combat_img, (256, 256))
@@ -62,9 +73,15 @@ C.vec = vec(43,20)
 C.health = 50
 C.combat_animation = {1:conrift_combat_img,2:conrift_combat2_img,3:conrift_combat3_img}
 C.clickaura = [vec(-1,0),vec(-1,1),vec(-1,2),vec(-1,3),vec(-1,-1),vec(-1,-2),vec(-1,-3),vec(0,0),vec(0,1),vec(0,2),vec(0,3),vec(0,-1),vec(0,-2),vec(0,-3),vec(1,0),vec(1,1),vec(1,2),vec(1,3),vec(1,-1),vec(1,-2),vec(1,-3)]
+C.attacks = {'darkness':[3,5],'conduction':[12,1]}
 
 
+
+<<<<<<< HEAD
 home_img = pg.image.load('games/Halood/Halood_images/magee_combat.png').convert_alpha()
+=======
+home_img = pg.image.load(os.path.join('images','magee_combat.png')).convert_alpha()
+>>>>>>> 4ffefc2e246bcd46544a4eb7f196e418c419b60b
 home_img = pg.transform.scale(home_img, (256, 256))
 
 mage = enemy.magee()
@@ -75,6 +92,7 @@ auras = [(0, 3), (1, 3), (2, 3), (2, 2), (1, 2), (0, 2), (0, 1), (1, 1), (2, 1),
 mage.clickaura = []
 for aura in auras:
     mage.clickaura.append(vec(aura))
+mage.attacks = {'fire ball':[5,3],'miss':[0,1]}
 
 mage2 = enemy.magee2()
 mage2.vec = vec(43,20)
@@ -84,6 +102,7 @@ auras = [(0, 3), (1, 3), (2, 3), (2, 2), (1, 2), (0, 2), (0, 1), (1, 1), (2, 1),
 mage2.clickaura = []
 for aura in auras:
     mage2.clickaura.append(vec(aura))
+mage2.attacks = {'fire ball':[5,3],'miss':[0,1]}
 #print(mage.clickaura)
 
 def draw_grid():
@@ -92,12 +111,22 @@ def draw_grid():
     for y in range(0, HEIGHT, TILESIZE):
         pg.draw.line(screen, LIGHTGRAY, (0, y), (WIDTH, y))
 
+def hepleaneattack(target):
+    pee = int(M.heplanehealth)/100 + 1
+    print(target)
+    target -= pee * 10
+    return target
+    
+
 class main():
     def __int__(self):
         self.heplanevec = 0
-        self.current_animation = 0
+        self.heplanehealth = 0
         self.heplane_combat_animation = 0
+        self.current_animation = 0
         self.enemy = 0
+        self.display = 0
+        self.damage = 0
         #self.clickaura = 0
     def draw_icons(self):
         ani = M.heplane_combat_animation
@@ -110,8 +139,9 @@ class main():
             goal_center = (vec.x * TILESIZE + TILESIZE / 2, vec.y * TILESIZE + TILESIZE / 2)
             screen.blit(ani[self.current_animation], ani[self.current_animation].get_rect(center=goal_center))
             rect = pg.Rect(vec.x*TILESIZE, vec.y*TILESIZE, 30, 30)
-            pg.draw.rect(screen,RED,rect)
     def draw_healthbar(self):
+        rect = pg.Rect(self.heplanevec.x*TILESIZE - 10, self.heplanevec.y*TILESIZE - 120, self.heplanehealth, 20)
+        pg.draw.rect(screen,RED,rect)
         for x in self.enemy:
             vec = self.enemy[x][0]
             heat = self.enemy[x][1] 
@@ -133,6 +163,33 @@ class main():
         for x in self.enemy:
             y += self.enemy[x][2]
         return y
+    def draw_damage(self):
+        if self.display == True:
+            if len(self.damage) == 2:
+                print(self.damage)
+                draw_text(str(self.damage[0]),30,RED,self.heplanevec.x*TILESIZE-15, self.heplanevec.y*TILESIZE-120,align="bottomright")
+                draw_text(str(self.damage[1]),30,RED,self.heplanevec.x*TILESIZE+15, self.heplanevec.y*TILESIZE-120,align="bottomright")
+            else:
+                for x in self.damage:
+                    draw_text(str(x),30,RED,self.heplanevec.x*TILESIZE, self.heplanevec.y*TILESIZE-120,align="bottomright")
+    def friendlydamage(self,damage):
+        self.heplanehealth -= damage[0]
+    def enemyattack(self):
+        #print(self.heplanehealth)
+        for x in self.enemy:
+            attack = self.enemy[x][3]
+            attacks = []
+            chance = []
+            for y in attack:
+                chance.append(attack[y][1])
+                attacks.append(attack[y][0])
+            damage = random.choices(attacks,chance)
+            self.damage.append(damage[0])
+            self.friendlydamage(damage)
+            self.click = True
+            self.display = True
+            #print(damage)
+       # print(self.heplanehealth)
 
         
 
@@ -145,16 +202,18 @@ heplane_combat3_img = pg.transform.scale(heplane_combat3_img, (256, 256))
 
 M = main()
 M.heplanevec = vec(20,20)
+M.heplanehealth = 50
 M.heplane_combat_animation = {1:heplane_combat_img,2:heplane_combat2_img,3:heplane_combat3_img}
+M.heplaneattacks = {'coilent':[10]}
 M.current_animation = 1
 M.enemy = {}
 for x in range(1,3):#range(1,random.randint(2,3))
-    print(x)
     if x == 1:
         enemy1 = random.choice([C,mage])
         tout = enemy1.vec
         eat = enemy1.health
-        M.enemy.update({enemy1:[tout,eat,[tout + x for x in enemy1.clickaura]]})
+        attack = enemy1.attacks
+        M.enemy.update({enemy1:[tout,eat,[tout + x for x in enemy1.clickaura],attack]})
     if x == 2:
         enemy2 = random.choice([C,mage])
         if enemy2 == enemy1:
@@ -162,8 +221,12 @@ for x in range(1,3):#range(1,random.randint(2,3))
                 enemy2 = mage2
         tout = enemy2.vec
         eat = enemy2.health
-        M.enemy.update({enemy2:[tout,eat,[tout + x for x in enemy2.clickaura]]})
-        print(M.enemy)
+        attack = enemy2.attacks
+        M.enemy.update({enemy2:[tout,eat,[tout + x for x in enemy2.clickaura],attack]})
+M.display = False
+M.damage = []
+M.click = False
+M.attackselect = False
 #M.clickaura = [vec(-1,-1)]
 
 
@@ -181,14 +244,22 @@ while running:
         if event.type == pg.MOUSEBUTTONDOWN:
             if event.button == 1:
                 mpos = vec(pg.mouse.get_pos()) // TILESIZE
-                print(M.getaura())
-                print(mpos)
+               # print(M.getaura())
+               # print(mpos)
                 if mpos in M.getaura():
-                    if mpos in M.enemy[enemy1][2]:
-                        M.enemy[enemy1][1] -= 5
-                    elif mpos in M.enemy[enemy2][2]:
-                        M.enemy[enemy2][1] -= 5
-                M.checkifdead()
+                    if M.attackselect == True:
+                        if mpos in M.enemy[enemy1][2]:
+                            M.enemy[enemy1][1] = hepleaneattack(M.enemy[enemy1][1])
+
+                        elif mpos in M.enemy[enemy2][2]:
+                            M.enemy[enemy2][1] = hepleaneattack(M.enemy[enemy2][1])
+                        M.enemyattack()
+                        M.attackselect = False
+                    else:
+                        M.attackselect = True
+                    display_time = pg.time.get_ticks()    
+                    M.checkifdead()
+                
                 #create.append(mpos)
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_r:
@@ -212,10 +283,19 @@ while running:
         if M.current_animation == 4:
             M.current_animation = 1
         anim_timer = pg.time.get_ticks()
+    if M.click == True:
+        if current_time - display_time > 1000:
+            if M.display == False:
+                M.display = True
+            else:
+                M.display == False
+            M.damage = []
+            M.click = False
     pg.display.set_caption("{:.2f}".format(clock.get_fps())) # changes the name of the application
     screen.fill(WHITE) # fills screnn with color
     # anything down here will be displayed ontop of anything above
     draw_grid()
     M.draw_icons()
     M.draw_healthbar()
+    M.draw_damage()
     pg.display.flip() # dose the changes goto doccumentation for other ways
