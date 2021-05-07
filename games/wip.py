@@ -36,6 +36,7 @@ like it jackson
 4/4 dan bread
 4/5 scarlet
 6/5 jayden
+9.9/10 trent
 '''
 DISPSIZE = 30 +30*2
 GRIDWIDTH = 11 #+3*2
@@ -489,15 +490,15 @@ G = game()
 S = state()
 M = menu()
 name1 = 'burton'
-name2 = 'jayden'
-name3 = 'curtis'
-name4 = 'ozzy'
+name2 = 'trent'
+name3 = 'p3'
+name4 = 'p4'
 
 G.playerorder = {name1:0, name2:0, name3:0, name4:0}
 G.players = {name1:vec(-1,-1), name2:vec(-1,-1),name3:vec(-1,-1),name4:vec(-1,-1)}
 G.playerspoints = {name1:5, name2:5,name3:5,name4:5}
 G.attack = {}
-G.playerclass = {name1:'player',name2:'player',name3:'player',name4:'player'}
+G.playerclass = {name1:'player',name2:'player',name3:'ai',name4:'ai'}
 
 G.turn = 'roll'
 G.subturn = 'go'
