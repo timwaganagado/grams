@@ -61,11 +61,11 @@ class enemy():
             self.clickaura = []
             self.attacks = 0
 
-conrift_combat_img = pg.image.load('images/Layer 1_conrift_combat1.png').convert_alpha()
+conrift_combat_img = pg.image.load('games/Halood/Halood_images/Layer 1_conrift_combat1.png').convert_alpha()
 conrift_combat_img = pg.transform.scale(conrift_combat_img, (256, 256))
-conrift_combat2_img = pg.image.load('images/Layer 1_conrift_combat2.png').convert_alpha()
+conrift_combat2_img = pg.image.load('games/Halood/Halood_images/Layer 1_conrift_combat2.png').convert_alpha()
 conrift_combat2_img = pg.transform.scale(conrift_combat2_img, (256, 256))
-conrift_combat3_img = pg.image.load('images/Layer 1_conrift_combat3.png').convert_alpha()
+conrift_combat3_img = pg.image.load('games/Halood/Halood_images/Layer 1_conrift_combat3.png').convert_alpha()
 conrift_combat3_img = pg.transform.scale(conrift_combat3_img, (256, 256))
 
 C = enemy.conrift()
@@ -77,7 +77,7 @@ C.attacks = {'darkness':[3,5],'conduction':[12,1]}
 
 
 
-home_img = pg.image.load(os.path.join('images','magee_combat.png')).convert_alpha()
+home_img = pg.image.load(os.path.join('games/Halood/Halood_images','magee_combat.png')).convert_alpha()
 home_img = pg.transform.scale(home_img, (256, 256))
 
 mage = enemy.magee()
@@ -188,11 +188,11 @@ class main():
 
         
 
-heplane_combat_img = pg.image.load('images/Layer 1_heplane_combat1.png').convert_alpha()
+heplane_combat_img = pg.image.load('games/Halood/Halood_images/Layer 1_heplane_combat1.png').convert_alpha()
 heplane_combat_img = pg.transform.scale(heplane_combat_img, (256, 256))
-heplane_combat2_img = pg.image.load('images/Layer 1_heplane_combat2.png').convert_alpha()
+heplane_combat2_img = pg.image.load('games/Halood/Halood_images/Layer 1_heplane_combat2.png').convert_alpha()
 heplane_combat2_img = pg.transform.scale(heplane_combat2_img, (256, 256))
-heplane_combat3_img = pg.image.load('images/Layer 1_heplane_combat3.png').convert_alpha()
+heplane_combat3_img = pg.image.load('games/Halood/Halood_images/Layer 1_heplane_combat3.png').convert_alpha()
 heplane_combat3_img = pg.transform.scale(heplane_combat3_img, (256, 256))
 
 M = main()
