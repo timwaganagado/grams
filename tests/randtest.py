@@ -1,2 +1,2 @@
 import random
-print(random.randint(0,2))
+print(random.choices([0,2],[99,1]))

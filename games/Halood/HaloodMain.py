@@ -109,7 +109,7 @@ def draw_grid():
 
 def hepleaneattack(target):
     pee = int(M.heplanehealth)/100 + 1
-    print(target)
+    print(pee)
     target -= pee * 10
     return target
     
@@ -162,7 +162,6 @@ class main():
     def draw_damage(self):
         if self.display == True:
             if len(self.damage) == 2:
-                print(self.damage)
                 draw_text(str(self.damage[0]),30,RED,self.heplanevec.x*TILESIZE-15, self.heplanevec.y*TILESIZE-120,align="bottomright")
                 draw_text(str(self.damage[1]),30,RED,self.heplanevec.x*TILESIZE+15, self.heplanevec.y*TILESIZE-120,align="bottomright")
             else:
