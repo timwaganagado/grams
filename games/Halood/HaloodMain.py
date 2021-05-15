@@ -50,13 +50,6 @@ class enemy():
             self.combat_animation = 0
             self.clickaura = []
             self.attacks = 0
-    class conrift2():
-        def __init__(self):
-            self.vec = 0
-            self.health = 0
-            self.combat_animation = 0
-            self.clickaura = []
-            self.attacks = 0
     class magee():
         def __int__(self):
             self.vec = 0
@@ -64,14 +57,9 @@ class enemy():
             self.combat_animation = 0    
             self.clickaura = []
             self.attacks = 0
-    class magee2():
+    class swordguy():
         def __int__(self):
             self.vec = 0
-            self.health = 0
-            self.combat_animation = 0    
-            self.clickaura = []
-            self.attacks = 0
-
 filename = os.path.dirname(sys.argv[0])
 filename += '\Halood_images'
 
@@ -88,17 +76,7 @@ C.vec = vec(43,20)
 C.health = 50
 C.combat_animation = {1:conrift_combat_img,2:conrift_combat2_img,3:conrift_combat3_img}
 C.clickaura = [vec(-1,0),vec(-1,1),vec(-1,2),vec(-1,3),vec(-1,-1),vec(-1,-2),vec(-1,-3),vec(0,0),vec(0,1),vec(0,2),vec(0,3),vec(0,-1),vec(0,-2),vec(0,-3),vec(1,0),vec(1,1),vec(1,2),vec(1,3),vec(1,-1),vec(1,-2),vec(1,-3)]
-C.attacks = {'darkness':[5,5,[0,0,0]],'conduction':[20,1,[1,0,1]]}
-
-
-C2 = enemy.conrift2()
-C2.vec = vec(43,20)
-C2.health = 50
-C2.combat_animation = {1:conrift_combat_img,2:conrift_combat2_img,3:conrift_combat3_img}
-C2.clickaura = [vec(-1,0),vec(-1,1),vec(-1,2),vec(-1,3),vec(-1,-1),vec(-1,-2),vec(-1,-3),vec(0,0),vec(0,1),vec(0,2),vec(0,3),vec(0,-1),vec(0,-2),vec(0,-3),vec(1,0),vec(1,1),vec(1,2),vec(1,3),vec(1,-1),vec(1,-2),vec(1,-3)]
-C2.attacks = {'darkness':[5,5,[0,0,0]],'conduction':[20,1,[1,0,1]]}
-
-
+C.attacks = {'darkness':[5,5,[0,0,0],1],'conduction':[20,1,[1,0,1],1]}
 
 home_img = pg.image.load(os.path.join(filename,'magee_combat.png')).convert_alpha()
 home_img = pg.transform.scale(home_img, (256, 256))
@@ -111,17 +89,21 @@ auras = [(0, 3), (1, 3), (2, 3), (2, 2), (1, 2), (0, 2), (0, 1), (1, 1), (2, 1),
 mage.clickaura = []
 for aura in auras:
     mage.clickaura.append(vec(aura))
-mage.attacks = {'fire ball':[10,4,[0,0,1]],'lightning':[15,1,[1,0,0]],'ice shards':[5,2,[0,1,0]],'miss':[0,2,[0,0,0]]}
+mage.attacks = {'fire ball':[10,4,[0,0,1],1],'lightning':[15,1,[1,0,0],1],'ice shards':[5,2,[0,1,0],1],'miss':[0,2,[0,0,0],1]}
 
-mage2 = enemy.magee2()
-mage2.vec = vec(43,20)
-mage2.health = 30
-mage2.combat_animation = {1:home_img,2:home_img,3:home_img}
+home_img = pg.image.load(os.path.join(filename,'cross-1.png.png')).convert_alpha()
+home_img = pg.transform.scale(home_img, (256, 256))
+
+sword = enemy.swordguy()
+sword.vec = vec(43,20)
+sword.health = 30
+sword.combat_animation = {1:home_img,2:home_img,3:home_img}
 auras = [(0, 3), (1, 3), (2, 3), (2, 2), (1, 2), (0, 2), (0, 1), (1, 1), (2, 1), (2, 0), (1, 0), (0, 0), (0, -1), (1, -1), (2, -1), (2, -2), (1, -2), (0, -2), (0, -3), (1, -3), (2, -3)]
-mage2.clickaura = []
+sword.clickaura = []
 for aura in auras:
-    mage2.clickaura.append(vec(aura))
-mage2.attacks = {'fire ball':[10,4,[0,0,1]],'lightning':[15,1,[1,0,0]],'ice shards':[5,2,[0,1,0]],'miss':[0,2,[0,0,0]]}
+    sword.clickaura.append(vec(aura))
+sword.attacks = {'slash':[4,4,[0,1,0],2],'miss':[0,2,[0,0,0],1]}
+
 
 def draw_grid():
     for x in range(0, WIDTH, TILESIZE):
@@ -170,9 +152,9 @@ class ally():
                     draw_text(text, 20, RED, self.attacks[self.attack1][2].x*TILESIZE, self.attacks[self.attack1][2].y*TILESIZE + 65)
                     text = str(round(int((M.allies[M.ally1][1]/100 + 1) * self.attacks[self.attack2][0][0])))
                     draw_text(text, 20, RED, self.attacks[self.attack2][2].x*TILESIZE, self.attacks[self.attack2][2].y*TILESIZE + 65)
-                    if len(ally1.healdam) != 0:
+                    if len(M.ally1.healdam) != 0:
                         l = 0
-                        for x in ally1.healdam:
+                        for x in M.ally1.healdam:
                             l += x
                         text = str(l)
                     else:
@@ -186,7 +168,13 @@ class ally():
         def attack(self,target,attack):
             target,dup = target
             for x in M.enemy:
-                M.enemy[x][0][1] -= self.attacks[self.attack1][0]
+                if M.dup:
+                    for y in M.enemy[x]:
+                        print(y[1])
+                        y[1] -= self.attacks[self.attack1][0]
+                else:
+                    print(M.enemy[x][0][0][1])
+                    M.enemy[x][0][1] -= self.attacks[self.attack1][0]
             if self.attacks[attack][5][0] > 0:
                 M.enemy[target][0][4][0] += self.attacks[attack][5][0]
             if self.attacks[attack][5][1] > 0:
@@ -284,6 +272,43 @@ class main():
         self.display = 0
         self.damage = 0
         #self.clickaura = 0
+    def start(self):
+        ally1 = H
+        ally2 = S
+        self.selectedattack = 0
+        self.selectedchar = 0
+        self.current_animation = 1
+        self.allies = {}
+        self.enemy = {}
+        self.l = []
+        self.actions = []
+        self.ally1 = ally1
+        pos = self.ally1.vec
+        eat = self.ally1.health
+        lean = self.ally1.shield
+        self.allies.update({self.ally1:[pos,eat,self.ally1.clickaura,lean,[0,0,0]]})
+        self.ally2 = ally2
+        pos = self.ally2.vec
+        eat = self.ally2.health
+        lean = self.ally2.shield
+        self.allies.update({self.ally2:[pos,eat,self.ally2.clickaura,lean,[0,0,0]]})
+        for x in range(1,3):#range(1,random.randint(2,3))
+            if x == 1:
+                self.enemy1 = random.choice([sword])
+                tout = self.enemy1.vec
+                eat = self.enemy1.health
+                attack = self.enemy1.attacks
+                M.enemy.update({self.enemy1:[[tout,eat,[tout + x for x in self.enemy1.clickaura],attack,[0,0,0]]]})
+            #if x == 2:
+            #    self.enemy2 = random.choice([C,mage,sword])
+            #    if self.enemy2 in M.enemy:
+            #        self.enemy[self.enemy2].append([tout,eat,[tout + x for x in self.enemy2.clickaura],attack,[0,0,0]])
+            #    else: 
+            #        tout = M.enemy2.vec
+            #        eat = M.enemy2.health
+            #        attack = M.enemy2.attacks
+            #        self.enemy.update({M.enemy2:[[tout,eat,[tout + x for x in self.enemy2.clickaura],attack,[0,0,0]]]})
+            #        self.numberofenemy()
     def draw_char(self):
         for x in self.allies:
             ani = dict(x.combat_animation)
@@ -304,6 +329,7 @@ class main():
         
         for x in self.enemy:   
             if len(self.enemy[x]) != 2:
+                #print(self.enemy[x][0][0],'stink')
                 ani = x.combat_animation 
                 vec = self.enemy[x][0][0]    
                 goal_center = (int(vec.x * TILESIZE + TILESIZE / 2), int(vec.y * TILESIZE + TILESIZE / 2))
@@ -312,13 +338,14 @@ class main():
                 for y in self.enemy[x]:
                     ani = x.combat_animation
                     vec = y[0]
+                    print(y[0])
                     goal_center = (int(vec.x * TILESIZE + TILESIZE / 2), int(vec.y * TILESIZE + TILESIZE / 2))
                     screen.blit(ani[self.current_animation], ani[self.current_animation].get_rect(center=goal_center))
     def draw_icons(self):
-        if M.selectedchar == ally1:
-            ally1.draw_icons()
-        if M.selectedchar == ally2:
-            ally2.draw_icons()
+        if M.selectedchar == self.ally1:
+            self.ally1.draw_icons()
+        if M.selectedchar == self.ally2:
+            self.ally2.draw_icons()
     def draw_healthbar(self):
         for x in self.allies:
             vec = self.allies[x][0]
@@ -354,7 +381,7 @@ class main():
     def draw_damage(self):
         if self.display == True:
             for x in self.damage:
-                print(self.damage)
+
                 if x in self.allies:
                     if len(self.damage[x]) == 2:
                         draw_text(str(self.damage[x][0]),30,RED,self.allies[x][0].x*TILESIZE-15, self.allies[x][0].y*TILESIZE-150,align="bottomright")
@@ -399,66 +426,26 @@ class main():
 
             for x in range(1,random.randint(2,3)):
                 if x == 1:
-                    self.enemy1 = random.choice([C,mage])
+                    self.enemy1 = random.choice([C,mage,sword])
                     tout = self.enemy1.vec
                     eat = self.enemy1.health
                     attack = self.enemy1.attacks
                     M.enemy.update({self.enemy1:[[tout,eat,[tout + x for x in self.enemy1.clickaura],attack,[0,0,0]]]})
                 if x == 2:
-                    self.enemy2 = random.choice([C,mage])
-                    if self.enemy2 == self.enemy1:
-                        if self.enemy2 == mage:
-                            self.enemy2 = mage2
-                        if self.enemy2 == C:
-                            self.enemy2 = C2
-                    tout = self.enemy2.vec
-                    eat = self.enemy2.health
-                    attack = self.enemy2.attacks
-                    M.enemy.update({self.enemy2:[[tout,eat,[tout + x for x in self.enemy2.clickaura],attack,[0,0,0]]]})
+                    M.enemy2 = random.choice([C,mage,sword])
+                    if M.enemy2 in M.enemy:
+                        M.enemy[M.enemy1].append([[tout,eat,[tout + x for x in M.enemy2.clickaura],attack,[0,0,0]]])
+
+                    else: 
+                        tout = M.enemy2.vec
+                        eat = M.enemy2.health
+                        attack = M.enemy2.attacks
+                        M.enemy.update({M.enemy2:[[tout,eat,[tout + x for x in M.enemy2.clickaura],attack,[0,0,0]]]})
             self.numberofenemy()
         if len(self.allies) <= 0:
-            ally1 = H
-            ally2 = S
-
-            self.selectedattack = 0
-            self.selectedchar = 0
-            self.current_animation = 1
-            self.allies = {}
-            self.enemy = {}
-            self.l = []
-            self.actions = []
-
-            self.ally1 = ally1
-            pos = self.ally1.vec
-            eat = self.ally1.health
-            lean = self.ally1.shield
-            self.allies.update({self.ally1:[pos,eat,self.ally1.clickaura,lean,[0,0,0]]})
-
-            self.ally2 = ally2
-            pos = self.ally2.vec
-            eat = self.ally2.health
-            lean = self.ally2.shield
-            self.allies.update({self.ally2:[pos,eat,self.ally2.clickaura,lean,[0,0,0]]})
-            for x in range(1,3):#range(1,random.randint(2,3))
-                if x == 1:
-                    self.enemy1 = random.choice([C,mage])
-                    tout = self.enemy1.vec
-                    eat = self.enemy1.health
-                    attack = self.enemy1.attacks
-                    M.enemy.update({self.enemy1:[tout,eat,[tout + x for x in self.enemy1.clickaura],attack,[0,0,0]]})
-                if x == 2:
-                    self.enemy2 = random.choice([C,mage])
-                    if self.enemy2 == self.enemy1:
-                        if self.enemy2 == mage:
-                            self.enemy2 = mage2
-                        if self.enemy2 == C:
-                            self.enemy2 = C2
-                    tout = self.enemy2.vec
-                    eat = self.enemy2.health
-                    attack = self.enemy2.attacks
-                    M.enemy.update({self.enemy2:[tout,eat,[tout + x for x in self.enemy2.clickaura],attack,[0,0,0]]})
-            self.numberofenemy()
+            self.start()
     def numberofenemy(self):
+        self.dup = False
         if len(self.enemy) == 2:
             self.enemy[self.enemy1][0][0] = vec(43,10)
             self.enemy[self.enemy2][0][0] = vec(43,25)
@@ -469,14 +456,10 @@ class main():
             for x in self.enemy:
                 if len(self.enemy[x]) == 2:
                     self.enemy[x][0][0] = vec(43,10)
-                    print(self.enemy[x][0][0])
                     self.enemy[x][1][0] = vec(43,25)
-                    print(self.enemy[x][1][0])
                     self.enemy[x][0][2] = [self.enemy[x][0][0]+ y for y in x.clickaura]
-                    print(self.enemy[x][0][2])
                     self.enemy[x][1][2] = [self.enemy[x][1][0]+ y for y in x.clickaura]
-                    print(self.enemy[x][1][2])
-            self.dup = True
+                    self.dup = True
                     
     def getaura(self):
         y = []
@@ -514,11 +497,11 @@ class main():
         if self.selectedchar in self.actions:
             M.attackselect = False
     def selectchar(self):
-        if mpos in ally1.clickaura:
-            M.selectedchar = ally1
+        if mpos in self.ally1.clickaura:
+            M.selectedchar = self.ally1
             M.charselect = True
-        elif mpos in ally2.clickaura:
-            M.selectedchar = ally2
+        elif mpos in self.ally2.clickaura:
+            M.selectedchar = self.ally2
             M.charselect = True
     def enemyattack(self):
         self.statuseffects(False)
@@ -535,10 +518,11 @@ class main():
                     self.enemy[x][0][4][0] -= 1
                     continue
                 attack = self.enemy[x][0][3]
-                self.workingattack()
+                self.workingattack(attack)
         self.click = True
         self.display = True
         self.statuseffects(True)
+        self.checkifdead()
     def workingattack(self,attack):
         attacks = []
         chance = []
@@ -546,32 +530,32 @@ class main():
         for y in attack:
             chance.append(attack[y][1])
             attacks.append(y)
-            print(attacks, chance)
         for x in self.allies:
             possible.append(x)
         target = random.choice(possible)
         attacking = random.choices(attacks,chance)
         damage = attack[attacking[0]]
-        if self.allies[target][3] > 0:
-            self.allies[target][3] -= damage[0]
-            if self.allies[target][3] < 0:
-                self.allies[target][3] = 0
-        else:
-            self.allies[target][1] -= damage[0]
-            if damage[2][1] > 0:
-                print('bleed')
-                self.allies[target][4][1] += damage[2][1]
-        print(damage)
-        if damage[2][0] > 0:
-            print('stun')
-            self.allies[target][4][0] += damage[2][0]
-        if damage[2][2] > 0:
-            print('fire')
-            self.allies[target][4][2] += damage[2][2]
-        if target in self.damage:
-            self.damage[target].append(int(damage[0]))
-        else:
-            self.damage.update({target:[damage[0]]})
+        print(attacking,damage[0])
+        for x in range(0,damage[3]):
+            if self.allies[target][3] > 0:
+                self.allies[target][3] -= damage[0]
+                if self.allies[target][3] < 0:
+                    self.allies[target][3] = 0
+            else:
+                self.allies[target][1] -= damage[0]
+                if damage[2][1] > 0:
+                    print('bleed')
+                    self.allies[target][4][1] += damage[2][1]
+            if damage[2][0] > 0:
+                print('stun')
+                self.allies[target][4][0] += damage[2][0]
+            if damage[2][2] > 0:
+                print('fire')
+                self.allies[target][4][2] += damage[2][2]
+            if target in self.damage:
+                self.damage[target].append(int(damage[0]))
+            else:
+                self.damage.update({target:[damage[0]]})
     def statuseffects(self,when):
         for x in self.allies:
             if when:
@@ -612,8 +596,9 @@ enemy with damage reduction
 sri passive deals with increase in values the more you use them
 healing removes status effects except stun (sri) +
 haptic class -
-new enemy sowrd guy(easy)
-rework enemy selection so that its a list for multiple dupes =
+new enemy sowrd guy(easy) =
+rework enemy selection so that its a list for multiple dupes +
+and fixed resulting problems +
 
 Art
 drawing heplane +
@@ -629,7 +614,7 @@ attack animations -
 status effect through visual
 
 In Main Class
-highlight selected charcter more clear (jackson) =
+highlight selected charcter more clear (jackson) ?
 text health +
 text enemy health +
 draw health bars +
@@ -645,50 +630,18 @@ cool downs coilent
 '''
 M = main()
 
-ally1 = H
-ally2 = S
+M.start()
 
-M.selectedattack = 0
-M.selectedchar = 0
-M.current_animation = 1
-M.allies = {}
-M.enemy = {}
-M.l = []
-M.actions = []
+
+
+
 M.targetedenemy = 0
 background_fall = pg.image.load(os.path.join(filename,'backgorunds-2.png.png'))
 background_fall = pg.transform.scale(background_fall, (1920, 1080))
 
-M.ally1 = ally1
-pos = M.ally1.vec
-eat = M.ally1.health
-lean = M.ally1.shield                                    #stun,bleeding,fire
-M.allies.update({M.ally1:[pos,eat,M.ally1.clickaura,lean,[0,0,0]]}) 
-
-M.ally2 = ally2
-pos = M.ally2.vec
-eat = M.ally2.health
-lean = M.ally2.shield
-M.allies.update({M.ally2:[pos,eat,M.ally2.clickaura,lean,[0,0,0]]})
 
 
-for x in range(1,random.randint(3,4)):
-    if x == 1:
-        M.enemy1 = random.choice([mage])
-        tout = M.enemy1.vec
-        eat = M.enemy1.health
-        attack = M.enemy1.attacks
-        M.enemy.update({M.enemy1:[[tout,eat,[tout + x for x in M.enemy1.clickaura],attack,[0,0,0]]]})
-    if x == 2:
-        M.enemy2 = random.choice([mage])
-        if M.enemy2 == M.enemy1:
-            M.enemy[M.enemy1].append([tout,eat,[tout + x for x in M.enemy2.clickaura],attack,[0,0,0]])
-            print(M.enemy)
-        else: 
-            tout = M.enemy2.vec
-            eat = M.enemy2.health
-            attack = M.enemy2.attacks
-            M.enemy.update({M.enemy2:[[tout,eat,[tout + x for x in M.enemy2.clickaura],attack,[0,0,0]]]})
+
 M.display = False
 M.damage = {}
 M.click = False
@@ -716,20 +669,20 @@ while running:
                     if M.attackselect == True and M.enemycanattack == False :
                         if M.selectedchar.attacks[M.selectedattack][4] != False:
                             if mpos in M.ally1.clickaura:
-                                M.selectedchar.support(ally1)
+                                M.selectedchar.support(M.ally1)
                                 attck_timer = pg.time.get_ticks()
                                 M.actions.append(M.selectedchar)
                                 M.attackselect = False
                                 M.checkifdead()
                             elif mpos in M.ally2.clickaura:
-                                M.selectedchar.support(ally2)
+                                M.selectedchar.support(M.ally2)
                                 M.actions.append(M.selectedchar)
                                 M.attackselect = False
                                 M.checkifdead()
                             M.attackselect = False
                         else:
                             if M.dup:
-                                print(M.enemy[M.enemy1][1][2])
+                                
                                 if mpos in M.enemy[M.enemy1][0][2]:
                                         M.selectedchar.attack((M.enemy1,0),M.selectedattack)
                                         M.attackselect = False
@@ -741,12 +694,14 @@ while running:
                                         M.actions.append(M.selectedchar)
                                         M.checkifdead()
                             else:
-                                if mpos in M.enemy[M.enemy1][0][2]:
+                                try:
+                                    if mpos in M.enemy[M.enemy1][0][2]:
                                         M.selectedchar.attack((M.enemy1,0),M.selectedattack)
                                         M.attackselect = False
                                         M.actions.append(M.selectedchar)
                                         M.checkifdead()
-
+                                except:
+                                    pass
                                 try:
                                     if mpos in M.enemy[M.enemy2][0][2]:
                                         M.selectedchar.attack((M.enemy2,0),M.selectedattack)
