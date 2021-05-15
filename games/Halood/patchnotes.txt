@@ -1,0 +1,47 @@
+version 0.01
+base game added
+
+allies added:
+
+heplane - a halood which uses his blood to increase his stregth
+unique ability his damage is increased by a percentage of his health 
+
+sri - a crystal whos body produces crystals for combat or healing
+
+abilities added:
+
+heplane:
+coilent
+base 10 damage
+self 15 damage
+inficts stun for 1 turn
+
+punch
+base 5 damage
+self 0 damage
+inflicts nothing
+
+blood heal
+base 0 heal
+self 0 heal
+inflicts nothing
+(is increased by half the damage dealt to enemies)
+
+sri:
+flash and crash
+base 5 aoe
+inficts stun for 1 turn
+
+crystal glass
+base 2 shield
+
+healing crystal
+base 10 heal
+cleanses stas effects other then stun
+
+enemies added:
+conrift - a living obelesk that seeks to rip people to the dark
+
+magee - a crazy alchemist that has masterd many spells
+
+sword guy - a dude with a sword
