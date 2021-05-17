@@ -390,7 +390,7 @@ class level():
         goal_center = (int(vec.x * TILESIZE*2 + TILESIZE*2 / 2), int(vec.y * TILESIZE*2 + TILESIZE*2 / 2))
         screen.blit(cross, cross.get_rect(center=goal_center))
         for x in self.levels:
-            pg.draw.circle(screen,BLACK,(x.x*TILESIZE*2+TILESIZE*2/2,x.y*TILESIZE*2+TILESIZE*2/2),5)
+            pg.draw.circle(screen,BLACK,(int(x.x*TILESIZE*2+TILESIZE*2/2),int(x.y*TILESIZE*2+TILESIZE*2/2)),5)
     def draw_linestoconnections(self):
         for x in self.connections:
             pg.draw.line(screen, BLUE, (self.crossvec.x*TILESIZE*2+TILESIZE*2/2,self.crossvec.y*TILESIZE*2+TILESIZE*2/2), (x.x*TILESIZE*2+TILESIZE*2/2,x.y*TILESIZE*2+TILESIZE*2/2))
@@ -789,7 +789,7 @@ difficulty tweeks to make game harder === (everyone) or easeir (ava)
 status effects to both enemies and allies +
 programming bleed +
 levels (rouge like) 
-specific levels (a traditional rpg) that will require a class system
+specific levels (a traditional rpg) that will require a class system +
 boss enemies (trent)
 more enemies (trent or daniel)
 enemy with damage reduction
