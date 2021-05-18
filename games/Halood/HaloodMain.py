@@ -152,7 +152,7 @@ class ally():
                     draw_text(text, 20, GREEN, self.attacks[self.attack3][2].x*TILESIZE, self.attacks[self.attack3][2].y*TILESIZE + 65)
         def draw_attack(self):
             pass
-    class sri():
+    class cri():
         def __int__(self):
             self.attack1 = 0
         def attack(self,target,attack):
@@ -193,6 +193,12 @@ class ally():
                     self.attacks[x][0] += 1
                 else:
                     self.attacks[x][0] += 2
+                if x == self.attack1:
+                    print(self.attacks[x][5][0])
+                    if self.attacks[x][0] > 6:
+                        self.attacks[x][5][0] = 1
+                    if self.attacks[x][0] < 6:
+                        self.attacks[x][5][0] = 0
                 if self.attacks[x][0] > 10:
                     self.attacks[x][0] = 2
         def draw_icons(self):
@@ -212,6 +218,55 @@ class ally():
                     draw_text(text, 20, GREEN, self.attacks[self.attack3][2].x*TILESIZE, self.attacks[self.attack3][2].y*TILESIZE + 75)
         def draw_attack(self):
             pass
+    class haptic():
+        def __init__(self):
+            attack1 = 0
+        def attack(self,target,attack):
+            target,dup = target
+            if attack == self.attack1:
+                damage = self.attacks[attack][0]**self.momentum
+                self.momentum = 1
+            else:
+                damage = self.attacks[attack][0]
+                self.passive()
+            
+            M.enemy[target][dup][1] -= damage
+            if self.attacktwice == True:
+                M.enemy[target][dup][1] -= damage
+                self.attacktwice = False
+            if self.attacks[attack][5][0] > 0:
+                M.enemy[target][dup][4][0] += self.attacks[attack][5][0]
+            if self.attacks[attack][5][1] > 0:
+                M.enemy[target][dup][4][1] += self.attacks[attack][5][1]
+            if self.attacks[attack][5][2] > 0:
+                M.enemy[target][dup][4][2] += self.attacks[attack][5][2]
+            
+        def support(self,target):
+            if target == Hap:
+                if self.momentum > 0:
+                    self.attacktwice = True
+                    self.momentum -= 1
+        def passive(self):
+            self.momentum += 1
+            if self.momentum >=3:
+                self.momentum = 3
+        def draw_icons(self):
+            for x in self.attacks:
+                if Hap in M.allies: 
+                    icon = self.attacks[x][1]
+                    pos = self.attacks[x][2]
+                    rect = pg.Rect(int(pos.x*TILESIZE-49), int(pos.y*TILESIZE-50), 128, 150)
+                    pg.draw.rect(screen,BLACK,rect)
+                    goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))
+                    screen.blit(icon, icon.get_rect(center=goal_center))
+                    text = str(self.attacks[self.attack1][0]**self.momentum)
+                    draw_text(text, 20, RED, self.attacks[self.attack1][2].x*TILESIZE, self.attacks[self.attack1][2].y*TILESIZE + 75)
+                    text = str(self.attacks[self.attack2][0])
+                    draw_text(text, 20, RED, self.attacks[self.attack2][2].x*TILESIZE, self.attacks[self.attack2][2].y*TILESIZE + 75)
+                    text = str(self.attacks[self.attack3][0])
+                    draw_text(text, 20, BLACK, self.attacks[self.attack3][2].x*TILESIZE, self.attacks[self.attack3][2].y*TILESIZE + 75)
+                    
+                    
 iconaura = [(2, 2), (2, 1), (2, 0), (2, -1), (2, -2), (1, -2), (1, -1), (1, 0), (1, 1), (1, 2), (0, 2), (0, 1), (0, 0), (0, -1), (0, -2), (-1, -2), (-1, -1), (-1, 0), (-1, 1), (-1, 2), (-2, 2), (-2, 1), (-2, 0), (-2, -1), (-2, -2)]            
 H = ally.heplane()
 heplane_combat_img = pg.image.load(os.path.join(filename,'Layer 1_heplane_combat1.png')).convert_alpha()
@@ -232,33 +287,58 @@ H.vec = vec(20,15)
 H.health = 50
 H.shield = 0
 H.combat_animation = {1:heplane_combat_img,2:heplane_combat2_img,3:heplane_combat3_img}
-H.attacks = {H.attack1:[[10,15],heplane_ability1_img,vec(18, 31),[vec(18,31) + a for a in iconaura],False,[1,0,0]],H.attack2:[[5,0],heplane_ability2_img,vec(23,31),[vec(23,31) + a for a in iconaura],False,[0,0,0]],H.attack3:[[0,0],heplane_ability3_img,vec(28,31),[vec(28,31)+ a for a in iconaura],True,[0,0,0]]}
+H.attacks = {H.attack1:[[10,15],heplane_ability1_img,vec(18, 31),[vec(18,31) + a for a in iconaura],False,[0,0,0]],H.attack2:[[5,0],heplane_ability2_img,vec(23,31),[vec(23,31) + a for a in iconaura],False,[0,0,0]],H.attack3:[[0,0],heplane_ability3_img,vec(28,31),[vec(28,31)+ a for a in iconaura],True,[0,0,0]]}
 H.healdam = []
 aura = [(1, 3), (0, 3), (-1, 3), (-1, 2), (0, 2), (1, 2), (1, 1), (0, 1), (-1, 1), (-1, 0), (0, 0), (1, 0), (1, -1), (0, -1), (-1, -1), (-1, -2), (0, -2), (1, -2), (1, -3), (0, -3), (-1, -3)]
 H.clickaura = [H.vec + a for a in aura]
 
-S = ally.sri()
-sri_combat_img = pg.image.load(os.path.join(filename,'Layer 1_sri_combat1.png')).convert_alpha()
-sri_combat_img = pg.transform.scale(sri_combat_img, (256, 256))
-sri_combat2_img = pg.image.load(os.path.join(filename,'Layer 1_sri_combat2.png')).convert_alpha()
-sri_combat2_img = pg.transform.scale(sri_combat2_img, (256, 256))
-sri_combat3_img = pg.image.load(os.path.join(filename,'Layer 1_sri_combat3.png')).convert_alpha()
-sri_combat3_img = pg.transform.scale(sri_combat3_img, (256, 256))
-sri_ability1_img = pg.image.load(os.path.join(filename,'crystal_icons-2.png.png'))
-sri_ability1_img = pg.transform.scale(sri_ability1_img, (128, 128))
-sri_ability2_img = pg.image.load(os.path.join(filename,'crystal_icons-1.png.png'))
-sri_ability2_img = pg.transform.scale(sri_ability2_img, (128, 128))
-sri_ability3_img = pg.image.load(os.path.join(filename,'crystal_icons-3.png.png'))
-sri_ability3_img = pg.transform.scale(sri_ability3_img, (128, 128))
+S = ally.cri()
+cri_combat_img = pg.image.load(os.path.join(filename,'Layer 1_cri_combat1.png')).convert_alpha()
+cri_combat_img = pg.transform.scale(cri_combat_img, (256, 256))
+cri_combat2_img = pg.image.load(os.path.join(filename,'Layer 1_cri_combat2.png')).convert_alpha()
+cri_combat2_img = pg.transform.scale(cri_combat2_img, (256, 256))
+cri_combat3_img = pg.image.load(os.path.join(filename,'Layer 1_cri_combat3.png')).convert_alpha()
+cri_combat3_img = pg.transform.scale(cri_combat3_img, (256, 256))
+cri_ability1_img = pg.image.load(os.path.join(filename,'crystal_icons-2.png.png'))
+cri_ability1_img = pg.transform.scale(cri_ability1_img, (128, 128))
+cri_ability2_img = pg.image.load(os.path.join(filename,'crystal_icons-1.png.png'))
+cri_ability2_img = pg.transform.scale(cri_ability2_img, (128, 128))
+cri_ability3_img = pg.image.load(os.path.join(filename,'crystal_icons-3.png.png'))
+cri_ability3_img = pg.transform.scale(cri_ability3_img, (128, 128))
 S.attack1 = 'flash and crash'
 S.attack2 = 'crystal glass'
 S.attack3 = 'karen and her healing balony'
 S.vec = vec(20,25)
 S.health = 25
 S.shield = 10
-S.combat_animation = {1:sri_combat_img,2:sri_combat2_img,3:sri_combat3_img}
-S.attacks = {S.attack1:[5,sri_ability1_img,vec(18,31),[vec(18,31) + a for a in iconaura],False,[1,0,1]],S.attack2:[2,sri_ability2_img,vec(23,31),[vec(23,31) + a for a in iconaura],True,[0,0,0]],S.attack3:[2,sri_ability3_img,vec(28,31),[vec(28,31)+a for a in iconaura],True,[0,0,0]]}
+S.combat_animation = {1:cri_combat_img,2:cri_combat2_img,3:cri_combat3_img}
+S.attacks = {S.attack1:[5,cri_ability1_img,vec(18,31),[vec(18,31) + a for a in iconaura],False,[0,0,0]],S.attack2:[2,cri_ability2_img,vec(23,31),[vec(23,31) + a for a in iconaura],True,[0,0,0]],S.attack3:[2,cri_ability3_img,vec(28,31),[vec(28,31)+a for a in iconaura],True,[0,0,0]]}
 S.clickaura = [S.vec + a for a in aura]
+
+Hap = ally.haptic()
+haptic_combat_img = pg.image.load(os.path.join(filename,'haptic_combattest-1.png.png')).convert_alpha()
+haptic_combat_img = pg.transform.scale(haptic_combat_img, (256, 256))
+haptic_combat2_img = pg.image.load(os.path.join(filename,'haptic_combattest-1.png.png')).convert_alpha()
+haptic_combat2_img = pg.transform.scale(haptic_combat2_img, (256, 256))
+haptic_combat3_img = pg.image.load(os.path.join(filename,'haptic_combattest-1.png.png')).convert_alpha()
+haptic_combat3_img = pg.transform.scale(haptic_combat3_img, (256, 256))
+haptic_ability1_img = pg.image.load(os.path.join(filename,'cross-1.png.png'))
+haptic_ability1_img = pg.transform.scale(haptic_ability1_img, (128, 128))
+haptic_ability2_img = pg.image.load(os.path.join(filename,'cross-1.png.png'))
+haptic_ability2_img = pg.transform.scale(haptic_ability2_img, (128, 128))
+haptic_ability3_img = pg.image.load(os.path.join(filename,'cross-1.png.png'))
+haptic_ability3_img = pg.transform.scale(haptic_ability3_img, (128, 128))
+Hap.attack1 = 'accumulation'
+Hap.attack2 = 'flailing'
+Hap.attack3 = 'acceleration'
+Hap.vec = vec(20,15)
+Hap.health = 25
+Hap.shield = 10
+Hap.momentum = 1
+Hap.attacktwice = False
+Hap.combat_animation = {1:haptic_combat_img,2:haptic_combat2_img,3:haptic_combat3_img}
+Hap.attacks = {Hap.attack1:[3,haptic_ability1_img,vec(18,31),[vec(18,31) + a for a in iconaura],False,[0,0,0]],Hap.attack2:[5,haptic_ability2_img,vec(23,31),[vec(23,31) + a for a in iconaura],False,[0,0,0]],Hap.attack3:[0,haptic_ability3_img,vec(28,31),[vec(28,31)+a for a in iconaura],True,[0,0,0]]}
+Hap.clickaura = [Hap.vec + a for a in aura]
 
 class main():
     def __init__(self):
@@ -301,14 +381,14 @@ class main():
                             except:
                                 pass
                         else:
-                            try:
-                                if mpos in M.enemy[M.enemy1][0][2]:
+                            
+                            if mpos in M.enemy[M.enemy1][0][2]:
                                     M.selectedchar.attack((M.enemy1,0),M.selectedattack)
                                     M.attackselect = False
                                     M.actions.append(M.selectedchar)
                                     M.checkifdead()
-                            except:
-                                pass
+                            
+                            
                             try:
                                 if mpos in M.enemy[M.enemy2][0][2]:
                                     M.selectedchar.attack((M.enemy2,0),M.selectedattack)
@@ -393,7 +473,7 @@ class level():
             pg.draw.circle(screen,BLACK,(int(x.x*TILESIZE*2+TILESIZE*2/2),int(x.y*TILESIZE*2+TILESIZE*2/2)),5)
     def draw_linestoconnections(self):
         for x in self.connections:
-            pg.draw.line(screen, BLUE, (self.crossvec.x*TILESIZE*2+TILESIZE*2/2,self.crossvec.y*TILESIZE*2+TILESIZE*2/2), (x.x*TILESIZE*2+TILESIZE*2/2,x.y*TILESIZE*2+TILESIZE*2/2))
+            pg.draw.line(screen, BLUE, (int(self.crossvec.x*TILESIZE*2+TILESIZE*2/2),int(self.crossvec.y*TILESIZE*2+TILESIZE*2/2)), (int(x.x*TILESIZE*2+TILESIZE*2/2),int(x.y*TILESIZE*2+TILESIZE*2/2)))
             
     def get_connections(self):
         self.connections = []
@@ -416,9 +496,9 @@ class level():
     def getlevelenemies(self):
         level = self.level
         if level == 1:
-            e = [sword]
+            e = [C,mage]
         if level == 2:
-            e = [sword,sword]
+            e = [C,mage]
         if level == 3:
             e = [mage]
         if level == 4:
@@ -460,7 +540,7 @@ class battle():
         self.damage = 0
         #self.clickaura = 0
     def restart(self):
-        ally1 = H
+        ally1 = Hap
         ally2 = S
         self.selectedattack = 0
         self.selectedchar = 0
@@ -643,21 +723,34 @@ class battle():
             print('i hope not')
             self.restart()
     def numberofenemy(self):
+        spaces = {'space1':[vec(37,20),0],'space2':[vec(43,25),0]}
+        taken = []
         self.dup = False
-        if len(self.enemy) == 2:
-            self.enemy[self.enemy1][0][0] = vec(43,10)
-            self.enemy[self.enemy2][0][0] = vec(43,25)
-            self.enemy[self.enemy1][0][2] = [self.enemy[self.enemy1][0][0]+ x for x in self.enemy1.clickaura]
-            self.enemy[self.enemy2][0][2] = [self.enemy[self.enemy2][0][0]+ x for x in self.enemy2.clickaura]
-            self.dup = False
-        else:
-            for x in self.enemy:
-                if len(self.enemy[x]) == 2:
-                    self.enemy[x][0][0] = vec(43,10)
-                    self.enemy[x][1][0] = vec(43,25)
-                    self.enemy[x][0][2] = [self.enemy[x][0][0]+ y for y in x.clickaura]
-                    self.enemy[x][1][2] = [self.enemy[x][1][0]+ y for y in x.clickaura]
-                    self.dup = True
+        for y in self.enemy:
+            for x in spaces:
+                for z in spaces:
+                    taken.append(spaces[z][1])
+                print(taken)
+                if spaces[x][1] == 0:
+                    if y not in taken:
+                        spaces[x][1] = y
+                        self.enemy[y][0][0] = spaces[x][0]
+                taken = []
+                    
+      # if len(self.enemy) == 2:
+      #     self.enemy[self.enemy1][0][0] = vec(43,10)
+      #     self.enemy[self.enemy2][0][0] = vec(43,25)
+      #     self.enemy[self.enemy1][0][2] = [self.enemy[self.enemy1][0][0]+ x for x in self.enemy1.clickaura]
+      #     self.enemy[self.enemy2][0][2] = [self.enemy[self.enemy2][0][0]+ x for x in self.enemy2.clickaura]
+      #     self.dup = False
+      # else:
+      #     for x in self.enemy:
+      #         if len(self.enemy[x]) == 2:
+      #             self.enemy[x][0][0] = vec(43,10)
+      #             self.enemy[x][1][0] = vec(43,25)
+      #             self.enemy[x][0][2] = [self.enemy[x][0][0]+ y for y in x.clickaura]
+      #             self.enemy[x][1][2] = [self.enemy[x][1][0]+ y for y in x.clickaura]
+      #             self.dup = True
                     
     def getaura(self):
         y = []
@@ -784,7 +877,7 @@ multiple enemies that attack +
 player character with multiple attacks that are selectable +
 multiple characters whic requires an entire rework of how i implement characters +
 heplane class +
-sri class +
+cri class +
 difficulty tweeks to make game harder === (everyone) or easeir (ava)
 status effects to both enemies and allies +
 programming bleed +
@@ -793,9 +886,9 @@ specific levels (a traditional rpg) that will require a class system +
 boss enemies (trent)
 more enemies (trent or daniel)
 enemy with damage reduction
-sri passive deals with increase in values the more you use them +
-healing removes status effects except stun (sri) +
-haptic class -
+cri passive deals with increase in values the more you use them +
+healing removes status effects except stun (cri) +
+haptic class +
 new enemy sowrd guy(medium) +
 new enemy sword guy(actually easy) -
 rework enemy selection so that its a list for multiple dupes +
@@ -803,7 +896,8 @@ and fixed resulting problems +
 map system with levels +
 maps have shops or camps
 game over screen
-placment order editable in a menu during map
+placment order editable in a menu during map -
+add more space for enemies =
 
 Art
 drawing heplane +
@@ -811,9 +905,9 @@ drawing conrift +
 animate both +
 drawing magee -
 icons for heplane +
-drawing sri +
-animate sri +
-icons for sri +
+drawing cri +
+animate cri +
+icons for cri +
 back ground (daniel) +
 attack animations -
 status effect through visual
