@@ -137,13 +137,13 @@ class ally():
                     pg.draw.rect(screen,BLACK,rect)
                     goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))
                     screen.blit(icon, icon.get_rect(center=goal_center))
-                    text = str(round(int((M.allies[M.ally1][1]/100 + 1) * self.attacks[self.attack1][0][0])))
+                    text = str(round(int((M.allies[H][1]/100 + 1) * self.attacks[self.attack1][0][0])))
                     draw_text(text, 20, RED, self.attacks[self.attack1][2].x*TILESIZE, self.attacks[self.attack1][2].y*TILESIZE + 65)
-                    text = str(round(int((M.allies[M.ally1][1]/100 + 1) * self.attacks[self.attack2][0][0])))
+                    text = str(round(int((M.allies[H][1]/100 + 1) * self.attacks[self.attack2][0][0])))
                     draw_text(text, 20, RED, self.attacks[self.attack2][2].x*TILESIZE, self.attacks[self.attack2][2].y*TILESIZE + 65)
-                    if len(M.ally1.healdam) != 0:
+                    if len(self.healdam) != 0:
                         l = 0
-                        for x in M.ally1.healdam:
+                        for x in self.healdam:
                             l += x
                         text = str(l)
                     else:
@@ -354,14 +354,19 @@ class main():
             if mpos in M.getaura() and M.selectedchar != 0:
                 if M.attackselect == True and M.enemycanattack == False :
                     if M.selectedchar.attacks[M.selectedattack][4] != False:
-                        if mpos in M.ally1.clickaura:
+                        if mpos in M.allies[M.ally1][2]:
                             M.selectedchar.support(M.ally1)
                             self.attck_timer = pg.time.get_ticks()
                             M.actions.append(M.selectedchar)
                             M.attackselect = False
                             M.checkifdead()
-                        elif mpos in M.ally2.clickaura:
+                        elif mpos in M.allies[M.ally2][2]:
                             M.selectedchar.support(M.ally2)
+                            M.actions.append(M.selectedchar)
+                            M.attackselect = False
+                            M.checkifdead()
+                        elif mpos in M.allies[M.ally3][2]:
+                            M.selectedchar.support(M.ally3)
                             M.actions.append(M.selectedchar)
                             M.attackselect = False
                             M.checkifdead()
@@ -466,6 +471,7 @@ class level():
             self.level = mpos2.x - 3
             if self.level == 1:
                 M.restart()
+                M.start()
             else:
                 M.start()
             L.get_connections()
@@ -519,7 +525,8 @@ class battle():
         #self.clickaura = 0
     def restart(self):
         ally1 = Hap
-        ally2 = S
+        ally2 = H
+        ally3 = S
         self.selectedattack = 0
         self.selectedchar = 0
         self.current_animation = 1
@@ -537,82 +544,27 @@ class battle():
         eat = self.ally2.health
         lean = self.ally2.shield
         self.allies.update({self.ally2:[pos,eat,self.ally2.clickaura,lean,[0,0,0]]})
-        enemy = L.getlevelenemies()
+        self.ally3 = ally3
+        pos = self.ally3.vec
+        eat = self.ally3.health
+        lean = self.ally3.shield
+        self.allies.update({self.ally3:[pos,eat,self.ally3.clickaura,lean,[0,0,0]]})
         self.numberofallies()
         #for x in range(1,3):#range(1,random.randint(2,3))
-        if len(enemy) >= 1:
-            self.enemy1 = enemy[0]
-            tout = self.enemy1.vec
-            eat = self.enemy1.health
-            attack = self.enemy1.attacks
-            M.enemy.update({self.enemy1:[[tout,eat,self.enemy1.clickaura,attack,[0,0,0]]]})
-        if len(enemy) >= 2:
-            self.enemy2 = enemy[1]
-            if self.enemy2 in M.enemy:
-                tout = M.enemy2.vec
-                eat = M.enemy2.health
-                attack = M.enemy2.attacks
-                self.enemy[self.enemy2].append([tout,eat,self.enemy2.clickaura,attack,[0,0,0]])
-            else: 
-                tout = M.enemy2.vec
-                eat = M.enemy2.health
-                attack = M.enemy2.attacks
-                self.enemy.update({M.enemy2:[[tout,eat,self.enemy2.clickaura,attack,[0,0,0]]]})
-        if len(enemy) >= 3:
-            self.enemy3 = enemy[2]
-            if self.enemy3 in M.enemy:
-                tout = M.enemy3.vec
-                eat = M.enemy3.health
-                attack = M.enemy3.attacks
-                self.enemy[self.enemy3].append([tout,eat,self.enemy3.clickaura,attack,[0,0,0]])
-            else: 
-                tout = M.enemy3.vec
-                eat = M.enemy3.health
-                attack = M.enemy3.attacks
-                self.enemy.update({M.enemy3:[[tout,eat,self.enemy3.clickaura,attack,[0,0,0]]]})
-        if len(enemy) >= 4:
-            self.enemy4 = enemy[3]
-            if self.enemy4 in M.enemy:
-                tout = M.enemy4.vec
-                eat = M.enemy4.health
-                attack = M.enemy4.attacks
-                self.enemy[self.enemy4].append([tout,eat,self.enemy4.clickaura,attack,[0,0,0]])
-            else: 
-                tout = M.enemy4.vec
-                eat = M.enemy4.health
-                attack = M.enemy4.attacks
-                self.enemy.update({M.enemy4:[[tout,eat,self.enemy4.clickaura,attack,[0,0,0]]]})
-        if len(enemy) >= 5:
-            self.enemy5 = enemy[4]
-            if self.enemy5 in M.enemy:
-                tout = M.enemy5.vec
-                eat = M.enemy5.health
-                attack = M.enemy5.attacks
-                self.enemy[self.enemy5].append([tout,eat,self.enemy5.clickaura,attack,[0,0,0]])
-            else: 
-                tout = M.enemy5.vec
-                eat = M.enemy5.health
-                attack = M.enemy5.attacks
-                self.enemy.update({M.enemy5:[[tout,eat,self.enemy5.clickaura,attack,[0,0,0]]]})
-        self.numberofenemy()
+
     def start(self):
         enemy = L.getlevelenemies()
-        #for x in range(1,random.randint(2,3)):
-        if len(enemy) >= 1:
-            self.enemy1 = enemy[0]
-            tout = self.enemy1.vec
-            eat = self.enemy1.health
-            attack = self.enemy1.attacks
-            M.enemy.update({self.enemy1:[[tout,eat,self.enemy1.clickaura,attack,[0,0,0]]]})
-        if len(enemy) >= 2:
-            M.enemy2 = enemy[1]
-            if M.enemy2 in M.enemy:
-                M.enemy[M.enemy1].append([tout,eat,self.enemy2.clickaura,attack,[0,0,0]])
+        for x in enemy:
+            if x in M.enemy:
+                tout = x.vec
+                eat = x.health
+                attack = x.attacks
+                self.enemy[x].append([tout,eat,x.clickaura,attack,[0,0,0]])
             else: 
-                tout = M.enemy2.vec
-                eat = M.enemy2.health
-                attack = M.enemy2.attacks
-                M.enemy.update({M.enemy2:[[tout,eat,self.enemy2.clickaura,attack,[0,0,0]]]})
+                tout = x.vec
+                eat = x.health
+                attack = x.attacks
+                self.enemy.update({x:[[tout,eat,x.clickaura,attack,[0,0,0]]]})
         self.numberofenemy()
     def draw_char(self):
         for x in self.allies:
@@ -649,6 +601,8 @@ class battle():
             self.ally1.draw_icons()
         if M.selectedchar == self.ally2:
             self.ally2.draw_icons()
+        if M.selectedchar == self.ally3:
+            self.ally3.draw_icons()
     def draw_healthbar(self):
         for x in self.allies:
             vec = self.allies[x][0]
@@ -773,23 +727,20 @@ class battle():
         spaces = {'front row':[[vec(20,15), 99],[vec(20,25),99]],'back row':[[vec(13,20),99]]}
         taken = []
         self.dup = False
-        number = 0
+        print(len(spaces))
         for y in self.allies:
             for x in spaces:
                 for a in spaces[x]:
-                    taken.append(a[1])
-                
-                for a in spaces[x]:
-                    print(a)
+                    for w in spaces:
+                        for mom in spaces[w]:
+                            taken.append(mom[1])
                     if a[1] == 99:
                         if y not in taken:
-                            spaces[x][0][1] = y
-                        
-                            self.allies[y][0] = spaces[x][0][0]
-                            self.allies[y][2] = [self.allies[y][0]+ x for x in self.allies[y][2]]
-                    print(a)
-                taken = []              
-        pass
+                            a[1] = y
+                            self.allies[y][0] = a[0]
+                            self.allies[y][2] = [self.allies[y][0]+ x for x in y.clickaura]
+                            print(self.allies[y][2])
+                    taken = []   
     def getaura(self):
         y = []
         for x in self.enemy:
@@ -799,6 +750,7 @@ class battle():
             else:
                 y += self.enemy[x][0][2]
         for x in self.allies:
+            print(self.allies[x][2])
             y += self.allies[x][2]
         return y
     def selectingattack(self):
@@ -810,7 +762,7 @@ class battle():
     def selectingchar(self):
         y = []
         for z in self.allies:
-            for x in z.clickaura:
+            for x in self.allies[z][2]:
                 y.append(x)
         return y
     def selectattack(self):
@@ -826,11 +778,14 @@ class battle():
         if self.selectedchar in self.actions:
             M.attackselect = False
     def selectchar(self):
-        if mpos in self.ally1.clickaura:
+        if mpos in self.allies[self.ally1][2]:
             M.selectedchar = self.ally1
             M.charselect = True
-        elif mpos in self.ally2.clickaura:
+        elif mpos in self.allies[self.ally2][2]:
             M.selectedchar = self.ally2
+            M.charselect = True
+        elif mpos in self.allies[self.ally3][2]:
+            M.selectedchar = self.ally3
             M.charselect = True
     def selectenemy(self):
         for x in self.enemy:
