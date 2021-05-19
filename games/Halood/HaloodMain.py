@@ -288,7 +288,9 @@ H.combat_animation = {1:heplane_combat_img,2:heplane_combat2_img,3:heplane_comba
 H.attacks = {H.attack1:[[10,15],heplane_ability1_img,vec(18, 31),[vec(18,31) + a for a in iconaura],False,[0,0,0]],H.attack2:[[5,0],heplane_ability2_img,vec(23,31),[vec(23,31) + a for a in iconaura],False,[0,0,0]],H.attack3:[[0,0],heplane_ability3_img,vec(28,31),[vec(28,31)+ a for a in iconaura],True,[0,0,0]]}
 H.healdam = []
 aura = [(1, 3), (0, 3), (-1, 3), (-1, 2), (0, 2), (1, 2), (1, 1), (0, 1), (-1, 1), (-1, 0), (0, 0), (1, 0), (1, -1), (0, -1), (-1, -1), (-1, -2), (0, -2), (1, -2), (1, -3), (0, -3), (-1, -3)]
-H.clickaura = [H.vec + a for a in aura]
+H.clickaura = []
+for x in aura:
+    H.clickaura.append(vec(x))
 
 S = ally.cri()
 cri_combat_img = pg.image.load(os.path.join(filename,'Layer 1_cri_combat1.png')).convert_alpha()
@@ -311,8 +313,9 @@ S.health = 25
 S.shield = 10
 S.combat_animation = {1:cri_combat_img,2:cri_combat2_img,3:cri_combat3_img}
 S.attacks = {S.attack1:[5,cri_ability1_img,vec(18,31),[vec(18,31) + a for a in iconaura],False,[0,0,0]],S.attack2:[2,cri_ability2_img,vec(23,31),[vec(23,31) + a for a in iconaura],True,[0,0,0]],S.attack3:[2,cri_ability3_img,vec(28,31),[vec(28,31)+a for a in iconaura],True,[0,0,0]]}
-S.clickaura = [S.vec + a for a in aura]
-
+S.clickaura = []
+for x in aura:
+    S.clickaura.append(vec(x))
 Hap = ally.haptic()
 haptic_combat_img = pg.image.load(os.path.join(filename,'haptic_combattest-1.png.png')).convert_alpha()
 haptic_combat_img = pg.transform.scale(haptic_combat_img, (256, 256))
@@ -336,7 +339,9 @@ Hap.momentum = 1
 Hap.attacktwice = False
 Hap.combat_animation = {1:haptic_combat_img,2:haptic_combat2_img,3:haptic_combat3_img}
 Hap.attacks = {Hap.attack1:[3,haptic_ability1_img,vec(18,31),[vec(18,31) + a for a in iconaura],False,[0,0,0]],Hap.attack2:[5,haptic_ability2_img,vec(23,31),[vec(23,31) + a for a in iconaura],False,[0,0,0]],Hap.attack3:[0,haptic_ability3_img,vec(28,31),[vec(28,31)+a for a in iconaura],True,[0,0,0]]}
-Hap.clickaura = [Hap.vec + a for a in aura]
+Hap.clickaura = []
+for x in aura:
+    Hap.clickaura.append(vec(x))
 
 class main():
     def __init__(self):
@@ -362,12 +367,15 @@ class main():
                             M.checkifdead()
                         M.attackselect = False
                     else:
-                        der,xxer = M.selectenemy()
+                        try:
+                            der,xxer = M.selectenemy()
                         
-                        M.selectedchar.attack((der,xxer),M.selectedattack)
-                        M.attackselect = False
-                        M.actions.append(M.selectedchar)
-                        M.checkifdead()
+                            M.selectedchar.attack((der,xxer),M.selectedattack)
+                            M.attackselect = False
+                            M.actions.append(M.selectedchar)
+                            M.checkifdead()
+                        except:
+                            pass
                         M.attackselect = False         
                 else:
                     pass 
@@ -466,9 +474,9 @@ class level():
     def getlevelenemies(self):
         level = self.level
         if level == 1:
-            e = [mage,mage,C,C,C]
+            e = [sword]
         if level == 2:
-            e = [C,mage]
+            e = [sword,sword]
         if level == 3:
             e = [mage]
         if level == 4:
@@ -530,6 +538,7 @@ class battle():
         lean = self.ally2.shield
         self.allies.update({self.ally2:[pos,eat,self.ally2.clickaura,lean,[0,0,0]]})
         enemy = L.getlevelenemies()
+        self.numberofallies()
         #for x in range(1,3):#range(1,random.randint(2,3))
         if len(enemy) >= 1:
             self.enemy1 = enemy[0]
@@ -753,12 +762,34 @@ class battle():
                 for x in spaces:
                     for z in spaces:
                         taken.append(spaces[z][1])
+                    #print('enemy',taken)
                     if spaces[x][1] == 99:
                         if y not in taken:
                             spaces[x][1] = y
                             self.enemy[y][0][0] = spaces[x][0]
                             self.enemy[y][0][2] = [self.enemy[y][0][0]+ x for x in self.enemy[y][0][2]]
                     taken = []              
+    def numberofallies(self):
+        spaces = {'front row':[[vec(20,15), 99],[vec(20,25),99]],'back row':[[vec(13,20),99]]}
+        taken = []
+        self.dup = False
+        number = 0
+        for y in self.allies:
+            for x in spaces:
+                for a in spaces[x]:
+                    taken.append(a[1])
+                
+                for a in spaces[x]:
+                    print(a)
+                    if a[1] == 99:
+                        if y not in taken:
+                            spaces[x][0][1] = y
+                        
+                            self.allies[y][0] = spaces[x][0][0]
+                            self.allies[y][2] = [self.allies[y][0]+ x for x in self.allies[y][2]]
+                    print(a)
+                taken = []              
+        pass
     def getaura(self):
         y = []
         for x in self.enemy:
