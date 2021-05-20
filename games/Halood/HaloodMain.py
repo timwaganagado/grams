@@ -104,6 +104,67 @@ for aura in auras:
     sword.clickaura.append(vec(aura))
 sword.attacks = {'slash':[4,4,[0,1,0],2],'miss':[0,2,[0,0,0],1]}
 
+class boss():
+    class courptbattlemage():
+        def __init__(self):
+            self.vec = 0
+        def attack(self):
+            possible = []
+            dead = []
+            chance = []
+            attacks = []
+            for y in self.attacks:
+                chance.append(self.attacks[y][1])
+                attacks.append(y)
+        
+            attacking = random.choices(attacks,chance)
+            damage = self.attacks[attacking[0]]
+            print(attacking,damage[0])
+            for x in range(0,damage[3]):
+                if M.allies[target][3] > 0:
+                    M.allies[target][3] -= damage[0]
+                    if M.allies[target][3] < 0:
+                        M.allies[target][3] = 0
+                else:
+                    M.allies[target][1] -= damage[0]
+                    if damage[2][1] > 0:
+                        print('bleed')
+                        M.allies[target][4][1] += damage[2][1]
+                if damage[2][0] > 0:
+                    print('stun')
+                    M.allies[target][4][0] += damage[2][0]
+                if damage[2][2] > 0:
+                    print('fire')
+                    M.allies[target][4][2] += damage[2][2]
+                if target in self.damage:
+                    self.damage[target].append(int(damage[0]))
+                else:
+                    self.damage.update({target:[damage[0]]})
+            for x in M.spaces:
+                if x == 'front row':
+                    for l in M.spaces[x]:
+                        if l[1] != 99:
+                            possible.append(l[1])
+                        else:
+                            dead.append(l[1])
+                if x == 'back row' and len(dead) == 2:
+                    for j in M.spaces[x]:
+                        print(j)
+                        possible.append(j[1])
+            target = random.choice(possible)
+            print('attack')
+        def support(self,target):
+            print('heal')
+
+cbm = boss.courptbattlemage()
+cbm.vec = vec(43,20)
+cbm.health = 100
+cbm.combat_animation = {1:home_img,2:home_img,3:home_img}
+auras = [(0, 3), (1, 3), (2, 3), (2, 2), (1, 2), (0, 2), (0, 1), (1, 1), (2, 1), (2, 0), (1, 0), (0, 0), (0, -1), (1, -1), (2, -1), (2, -2), (1, -2), (0, -2), (0, -3), (1, -3), (2, -3)]
+cbm.clickaura = []
+for aura in auras:
+    cbm.clickaura.append(vec(aura))
+cbm.attacks = {'slash':[4,4,[0,0,0],2,False],'blast':[15,2,[0,0,2],1,False],'miss':[0,2,[0,0,0],1,False]}
 
 class ally():
     class heplane():
@@ -111,7 +172,7 @@ class ally():
             self.attack1 = 0
         def attack(self,target,attack):
             target,dup = target
-            blooddamage = int(M.allies[H][1])/100 + 1
+            blooddamage = int(M.allies[H][1])/int(self.health)+1
             M.allies[H][1] -= self.attacks[attack][0][1]
             self.healdam.append(int((blooddamage * self.attacks[attack][0][0])/2))
             M.enemy[target][dup][1] -= blooddamage * self.attacks[attack][0][0]
@@ -137,9 +198,9 @@ class ally():
                     pg.draw.rect(screen,BLACK,rect)
                     goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))
                     screen.blit(icon, icon.get_rect(center=goal_center))
-                    text = str(round(int((M.allies[H][1]/100 + 1) * self.attacks[self.attack1][0][0])))
+                    text = str(round(int((M.allies[H][1]/self.health+1) * self.attacks[self.attack1][0][0])))
                     draw_text(text, 20, RED, self.attacks[self.attack1][2].x*TILESIZE, self.attacks[self.attack1][2].y*TILESIZE + 65)
-                    text = str(round(int((M.allies[H][1]/100 + 1) * self.attacks[self.attack2][0][0])))
+                    text = str(round(int((M.allies[H][1]/self.health+1) * self.attacks[self.attack2][0][0])))
                     draw_text(text, 20, RED, self.attacks[self.attack2][2].x*TILESIZE, self.attacks[self.attack2][2].y*TILESIZE + 65)
                     if len(self.healdam) != 0:
                         l = 0
@@ -222,7 +283,7 @@ class ally():
         def attack(self,target,attack):
             target,dup = target
             if attack == self.attack1:
-                damage = self.attacks[attack][0]**self.momentum
+                damage = self.attacks[attack][0]*self.momentum
                 self.momentum = 1
             else:
                 damage = self.attacks[attack][0]
@@ -257,7 +318,7 @@ class ally():
                     pg.draw.rect(screen,BLACK,rect)
                     goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))
                     screen.blit(icon, icon.get_rect(center=goal_center))
-                    text = str(self.attacks[self.attack1][0]**self.momentum)
+                    text = str(self.attacks[self.attack1][0]*self.momentum)
                     draw_text(text, 20, RED, self.attacks[self.attack1][2].x*TILESIZE, self.attacks[self.attack1][2].y*TILESIZE + 75)
                     text = str(self.attacks[self.attack2][0])
                     draw_text(text, 20, RED, self.attacks[self.attack2][2].x*TILESIZE, self.attacks[self.attack2][2].y*TILESIZE + 75)
@@ -333,12 +394,12 @@ Hap.attack1 = 'accumulation'
 Hap.attack2 = 'flailing'
 Hap.attack3 = 'acceleration'
 Hap.vec = vec(20,15)
-Hap.health = 25
-Hap.shield = 10
+Hap.health = 60
+Hap.shield = 0
 Hap.momentum = 1
 Hap.attacktwice = False
 Hap.combat_animation = {1:haptic_combat_img,2:haptic_combat2_img,3:haptic_combat3_img}
-Hap.attacks = {Hap.attack1:[3,haptic_ability1_img,vec(18,31),[vec(18,31) + a for a in iconaura],False,[0,0,0]],Hap.attack2:[5,haptic_ability2_img,vec(23,31),[vec(23,31) + a for a in iconaura],False,[0,0,0]],Hap.attack3:[0,haptic_ability3_img,vec(28,31),[vec(28,31)+a for a in iconaura],True,[0,0,0]]}
+Hap.attacks = {Hap.attack1:[5,haptic_ability1_img,vec(18,31),[vec(18,31) + a for a in iconaura],False,[0,0,0]],Hap.attack2:[5,haptic_ability2_img,vec(23,31),[vec(23,31) + a for a in iconaura],False,[0,0,0]],Hap.attack3:[0,haptic_ability3_img,vec(28,31),[vec(28,31)+a for a in iconaura],True,[0,0,0]]}
 Hap.clickaura = []
 for x in aura:
     Hap.clickaura.append(vec(x))
@@ -346,6 +407,9 @@ for x in aura:
 class main():
     def __init__(self):
         current_state = 0
+    def draw_level(self):
+        text = 'current level '+str(int(L.crossvec.x - 3))
+        draw_text(text, 30, BLACK, 50, 10)
     def states(self):
         if self.current_state == 'battle':
             pass
@@ -354,22 +418,31 @@ class main():
             if mpos in M.getaura() and M.selectedchar != 0:
                 if M.attackselect == True and M.enemycanattack == False :
                     if M.selectedchar.attacks[M.selectedattack][4] != False:
-                        if mpos in M.allies[M.ally1][2]:
-                            M.selectedchar.support(M.ally1)
-                            self.attck_timer = pg.time.get_ticks()
-                            M.actions.append(M.selectedchar)
-                            M.attackselect = False
-                            M.checkifdead()
-                        elif mpos in M.allies[M.ally2][2]:
-                            M.selectedchar.support(M.ally2)
-                            M.actions.append(M.selectedchar)
-                            M.attackselect = False
-                            M.checkifdead()
-                        elif mpos in M.allies[M.ally3][2]:
-                            M.selectedchar.support(M.ally3)
-                            M.actions.append(M.selectedchar)
-                            M.attackselect = False
-                            M.checkifdead()
+                        try:    
+                            if mpos in M.allies[M.ally1][2]:
+                                M.selectedchar.support(M.ally1)
+                                self.attck_timer = pg.time.get_ticks()
+                                M.actions.append(M.selectedchar)
+                                M.attackselect = False
+                                M.checkifdead()
+                        except:
+                            pass
+                        try:
+                            if mpos in M.allies[M.ally2][2]:
+                                M.selectedchar.support(M.ally2)
+                                M.actions.append(M.selectedchar)
+                                M.attackselect = False
+                                M.checkifdead()
+                        except:
+                            pass
+                        try:
+                            if mpos in M.allies[M.ally3][2]:
+                                M.selectedchar.support(M.ally3)
+                                M.actions.append(M.selectedchar)
+                                M.attackselect = False
+                                M.checkifdead()
+                        except:
+                            pass
                         M.attackselect = False
                     else:
                         try:
@@ -457,7 +530,328 @@ class level():
     def draw_linestoconnections(self):
         for x in self.connections:
             pg.draw.line(screen, BLUE, (int(self.crossvec.x*TILESIZE*2+TILESIZE*2/2),int(self.crossvec.y*TILESIZE*2+TILESIZE*2/2)), (int(x.x*TILESIZE*2+TILESIZE*2/2),int(x.y*TILESIZE*2+TILESIZE*2/2)))
-            
+    def create_map(self):
+        self.levelid = {}
+        line = 0
+        for x in self.levels:
+            print(x)
+            if x.x == 4:
+                cost = 2
+                enemies = []
+                while cost >= 1:
+                    if len(enemies) == 5:
+                        break
+                    enemy = random.choices([sword,mage],[2,1])
+                    remove = self.get_cost(enemy)
+                    cost -= remove
+                    print(cost)
+                    enemies.append(enemy[0])
+                self.levelid.update({line:enemies})
+                self.levelindex.update({line:x})
+                print(self.levelid)
+            if x.x == 5:
+                cost = 3
+                enemies = []
+                while cost >= 1:
+                    if len(enemies) == 5:
+                        break
+                    enemy = random.choices([sword,mage],[2,1])
+                    remove = self.get_cost(enemy)
+                    cost -= remove
+                    print(cost)
+                    enemies.append(enemy[0])
+                self.levelid.update({line:enemies})
+                self.levelindex.update({line:x}) 
+            if x.x == 6:
+                cost = 4
+                enemies = []
+                while cost >= 1:
+                    if len(enemies) == 5:
+                        break
+                    enemy = random.choices([sword,mage],[1,1])
+                    remove = self.get_cost(enemy)
+                    cost -= remove
+                    print(cost)
+                    enemies.append(enemy[0])
+                self.levelid.update({line:enemies})
+                self.levelindex.update({line:x}) 
+            if x.x == 7:
+                cost = 5
+                enemies = []
+                while cost >= 1:
+                    if len(enemies) == 5:
+                        break
+                    enemy = random.choices([sword,mage],[1,1])
+                    remove = self.get_cost(enemy)
+                    cost -= remove
+                    print(cost)
+                    enemies.append(enemy[0])
+                self.levelid.update({line:enemies})
+                self.levelindex.update({line:x}) 
+            if x.x == 8:
+                cost = 5
+                enemies = []
+                while cost >= 1:
+                    if len(enemies) == 5:
+                        break
+                    enemy = random.choices([sword,mage],[1,2])
+                    remove = self.get_cost(enemy)
+                    cost -= remove
+                    print(cost)
+                    enemies.append(enemy[0])
+                self.levelid.update({line:enemies})
+                self.levelindex.update({line:x}) 
+            if x.x == 9:
+                cost = 5
+                enemies = []
+                while cost >= 1:
+                    if len(enemies) == 5:
+                        break
+                    enemy = random.choices([sword,mage],[1,1])
+                    remove = self.get_cost(enemy)
+                    cost -= remove
+                    print(cost)
+                    enemies.append(enemy[0])
+                self.levelid.update({line:enemies})
+                self.levelindex.update({line:x}) 
+            if x.x == 10:
+                cost = 5
+                enemies = []
+                while cost >= 1:
+                    if len(enemies) == 5:
+                        break
+                    enemy = random.choices([sword,mage,C],[1,1,5])
+                    remove = self.get_cost(enemy)
+                    cost -= remove
+                    print(cost)
+                    enemies.append(enemy[0])
+                self.levelid.update({line:enemies})
+                self.levelindex.update({line:x}) 
+            if x.x == 11:
+                cost = 6
+                enemies = []
+                while cost >= 1:
+                    if len(enemies) == 5:
+                        break
+                    enemy = random.choices([sword,mage,C],[1,2,2])
+                    remove = self.get_cost(enemy)
+                    cost -= remove
+                    print(cost)
+                    enemies.append(enemy[0])
+                self.levelid.update({line:enemies})
+                self.levelindex.update({line:x}) 
+            if x.x == 12:
+                cost = 7
+                enemies = []
+                while cost >= 1:
+                    if len(enemies) == 5:
+                        break
+                    enemy = random.choices([sword,mage,C],[1,2,2])
+                    remove = self.get_cost(enemy)
+                    cost -= remove
+                    print(cost)
+                    enemies.append(enemy[0])
+                self.levelid.update({line:enemies})
+                self.levelindex.update({line:x}) 
+            if x.x == 13:
+                cost = 8
+                enemies = []
+                while cost >= 1:
+                    if len(enemies) == 5:
+                        break
+                    enemy = random.choices([sword,mage,C],[1,1,2])
+                    remove = self.get_cost(enemy)
+                    cost -= remove
+                    print(cost)
+                    enemies.append(enemy[0])
+                self.levelid.update({line:enemies})
+                self.levelindex.update({line:x}) 
+            if x.x == 14:
+                cost = 8
+                enemies = []
+                while cost >= 1:
+                    if len(enemies) == 5:
+                        break
+                    enemy = random.choices([sword,mage,C],[1,1,2])
+                    remove = self.get_cost(enemy)
+                    cost -= remove
+                    print(cost)
+                    enemies.append(enemy[0])
+                self.levelid.update({line:enemies})
+                self.levelindex.update({line:x}) 
+            if x.x == 15:
+                cost = 9
+                enemies = []
+                while cost >= 1:
+                    if len(enemies) == 5:
+                        break
+                    enemy = random.choices([sword,mage,C],[1,1,3])
+                    remove = self.get_cost(enemy)
+                    cost -= remove
+                    print(cost)
+                    enemies.append(enemy[0])
+                self.levelid.update({line:enemies})
+                self.levelindex.update({line:x}) 
+            if x.x == 16:
+                cost = 10
+                enemies = []
+                while cost >= 1:
+                    if len(enemies) == 5:
+                        break
+                    enemy = random.choices([sword,mage,C],[1,1,1])
+                    remove = self.get_cost(enemy)
+                    cost -= remove
+                    print(cost)
+                    enemies.append(enemy[0])
+                self.levelid.update({line:enemies})
+                self.levelindex.update({line:x}) 
+            if x.x == 17:
+                cost = 11
+                enemies = []
+                while cost >= 1:
+                    if len(enemies) == 5:
+                        break
+                    enemy = random.choices([sword,mage,C],[1,1,1])
+                    remove = self.get_cost(enemy)
+                    cost -= remove
+                    print(cost)
+                    enemies.append(enemy[0])
+                self.levelid.update({line:enemies})
+                self.levelindex.update({line:x}) 
+            if x.x == 18:
+                cost = 11
+                enemies = []
+                while cost >= 1:
+                    if len(enemies) == 5:
+                        break
+                    enemy = random.choices([sword,mage,C],[1,1,1])
+                    remove = self.get_cost(enemy)
+                    cost -= remove
+                    print(cost)
+                    enemies.append(enemy[0])
+                self.levelid.update({line:enemies})
+                self.levelindex.update({line:x}) 
+            if x.x == 19:
+                cost = 12
+                enemies = []
+                while cost >= 1:
+                    if len(enemies) == 5:
+                        break
+                    enemy = random.choices([sword,mage,C],[4,1,1])
+                    remove = self.get_cost(enemy)
+                    cost -= remove
+                    print(cost)
+                    enemies.append(enemy[0])
+                self.levelid.update({line:enemies})
+                self.levelindex.update({line:x}) 
+            if x.x == 20:
+                cost = 12
+                enemies = []
+                while cost >= 1:
+                    if len(enemies) == 5:
+                        break
+                    enemy = random.choices([sword,mage,C],[3,2,1])
+                    remove = self.get_cost(enemy)
+                    cost -= remove
+                    print(cost)
+                    enemies.append(enemy[0])
+                self.levelid.update({line:enemies})
+                self.levelindex.update({line:x}) 
+            if x.x == 21:
+                cost = 13
+                enemies = []
+                while cost >= 1:
+                    if len(enemies) == 5:
+                        break
+                    enemy = random.choices([sword,mage,C],[1,1,1])
+                    remove = self.get_cost(enemy)
+                    cost -= remove
+                    print(cost)
+                    enemies.append(enemy[0])
+                self.levelid.update({line:enemies})
+                self.levelindex.update({line:x}) 
+            if x.x == 22:
+                cost = 13
+                enemies = []
+                while cost >= 1:
+                    if len(enemies) == 5:
+                        break
+                    enemy = random.choices([sword,mage],[1,1])
+                    remove = self.get_cost(enemy)
+                    cost -= remove
+                    print(cost)
+                    enemies.append(enemy[0])
+                self.levelid.update({line:enemies})
+                self.levelindex.update({line:x}) 
+            if x.x == 23:
+                cost = 14
+                enemies = []
+                while cost >= 1:
+                    if len(enemies) == 5:
+                        break
+                    enemy = random.choices([sword,mage,C],[1,1,1])
+                    remove = self.get_cost(enemy)
+                    cost -= remove
+                    print(cost)
+                    enemies.append(enemy[0])
+                self.levelid.update({line:enemies})
+                self.levelindex.update({line:x}) 
+            if x.x == 24:
+                cost = 14
+                enemies = []
+                while cost >= 1:
+                    if len(enemies) == 5:
+                        break
+                    enemy = random.choices([sword,mage,C],[1,1,1])
+                    remove = self.get_cost(enemy)
+                    cost -= remove
+                    print(cost)
+                    enemies.append(enemy[0])
+                self.levelid.update({line:enemies})
+                self.levelindex.update({line:x}) 
+            if x.x == 25:
+                cost = 14
+                enemies = []
+                while cost >= 1:
+                    if len(enemies) == 5:
+                        break
+                    enemy = random.choices([sword,mage,C],[1,2,2])
+                    remove = self.get_cost(enemy)
+                    cost -= remove
+                    print(cost)
+                    enemies.append(enemy[0])
+                self.levelid.update({line:enemies})
+                self.levelindex.update({line:x}) 
+            if x.x == 26:
+                cost = 15
+                enemies = []
+                while cost >= 1:
+                    if len(enemies) == 5:
+                        break
+                    enemy = random.choices([sword,mage,C],[1,5,3])
+                    remove = self.get_cost(enemy)
+                    cost -= remove
+                    print(cost)
+                    enemies.append(enemy[0])
+                self.levelid.update({line:enemies})
+                self.levelindex.update({line:x}) 
+            if x.x == 27:
+                cost = 15
+                enemies = []
+                while cost >= 1:
+                    if len(enemies) == 5:
+                        break
+                    enemy = random.choices([mage,C],[1,1])
+                    remove = self.get_cost(enemy)
+                    cost -= remove
+                    print(cost)
+                    enemies.append(enemy[0])
+                self.levelid.update({line:enemies})
+                self.levelindex.update({line:x}) 
+            if x.x == 28:
+                self.levelid.update({line:[cbm]})
+                self.levelindex.update({line:x})
+            line += 1         
     def get_connections(self):
         self.connections = []
         possible = [vec(1,0),vec(1,-1),vec(1,1)]
@@ -465,8 +859,18 @@ class level():
             newcheck = self.crossvec + x
             if newcheck in self.levels:
                 self.connections.append(newcheck)
+    def get_cost(self,target):
+        cost = 0
+        
+        if mage in target:
+            cost = 3
+        if sword in target:
+            cost = 2
+        if C in target:
+            cost = 5
+        return cost
     def nextlevel(self):
-        if mpos2 in self.connections:
+        #if mpos2 in self.connections:
             self.crossvec = mpos2
             self.level = mpos2.x - 3
             if self.level == 1:
@@ -478,26 +882,11 @@ class level():
             main.current_state = 'battle'
             main.states()
     def getlevelenemies(self):
-        level = self.level
-        if level == 1:
-            e = [sword]
-        if level == 2:
-            e = [sword,sword]
-        if level == 3:
-            e = [mage]
-        if level == 4:
-            e = [mage,mage]
-        if level == 5:
-            e = [mage,sword]
-        if level == 6:
-            e = [C]
-        if level == 7:
-            e = [C,C]
-        if level == 8:
-            e = [sword,C]
-        if level == 9:
-            e = [mage,C]
+        for x in self.levelindex:
+            if self.levelindex[x] == mpos2:
+                e = self.levelid[x]
         return e
+
 
 cross = pg.image.load(os.path.join(filename,'cross-1.png.png'))
 cross = pg.transform.scale(cross, (TILESIZE*2, TILESIZE*2))
@@ -507,10 +896,11 @@ L.level = 0
 L.crossvec = vec(3,8)
 L.connections =[]
 L.levels = []
+L.levelindex = {}
 levels = [(4, 7), (4, 8), (4, 9), (5, 6), (5, 7), (5, 8), (5, 9), (5, 10), (6, 11), (6, 10), (6, 9), (6, 8), (6, 7), (6, 6), (6, 5), (7, 4), (7, 5), (7, 6), (7, 7), (7, 8), (7, 9), (7, 10), (7, 11), (7, 12), (8, 13), (8, 12), (8, 11), (8, 10), (8, 9), (8, 8), (8, 7), (8, 6), (8, 5), (8, 4), (8, 3), (9, 2), (9, 3), (9, 4), (9, 5), (9, 6), (9, 7), (9, 8), (9, 9), (9, 10), (9, 11), (9, 12), (9, 13), (9, 14), (10, 14), (10, 13), (10, 12), (10, 11), (10, 10), (10, 9), (10, 8), (10, 7), (10, 6), (10, 5), (10, 4), (10, 3), (10, 2), (11, 2), (12, 2), (13, 2), (14, 2), (15, 2), (16, 2), (17, 2), (18, 2), (19, 2), (20, 2), (21, 2), (22, 2), (27, 8), (27, 7), (27, 9), (26, 9), (26, 8), (26, 7), (26, 6), (26, 10), (25, 10), (25, 11), (25, 9), (25, 8), (25, 7), (25, 6), (25, 5), (24, 5), (24, 4), (23, 3), (23, 4), (11, 14), (12, 14), (13, 14), (14, 14), (15, 14), (24, 12), (24, 11), (23, 12), (23, 13), (22, 13), (22, 14), (21, 14), (20, 14), (18, 14), (19, 14), (17, 14), (16, 14), (16, 13), (15, 13), (13, 13), (14, 13), (12, 13), (11, 13), (11, 12), (12, 12), (13, 12), (14, 12), (15, 12), (16, 12), (17, 12), (17, 13), (18, 13), (18, 12), (19, 12), (19, 13), (20, 13), (20, 12), (21, 12), (21, 13), (22, 12), (22, 11), (23, 11), (23, 10), (24, 10), (24, 9), (23, 9), (24, 8), (23, 8), (24, 7), (23, 7), (24, 6), (23, 6), (23, 5), (22, 5), (22, 4), (22, 3), (21, 3), (21, 4), (20, 4), (20, 3), (19, 3), (18, 3), (17, 3), (16, 3), (15, 3), (14, 3), (13, 3), (12, 3), (11, 3), (11, 4), (12, 4), (13, 4), (14, 4), (15, 4), (16, 4), (17, 4), (19, 4), (18, 4), (18, 5), (17, 5), (16, 5), (15, 5), (14, 5), (13, 5), (12, 5), (11, 5), (11, 6), (12, 6), (13, 6), (14, 6), (15, 6), (16, 6), (17, 6), (18, 6), (19, 6), (19, 5), (20, 5), (20, 6), (21, 6), (21, 5), (22, 6), (22, 7), (22, 8), (22, 9), 
 (22, 10), (21, 10), (21, 11), (21, 9), (21, 8), (21, 7), (20, 7), (20, 8), (20, 9), (20, 10), (20, 11), (19, 11), (19, 10), (19, 9), (19, 8), (19, 7), (18, 7), (18, 8), (18, 9), (18, 10), (18, 11), (17, 11), (17, 10), (17, 
 9), (17, 8), (17, 7), (16, 7), (16, 8), (16, 9), (16, 10), (16, 11), (15, 11), (15, 10), (15, 9), (15, 8), (15, 7), (14, 7), (14, 8), (14, 9), (14, 10), (14, 11), (13, 11), (12, 11), (11, 11), (11, 10), (12, 10), (13, 10), 
-(13, 9), (12, 9), (11, 9), (11, 8), (12, 8), (13, 8), (13, 7), (12, 7), (11, 7)]
+(13, 9), (12, 9), (11, 9), (11, 8), (12, 8), (13, 8), (13, 7), (12, 7), (11, 7),[28, 8]]
 for x in levels:
     if x not in L.levels:
         L.levels.append(vec(x))
@@ -675,6 +1065,10 @@ class battle():
         for x in test:
             if test[x][1] <= 0:
                 del self.allies[x]
+                for w in self.spaces:
+                    for a in self.spaces[w]:
+                        if a[1] == x:
+                            a[1] = 99
         if len(self.enemy) <= 0:
             #ally1 = H
             #ally2 = S
@@ -690,6 +1084,9 @@ class battle():
             
         if len(self.allies) <= 0:
             self.restart()
+            L.crossvec = vec(3,8)
+            L.create_map()
+            L.get_connections()
     def numberofenemy(self):
         spaces = {'space1':[vec(37,20),99],'space2':[vec(43,25),99],'space3':[vec(43,15),99],'space4':[vec(47,18),99],'space5':[vec(47,22),99]}
         taken = []
@@ -724,22 +1121,20 @@ class battle():
                             self.enemy[y][0][2] = [self.enemy[y][0][0]+ x for x in self.enemy[y][0][2]]
                     taken = []              
     def numberofallies(self):
-        spaces = {'front row':[[vec(20,15), 99],[vec(20,25),99]],'back row':[[vec(13,20),99]]}
+        self.spaces = {'front row':[[vec(20,15), 99],[vec(20,25),99]],'back row':[[vec(13,20),99]]}
         taken = []
         self.dup = False
-        print(len(spaces))
         for y in self.allies:
-            for x in spaces:
-                for a in spaces[x]:
-                    for w in spaces:
-                        for mom in spaces[w]:
+            for x in self.spaces:
+                for a in self.spaces[x]:
+                    for w in self.spaces:
+                        for mom in self.spaces[w]:
                             taken.append(mom[1])
                     if a[1] == 99:
                         if y not in taken:
                             a[1] = y
                             self.allies[y][0] = a[0]
                             self.allies[y][2] = [self.allies[y][0]+ x for x in y.clickaura]
-                            print(self.allies[y][2])
                     taken = []   
     def getaura(self):
         y = []
@@ -750,7 +1145,6 @@ class battle():
             else:
                 y += self.enemy[x][0][2]
         for x in self.allies:
-            print(self.allies[x][2])
             y += self.allies[x][2]
         return y
     def selectingattack(self):
@@ -778,15 +1172,24 @@ class battle():
         if self.selectedchar in self.actions:
             M.attackselect = False
     def selectchar(self):
-        if mpos in self.allies[self.ally1][2]:
-            M.selectedchar = self.ally1
-            M.charselect = True
-        elif mpos in self.allies[self.ally2][2]:
-            M.selectedchar = self.ally2
-            M.charselect = True
-        elif mpos in self.allies[self.ally3][2]:
-            M.selectedchar = self.ally3
-            M.charselect = True
+        try:
+            if mpos in self.allies[self.ally1][2]:
+                M.selectedchar = self.ally1
+                M.charselect = True
+        except:
+            pass
+        try:
+            if mpos in self.allies[self.ally2][2]:
+                M.selectedchar = self.ally2
+                M.charselect = True
+        except:
+            pass
+        try:
+            if mpos in self.allies[self.ally3][2]:
+                M.selectedchar = self.ally3
+                M.charselect = True
+        except:
+            pass
     def selectenemy(self):
         for x in self.enemy:
             if len(self.enemy[x]) > 1:
@@ -804,20 +1207,23 @@ class battle():
     def enemyattack(self):
         self.statuseffects(False)
         for x in self.enemy:
-            if self.dup:
-                for z in self.enemy[x]:
-                    if z[4][0] > 0:
-                        z[4][0] -= 1
+            if x != cbm:
+                if self.dup:
+                    for z in self.enemy[x]:
+                        if z[4][0] > 0:
+                            z[4][0] -= 1
+                            continue
+                        attack = z[3]
+                        self.workingattack(attack)
+                else:
+                    if self.enemy[x][0][4][0] > 0:
+                        self.enemy[x][0][4][0] -= 1
                         continue
-                    attack = z[3]
+                    attack = self.enemy[x][0][3]
                     self.workingattack(attack)
             else:
-                if self.enemy[x][0][4][0] > 0:
-                    self.enemy[x][0][4][0] -= 1
-                    continue
-                attack = self.enemy[x][0][3]
-                self.workingattack(attack)
-        print('done')
+                x.attack()
+                print('boss attack')
         self.click = True
         self.display = True
         self.statuseffects(True)
@@ -826,12 +1232,24 @@ class battle():
         attacks = []
         chance = []
         possible = []
+        dead = []
         for y in attack:
             chance.append(attack[y][1])
             attacks.append(y)
-        for x in self.allies:
-            possible.append(x)
+        for x in self.spaces:
+            if x == 'front row':
+                for l in self.spaces[x]:
+                    if l[1] != 99:
+                        possible.append(l[1])
+                    else:
+                        dead.append(l[1])
+            if x == 'back row' and len(dead) == 2:
+                for j in self.spaces[x]:
+                    print(j)
+                    possible.append(j[1])
+                        
         target = random.choice(possible)
+        
         attacking = random.choices(attacks,chance)
         damage = attack[attacking[0]]
         print(attacking,damage[0])
@@ -960,6 +1378,7 @@ main.attck_timer = 1000000
 main.anim_timer = pg.time.get_ticks()
 M.enemycanattack = False
 
+L.create_map()
 
 
 create = []
@@ -977,6 +1396,7 @@ while running:
                     mpos = vec(pg.mouse.get_pos()) // TILESIZE
                 if main.current_state == 'map':
                     mpos2 = vec(pg.mouse.get_pos()) // (TILESIZE*2)
+                    print(mpos2)
                 #L.crossvec =  mpos2
                 main.battletop()
                 #L.levels.append(vec(mpos2))
@@ -984,7 +1404,10 @@ while running:
                 #create.append(mpos)
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_r:
-                M.enemy = random.choice([C,mage])
+                M.enemy = {}
+                M.checkifdead()
+            if event.key == pg.K_e:
+                M.actions = [1,1,1]
             if event.key == pg.K_a:
                 print([(int(loc.x - M.heplanevec.x), int(loc.y - M.heplanevec.y)) for loc in create])
             if event.key == pg.K_m:
@@ -1006,4 +1429,5 @@ while running:
     draw_biggrid()
     main.levelbottom()
     main.battlebottom()
+    main.draw_level()
     pg.display.flip() # dose the changes goto doccumentation for other ways
