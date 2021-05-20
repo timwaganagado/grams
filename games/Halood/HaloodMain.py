@@ -109,6 +109,9 @@ class boss():
         def __init__(self):
             self.vec = 0
         def attack(self):
+            if self.turncounter == 5:
+                for x in M.allies:
+                    print(M.allies[x][1])
             possible = []
             dead = []
             chance = []
@@ -117,43 +120,57 @@ class boss():
                 chance.append(self.attacks[y][1])
                 attacks.append(y)
         
-            attacking = random.choices(attacks,chance)
-            damage = self.attacks[attacking[0]]
-            print(attacking,damage[0])
-            for x in range(0,damage[3]):
-                if M.allies[target][3] > 0:
-                    M.allies[target][3] -= damage[0]
-                    if M.allies[target][3] < 0:
-                        M.allies[target][3] = 0
+            
+            for seesee in range(0,2):
+                dead = []
+                attacking = random.choices(attacks,chance)
+                damage = self.attacks[attacking[0]]
+                if damage[4]:
+                    for x in M.spaces:
+                        for l in M.spaces[x]:
+                            if l[1] != 99:
+                                possible.append(l[1])
+                            else:
+                                dead.append(l[1])
+                    print('yes')
                 else:
-                    M.allies[target][1] -= damage[0]
-                    if damage[2][1] > 0:
-                        print('bleed')
-                        M.allies[target][4][1] += damage[2][1]
-                if damage[2][0] > 0:
-                    print('stun')
-                    M.allies[target][4][0] += damage[2][0]
-                if damage[2][2] > 0:
-                    print('fire')
-                    M.allies[target][4][2] += damage[2][2]
-                if target in self.damage:
-                    self.damage[target].append(int(damage[0]))
-                else:
-                    self.damage.update({target:[damage[0]]})
-            for x in M.spaces:
-                if x == 'front row':
-                    for l in M.spaces[x]:
-                        if l[1] != 99:
-                            possible.append(l[1])
-                        else:
-                            dead.append(l[1])
-                if x == 'back row' and len(dead) == 2:
-                    for j in M.spaces[x]:
-                        print(j)
-                        possible.append(j[1])
-            target = random.choice(possible)
-            print('attack')
+                    for x in M.spaces:
+                        if x == 'front row':
+                            for l in M.spaces[x]:
+                                if l[1] != 99:
+                                    possible.append(l[1])
+                                else:
+                                    dead.append(l[1])
+                        if x == 'back row' and len(dead) == 2:
+                            for j in M.spaces[x]:
+                                print(j)
+                                possible.append(j[1])
+                target = random.choice(possible)
+                print(attacking,damage[0])
+                for x in range(0,damage[3]):
+                    if M.allies[target][3] > 0:
+                        M.allies[target][3] -= damage[0]
+                        if M.allies[target][3] < 0:
+                            M.allies[target][3] = 0
+                    else:
+                        M.allies[target][1] -= damage[0]
+                        if damage[2][1] > 0:
+                            print('bleed')
+                            M.allies[target][4][1] += damage[2][1]
+                    if damage[2][0] > 0:
+                        print('stun')
+                        M.allies[target][4][0] += damage[2][0]
+                    if damage[2][2] > 0:
+                        print('fire')
+                        M.allies[target][4][2] += damage[2][2]
+                    if target in M.damage:
+                        M.damage[target].append(int(damage[0]))
+                    else:
+                        M.damage.update({target:[damage[0]]})
+            self.turncounter += 1
         def support(self,target):
+            if target[0] == 0:
+                M.enemy[cbm][0][1] += M.enemy[cbm][0][1]/2
             print('heal')
 
 cbm = boss.courptbattlemage()
@@ -162,9 +179,10 @@ cbm.health = 100
 cbm.combat_animation = {1:home_img,2:home_img,3:home_img}
 auras = [(0, 3), (1, 3), (2, 3), (2, 2), (1, 2), (0, 2), (0, 1), (1, 1), (2, 1), (2, 0), (1, 0), (0, 0), (0, -1), (1, -1), (2, -1), (2, -2), (1, -2), (0, -2), (0, -3), (1, -3), (2, -3)]
 cbm.clickaura = []
+cbm.turncounter = 0
 for aura in auras:
     cbm.clickaura.append(vec(aura))
-cbm.attacks = {'slash':[4,4,[0,0,0],2,False],'blast':[15,2,[0,0,2],1,False],'miss':[0,2,[0,0,0],1,False]}
+cbm.attacks = {'slash':[4,4,[0,0,0],2,False],'blast':[15,2,[0,0,1],1,False],'charging fire':[0,2,[0,0,3],1,True],'miss':[0,2,[0,0,0],1,True]}
 
 class ally():
     class heplane():
