@@ -111,7 +111,7 @@ class boss():
         def attack(self):
             if self.turncounter == 5:
                 for x in M.allies:
-                    print(M.allies[x][1])
+                    M.allies[x][1] - 5
             possible = []
             dead = []
             chance = []
@@ -119,8 +119,6 @@ class boss():
             for y in self.attacks:
                 chance.append(self.attacks[y][1])
                 attacks.append(y)
-        
-            
             for seesee in range(0,2):
                 dead = []
                 attacking = random.choices(attacks,chance)
@@ -132,7 +130,6 @@ class boss():
                                 possible.append(l[1])
                             else:
                                 dead.append(l[1])
-                    print('yes')
                 else:
                     for x in M.spaces:
                         if x == 'front row':
@@ -143,7 +140,6 @@ class boss():
                                     dead.append(l[1])
                         if x == 'back row' and len(dead) == 2:
                             for j in M.spaces[x]:
-                                print(j)
                                 possible.append(j[1])
                 target = random.choice(possible)
                 print(attacking,damage[0])
@@ -889,16 +885,18 @@ class level():
         return cost
     def nextlevel(self):
         #if mpos2 in self.connections:
-            self.crossvec = mpos2
-            self.level = mpos2.x - 3
-            if self.level == 1:
-                M.restart()
-                M.start()
-            else:
-                M.start()
-            L.get_connections()
-            main.current_state = 'battle'
-            main.states()
+            if self.click == True:
+                self.crossvec = mpos2
+                self.level = mpos2.x - 3
+                if self.level == 1:
+                    M.restart()
+                    M.start()
+                else:
+                    M.start()
+                L.get_connections()
+                main.current_state = 'battle'
+                main.states()
+                self.click = False
     def getlevelenemies(self):
         for x in self.levelindex:
             if self.levelindex[x] == mpos2:
@@ -914,6 +912,7 @@ L.level = 0
 L.crossvec = vec(3,8)
 L.connections =[]
 L.levels = []
+L.click = False
 L.levelindex = {}
 levels = [(4, 7), (4, 8), (4, 9), (5, 6), (5, 7), (5, 8), (5, 9), (5, 10), (6, 11), (6, 10), (6, 9), (6, 8), (6, 7), (6, 6), (6, 5), (7, 4), (7, 5), (7, 6), (7, 7), (7, 8), (7, 9), (7, 10), (7, 11), (7, 12), (8, 13), (8, 12), (8, 11), (8, 10), (8, 9), (8, 8), (8, 7), (8, 6), (8, 5), (8, 4), (8, 3), (9, 2), (9, 3), (9, 4), (9, 5), (9, 6), (9, 7), (9, 8), (9, 9), (9, 10), (9, 11), (9, 12), (9, 13), (9, 14), (10, 14), (10, 13), (10, 12), (10, 11), (10, 10), (10, 9), (10, 8), (10, 7), (10, 6), (10, 5), (10, 4), (10, 3), (10, 2), (11, 2), (12, 2), (13, 2), (14, 2), (15, 2), (16, 2), (17, 2), (18, 2), (19, 2), (20, 2), (21, 2), (22, 2), (27, 8), (27, 7), (27, 9), (26, 9), (26, 8), (26, 7), (26, 6), (26, 10), (25, 10), (25, 11), (25, 9), (25, 8), (25, 7), (25, 6), (25, 5), (24, 5), (24, 4), (23, 3), (23, 4), (11, 14), (12, 14), (13, 14), (14, 14), (15, 14), (24, 12), (24, 11), (23, 12), (23, 13), (22, 13), (22, 14), (21, 14), (20, 14), (18, 14), (19, 14), (17, 14), (16, 14), (16, 13), (15, 13), (13, 13), (14, 13), (12, 13), (11, 13), (11, 12), (12, 12), (13, 12), (14, 12), (15, 12), (16, 12), (17, 12), (17, 13), (18, 13), (18, 12), (19, 12), (19, 13), (20, 13), (20, 12), (21, 12), (21, 13), (22, 12), (22, 11), (23, 11), (23, 10), (24, 10), (24, 9), (23, 9), (24, 8), (23, 8), (24, 7), (23, 7), (24, 6), (23, 6), (23, 5), (22, 5), (22, 4), (22, 3), (21, 3), (21, 4), (20, 4), (20, 3), (19, 3), (18, 3), (17, 3), (16, 3), (15, 3), (14, 3), (13, 3), (12, 3), (11, 3), (11, 4), (12, 4), (13, 4), (14, 4), (15, 4), (16, 4), (17, 4), (19, 4), (18, 4), (18, 5), (17, 5), (16, 5), (15, 5), (14, 5), (13, 5), (12, 5), (11, 5), (11, 6), (12, 6), (13, 6), (14, 6), (15, 6), (16, 6), (17, 6), (18, 6), (19, 6), (19, 5), (20, 5), (20, 6), (21, 6), (21, 5), (22, 6), (22, 7), (22, 8), (22, 9), 
 (22, 10), (21, 10), (21, 11), (21, 9), (21, 8), (21, 7), (20, 7), (20, 8), (20, 9), (20, 10), (20, 11), (19, 11), (19, 10), (19, 9), (19, 8), (19, 7), (18, 7), (18, 8), (18, 9), (18, 10), (18, 11), (17, 11), (17, 10), (17, 
@@ -1098,6 +1097,7 @@ class battle():
             self.enemy = {}
             self.l = []
             self.actions = []
+            
 
             
         if len(self.allies) <= 0:
@@ -1241,7 +1241,6 @@ class battle():
                     self.workingattack(attack)
             else:
                 x.attack()
-                print('boss attack')
         self.click = True
         self.display = True
         self.statuseffects(True)
@@ -1263,7 +1262,6 @@ class battle():
                         dead.append(l[1])
             if x == 'back row' and len(dead) == 2:
                 for j in self.spaces[x]:
-                    print(j)
                     possible.append(j[1])
                         
         target = random.choice(possible)
@@ -1414,7 +1412,7 @@ while running:
                     mpos = vec(pg.mouse.get_pos()) // TILESIZE
                 if main.current_state == 'map':
                     mpos2 = vec(pg.mouse.get_pos()) // (TILESIZE*2)
-                    print(mpos2)
+                    L.click = True
                 #L.crossvec =  mpos2
                 main.battletop()
                 #L.levels.append(vec(mpos2))
