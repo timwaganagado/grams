@@ -26,6 +26,8 @@ DARKGRAY = (40, 40, 40)
 MEDGRAY = (75, 75, 75)
 LIGHTGRAY = (140, 140, 140)
 GREY = (128,128,128)
+DARKBLUE = (0,0,139)
+MOMENTUMCOLOR = (166, 138, 178)
 check = 'working'
 
 pg.init()
@@ -142,7 +144,7 @@ class boss():
                             for j in M.spaces[x]:
                                 possible.append(j[1])
                 target = random.choice(possible)
-                print(attacking,damage[0])
+                #print(attacking,damage[0])
                 for x in range(0,damage[3]):
                     if M.allies[target][3] > 0:
                         M.allies[target][3] -= damage[0]
@@ -187,7 +189,7 @@ class ally():
         def attack(self,target,attack):
             target,dup = target
             blooddamage = int(M.allies[H][1])/int(self.health)+1
-            M.allies[H][1] -= self.attacks[attack][0][1]
+            M.allies[self][1] -= self.attacks[attack][0][1]
             self.healdam.append(int((blooddamage * self.attacks[attack][0][0])/2))
             M.enemy[target][dup][1] -= blooddamage * self.attacks[attack][0][0]
             if self.attacks[attack][5][0] > 0:
@@ -203,6 +205,16 @@ class ally():
                 self.healdam = []
                 if M.allies[M.selectedchar][1] > 50:
                     M.allies[M.selectedchar][1] = 50
+        def damage(self,taken):
+            if M.allies[self][3] > 0:
+                M.allies[self][3] -= taken[0]
+                if M.allies[self][3] < 0:
+                    M.allies[self][3] = 0
+            else:
+                M.allies[self][1] -= taken[0]
+                if taken[2][1] > 0:
+                    print('bleed')
+                    M.allies[self][4][1] += taken[2][1]
         def draw_icons(self):
             for x in self.attacks:
                 if H in M.allies: 
@@ -274,8 +286,24 @@ class ally():
                         self.attacks[x][5][0] = 0
                 if self.attacks[x][0] > 10:
                     self.attacks[x][0] = 2
+        def damage(self,taken):
+            if M.allies[self][3] > 0:
+                M.allies[self][3] -= taken[0]
+                if M.allies[self][3] < 0:
+                    M.allies[self][3] = 0
+            else:
+                M.allies[self][1] -= taken[0]
+                if taken[2][1] > 0:
+                    print('bleed')
+                    M.allies[self][4][1] += taken[2][1]
         def draw_icons(self):
             for x in self.attacks:
+                cur = cri_stunicon_img
+                goal_center = (int(M.allies[self][0].x * TILESIZE + TILESIZE / 2 + 80), int(M.allies[self][0].y * TILESIZE + TILESIZE / 2 - 50))
+                if self.attacks[x][0] < 5:
+                    cur = cur.copy( )
+                    cur.fill((105, 105, 105, 255),special_flags=pg.BLEND_RGB_MULT)            
+                screen.blit(cur, cur.get_rect(center=goal_center))
                 if S in M.allies: 
                     icon = self.attacks[x][1]
                     pos = self.attacks[x][2]
@@ -296,9 +324,14 @@ class ally():
             attack1 = 0
         def attack(self,target,attack):
             target,dup = target
+            if self.momentum == 3:
+                self.attacks[self.attack1][5][1] = 2
+            else:
+                self.attacks[self.attack1][5][1] = 0
             if attack == self.attack1:
                 damage = self.attacks[attack][0]*self.momentum
-                self.momentum = 1
+                
+                self.momentum = 0
             else:
                 damage = self.attacks[attack][0]
                 self.passive()
@@ -316,28 +349,46 @@ class ally():
             
         def support(self,target):
             if target == Hap:
-                if self.momentum > 0:
+                if  self.momentum > 0:
                     self.attacktwice = True
                     self.momentum -= 1
         def passive(self):
             self.momentum += 1
             if self.momentum >=3:
                 self.momentum = 3
+        def damage(self,taken):
+            self.passive()
+            if M.allies[self][3] > 0:
+                M.allies[self][3] -= taken[0]
+                if M.allies[self][3] < 0:
+                    M.allies[self][3] = 0
+            else:
+                M.allies[self][1] -= taken[0]
+                if taken[2][1] > 0:
+                    print('bleed')
+                    M.allies[self][4][1] += taken[2][1]
         def draw_icons(self):
             for x in self.attacks:
-                if Hap in M.allies: 
-                    icon = self.attacks[x][1]
-                    pos = self.attacks[x][2]
-                    rect = pg.Rect(int(pos.x*TILESIZE-49), int(pos.y*TILESIZE-50), 128, 150)
-                    pg.draw.rect(screen,BLACK,rect)
-                    goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))
-                    screen.blit(icon, icon.get_rect(center=goal_center))
-                    text = str(self.attacks[self.attack1][0]*self.momentum)
-                    draw_text(text, 20, RED, self.attacks[self.attack1][2].x*TILESIZE, self.attacks[self.attack1][2].y*TILESIZE + 75)
-                    text = str(self.attacks[self.attack2][0])
-                    draw_text(text, 20, RED, self.attacks[self.attack2][2].x*TILESIZE, self.attacks[self.attack2][2].y*TILESIZE + 75)
-                    text = str(self.attacks[self.attack3][0])
-                    draw_text(text, 20, BLACK, self.attacks[self.attack3][2].x*TILESIZE, self.attacks[self.attack3][2].y*TILESIZE + 75)
+                rect = pg.Rect(int(M.allies[self][0].x*TILESIZE+80), int(M.allies[self][0].y*TILESIZE-50), 20, 135)
+                pg.draw.rect(screen,MOMENTUMCOLOR,rect)
+                for y in range(0,self.momentum):
+                    rect = pg.Rect(int(M.allies[self][0].x*TILESIZE+80), int(M.allies[self][0].y*TILESIZE+50-50*y), 20, 45)
+                    pg.draw.rect(screen,WHITE,rect)
+                
+                    
+                icon = self.attacks[x][1]
+                pos = self.attacks[x][2]
+                
+                rect = pg.Rect(int(pos.x*TILESIZE-49), int(pos.y*TILESIZE-50), 128, 150)
+                pg.draw.rect(screen,BLACK,rect)
+                goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))
+                screen.blit(icon, icon.get_rect(center=goal_center))
+                text = str(self.attacks[self.attack1][0]*self.momentum)
+                draw_text(text, 20, RED, self.attacks[self.attack1][2].x*TILESIZE, self.attacks[self.attack1][2].y*TILESIZE + 75)
+                text = str(self.attacks[self.attack2][0])
+                draw_text(text, 20, RED, self.attacks[self.attack2][2].x*TILESIZE, self.attacks[self.attack2][2].y*TILESIZE + 75)
+                text = str(self.attacks[self.attack3][0])
+                draw_text(text, 20, BLACK, self.attacks[self.attack3][2].x*TILESIZE, self.attacks[self.attack3][2].y*TILESIZE + 75)
                     
                     
 iconaura = [(2, 2), (2, 1), (2, 0), (2, -1), (2, -2), (1, -2), (1, -1), (1, 0), (1, 1), (1, 2), (0, 2), (0, 1), (0, 0), (0, -1), (0, -2), (-1, -2), (-1, -1), (-1, 0), (-1, 1), (-1, 2), (-2, 2), (-2, 1), (-2, 0), (-2, -1), (-2, -2)]            
@@ -360,7 +411,7 @@ H.vec = vec(20,15)
 H.health = 50
 H.shield = 0
 H.combat_animation = {1:heplane_combat_img,2:heplane_combat2_img,3:heplane_combat3_img}
-H.attacks = {H.attack1:[[10,15],heplane_ability1_img,vec(18, 31),[vec(18,31) + a for a in iconaura],False,[0,0,0]],H.attack2:[[5,0],heplane_ability2_img,vec(23,31),[vec(23,31) + a for a in iconaura],False,[0,0,0]],H.attack3:[[0,0],heplane_ability3_img,vec(28,31),[vec(28,31)+ a for a in iconaura],True,[0,0,0]]}
+H.attacks = {H.attack1:[[10,15],heplane_ability1_img,vec(18, 31),[vec(18,31) + a for a in iconaura],False,[1,0,0]],H.attack2:[[5,0],heplane_ability2_img,vec(23,31),[vec(23,31) + a for a in iconaura],False,[0,0,0]],H.attack3:[[0,0],heplane_ability3_img,vec(28,31),[vec(28,31)+ a for a in iconaura],True,[0,0,0]]}
 H.healdam = []
 aura = [(1, 3), (0, 3), (-1, 3), (-1, 2), (0, 2), (1, 2), (1, 1), (0, 1), (-1, 1), (-1, 0), (0, 0), (1, 0), (1, -1), (0, -1), (-1, -1), (-1, -2), (0, -2), (1, -2), (1, -3), (0, -3), (-1, -3)]
 H.clickaura = []
@@ -380,6 +431,8 @@ cri_ability2_img = pg.image.load(os.path.join(filename,'crystal_icons-1.png.png'
 cri_ability2_img = pg.transform.scale(cri_ability2_img, (128, 128))
 cri_ability3_img = pg.image.load(os.path.join(filename,'crystal_icons-3.png.png'))
 cri_ability3_img = pg.transform.scale(cri_ability3_img, (128, 128))
+cri_stunicon_img = pg.image.load(os.path.join(filename,'sri_stun-1.png.png'))
+cri_stunicon_img = pg.transform.scale(cri_stunicon_img, (128, 128))
 S.attack1 = 'flash and crash'
 S.attack2 = 'crystal glass'
 S.attack3 = 'karen and her healing balony'
@@ -392,11 +445,11 @@ S.clickaura = []
 for x in aura:
     S.clickaura.append(vec(x))
 Hap = ally.haptic()
-haptic_combat_img = pg.image.load(os.path.join(filename,'haptic_combattest-1.png.png')).convert_alpha()
+haptic_combat_img = pg.image.load(os.path.join(filename,'Layer 1_haptic_combat1.png')).convert_alpha()
 haptic_combat_img = pg.transform.scale(haptic_combat_img, (256, 256))
-haptic_combat2_img = pg.image.load(os.path.join(filename,'haptic_combattest-1.png.png')).convert_alpha()
+haptic_combat2_img = pg.image.load(os.path.join(filename,'Layer 1_haptic_combat2.png')).convert_alpha()
 haptic_combat2_img = pg.transform.scale(haptic_combat2_img, (256, 256))
-haptic_combat3_img = pg.image.load(os.path.join(filename,'haptic_combattest-1.png.png')).convert_alpha()
+haptic_combat3_img = pg.image.load(os.path.join(filename,'Layer 1_haptic_combat3.png')).convert_alpha()
 haptic_combat3_img = pg.transform.scale(haptic_combat3_img, (256, 256))
 haptic_ability1_img = pg.image.load(os.path.join(filename,'cross-1.png.png'))
 haptic_ability1_img = pg.transform.scale(haptic_ability1_img, (128, 128))
@@ -410,7 +463,7 @@ Hap.attack3 = 'acceleration'
 Hap.vec = vec(20,15)
 Hap.health = 60
 Hap.shield = 0
-Hap.momentum = 1
+Hap.momentum = 0
 Hap.attacktwice = False
 Hap.combat_animation = {1:haptic_combat_img,2:haptic_combat2_img,3:haptic_combat3_img}
 Hap.attacks = {Hap.attack1:[5,haptic_ability1_img,vec(18,31),[vec(18,31) + a for a in iconaura],False,[0,0,0]],Hap.attack2:[5,haptic_ability2_img,vec(23,31),[vec(23,31) + a for a in iconaura],False,[0,0,0]],Hap.attack3:[0,haptic_ability3_img,vec(28,31),[vec(28,31)+a for a in iconaura],True,[0,0,0]]}
@@ -485,29 +538,30 @@ class main():
                 if M.current_animation == 4:
                     M.current_animation = 1
                 self.anim_timer = pg.time.get_ticks()
+
+            if len(M.actions) >= len(M.allies) and M.enemycanattack == False:
+                self.attck_timer = pg.time.get_ticks()
+                M.enemycanattack = True
+            M.draw_background()
+            M.draw_char()
+            M.draw_icons()
+            M.draw_healthbar()
+            M.draw_effects()
             if current_time - self.attck_timer > 1000 and M.enemycanattack == True:
                 M.actions = []
                 M.enemyattack()
                 self.display_time = pg.time.get_ticks()   
                 M.enemycanattack = False
                 M.attackselect = False
-                M.checkifdead()
-            if len(M.actions) >= len(M.allies) and M.enemycanattack == False:
-                self.attck_timer = pg.time.get_ticks()
-                M.enemycanattack = True
-
             if M.click == True:
+                M.draw_damage()
                 if current_time - self.display_time > 1000:
+                    
                     M.enemycanattack = False
                     M.display == False
+                    M.checkifdead()
                     M.damage = {}
                     M.click = False
-            M.draw_background()
-            M.draw_char()
-            M.draw_icons()
-            M.draw_healthbar()
-            M.draw_damage()
-            M.draw_effects()
     def leveltop(self):
         if self.current_state == 'map':
             L.nextlevel()
@@ -548,7 +602,6 @@ class level():
         self.levelid = {}
         line = 0
         for x in self.levels:
-            print(x)
             if x.x == 4:
                 cost = 2
                 enemies = []
@@ -558,11 +611,10 @@ class level():
                     enemy = random.choices([sword,mage],[2,1])
                     remove = self.get_cost(enemy)
                     cost -= remove
-                    print(cost)
+                    
                     enemies.append(enemy[0])
                 self.levelid.update({line:enemies})
                 self.levelindex.update({line:x})
-                print(self.levelid)
             if x.x == 5:
                 cost = 3
                 enemies = []
@@ -572,7 +624,7 @@ class level():
                     enemy = random.choices([sword,mage],[2,1])
                     remove = self.get_cost(enemy)
                     cost -= remove
-                    print(cost)
+                    
                     enemies.append(enemy[0])
                 self.levelid.update({line:enemies})
                 self.levelindex.update({line:x}) 
@@ -585,7 +637,7 @@ class level():
                     enemy = random.choices([sword,mage],[1,1])
                     remove = self.get_cost(enemy)
                     cost -= remove
-                    print(cost)
+                    
                     enemies.append(enemy[0])
                 self.levelid.update({line:enemies})
                 self.levelindex.update({line:x}) 
@@ -598,7 +650,7 @@ class level():
                     enemy = random.choices([sword,mage],[1,1])
                     remove = self.get_cost(enemy)
                     cost -= remove
-                    print(cost)
+                    
                     enemies.append(enemy[0])
                 self.levelid.update({line:enemies})
                 self.levelindex.update({line:x}) 
@@ -611,7 +663,7 @@ class level():
                     enemy = random.choices([sword,mage],[1,2])
                     remove = self.get_cost(enemy)
                     cost -= remove
-                    print(cost)
+                    
                     enemies.append(enemy[0])
                 self.levelid.update({line:enemies})
                 self.levelindex.update({line:x}) 
@@ -624,7 +676,7 @@ class level():
                     enemy = random.choices([sword,mage],[1,1])
                     remove = self.get_cost(enemy)
                     cost -= remove
-                    print(cost)
+                    
                     enemies.append(enemy[0])
                 self.levelid.update({line:enemies})
                 self.levelindex.update({line:x}) 
@@ -637,7 +689,7 @@ class level():
                     enemy = random.choices([sword,mage,C],[1,1,5])
                     remove = self.get_cost(enemy)
                     cost -= remove
-                    print(cost)
+                    
                     enemies.append(enemy[0])
                 self.levelid.update({line:enemies})
                 self.levelindex.update({line:x}) 
@@ -650,7 +702,7 @@ class level():
                     enemy = random.choices([sword,mage,C],[1,2,2])
                     remove = self.get_cost(enemy)
                     cost -= remove
-                    print(cost)
+                    
                     enemies.append(enemy[0])
                 self.levelid.update({line:enemies})
                 self.levelindex.update({line:x}) 
@@ -663,7 +715,7 @@ class level():
                     enemy = random.choices([sword,mage,C],[1,2,2])
                     remove = self.get_cost(enemy)
                     cost -= remove
-                    print(cost)
+                    
                     enemies.append(enemy[0])
                 self.levelid.update({line:enemies})
                 self.levelindex.update({line:x}) 
@@ -676,7 +728,7 @@ class level():
                     enemy = random.choices([sword,mage,C],[1,1,2])
                     remove = self.get_cost(enemy)
                     cost -= remove
-                    print(cost)
+                    
                     enemies.append(enemy[0])
                 self.levelid.update({line:enemies})
                 self.levelindex.update({line:x}) 
@@ -689,7 +741,7 @@ class level():
                     enemy = random.choices([sword,mage,C],[1,1,2])
                     remove = self.get_cost(enemy)
                     cost -= remove
-                    print(cost)
+                    
                     enemies.append(enemy[0])
                 self.levelid.update({line:enemies})
                 self.levelindex.update({line:x}) 
@@ -702,7 +754,7 @@ class level():
                     enemy = random.choices([sword,mage,C],[1,1,3])
                     remove = self.get_cost(enemy)
                     cost -= remove
-                    print(cost)
+                    
                     enemies.append(enemy[0])
                 self.levelid.update({line:enemies})
                 self.levelindex.update({line:x}) 
@@ -715,7 +767,7 @@ class level():
                     enemy = random.choices([sword,mage,C],[1,1,1])
                     remove = self.get_cost(enemy)
                     cost -= remove
-                    print(cost)
+                    
                     enemies.append(enemy[0])
                 self.levelid.update({line:enemies})
                 self.levelindex.update({line:x}) 
@@ -728,7 +780,7 @@ class level():
                     enemy = random.choices([sword,mage,C],[1,1,1])
                     remove = self.get_cost(enemy)
                     cost -= remove
-                    print(cost)
+                    
                     enemies.append(enemy[0])
                 self.levelid.update({line:enemies})
                 self.levelindex.update({line:x}) 
@@ -741,7 +793,7 @@ class level():
                     enemy = random.choices([sword,mage,C],[1,1,1])
                     remove = self.get_cost(enemy)
                     cost -= remove
-                    print(cost)
+                    
                     enemies.append(enemy[0])
                 self.levelid.update({line:enemies})
                 self.levelindex.update({line:x}) 
@@ -754,7 +806,7 @@ class level():
                     enemy = random.choices([sword,mage,C],[4,1,1])
                     remove = self.get_cost(enemy)
                     cost -= remove
-                    print(cost)
+                    
                     enemies.append(enemy[0])
                 self.levelid.update({line:enemies})
                 self.levelindex.update({line:x}) 
@@ -767,7 +819,7 @@ class level():
                     enemy = random.choices([sword,mage,C],[3,2,1])
                     remove = self.get_cost(enemy)
                     cost -= remove
-                    print(cost)
+                    
                     enemies.append(enemy[0])
                 self.levelid.update({line:enemies})
                 self.levelindex.update({line:x}) 
@@ -780,7 +832,7 @@ class level():
                     enemy = random.choices([sword,mage,C],[1,1,1])
                     remove = self.get_cost(enemy)
                     cost -= remove
-                    print(cost)
+                    
                     enemies.append(enemy[0])
                 self.levelid.update({line:enemies})
                 self.levelindex.update({line:x}) 
@@ -793,7 +845,7 @@ class level():
                     enemy = random.choices([sword,mage],[1,1])
                     remove = self.get_cost(enemy)
                     cost -= remove
-                    print(cost)
+                    
                     enemies.append(enemy[0])
                 self.levelid.update({line:enemies})
                 self.levelindex.update({line:x}) 
@@ -806,7 +858,7 @@ class level():
                     enemy = random.choices([sword,mage,C],[1,1,1])
                     remove = self.get_cost(enemy)
                     cost -= remove
-                    print(cost)
+                    
                     enemies.append(enemy[0])
                 self.levelid.update({line:enemies})
                 self.levelindex.update({line:x}) 
@@ -819,7 +871,7 @@ class level():
                     enemy = random.choices([sword,mage,C],[1,1,1])
                     remove = self.get_cost(enemy)
                     cost -= remove
-                    print(cost)
+                    
                     enemies.append(enemy[0])
                 self.levelid.update({line:enemies})
                 self.levelindex.update({line:x}) 
@@ -832,7 +884,7 @@ class level():
                     enemy = random.choices([sword,mage,C],[1,2,2])
                     remove = self.get_cost(enemy)
                     cost -= remove
-                    print(cost)
+                    
                     enemies.append(enemy[0])
                 self.levelid.update({line:enemies})
                 self.levelindex.update({line:x}) 
@@ -845,7 +897,7 @@ class level():
                     enemy = random.choices([sword,mage,C],[1,5,3])
                     remove = self.get_cost(enemy)
                     cost -= remove
-                    print(cost)
+                    
                     enemies.append(enemy[0])
                 self.levelid.update({line:enemies})
                 self.levelindex.update({line:x}) 
@@ -858,7 +910,7 @@ class level():
                     enemy = random.choices([mage,C],[1,1])
                     remove = self.get_cost(enemy)
                     cost -= remove
-                    print(cost)
+                    
                     enemies.append(enemy[0])
                 self.levelid.update({line:enemies})
                 self.levelindex.update({line:x}) 
@@ -1017,15 +1069,13 @@ class battle():
             rect = pg.Rect(int(vec.x*TILESIZE - 10), int(vec.y*TILESIZE - 120), int(heat), 20)
             pg.draw.rect(screen,RED,rect)
             if self.allies[x][3] > 0:
-                text = '/'+str(x.health)
-                text2 = str(heat+self.allies[x][3])
-                draw_text(text, 20,BLACK , vec.x*TILESIZE + 2, vec.y*TILESIZE - 150)
-                draw_text(text2, 20, BLUE, vec.x*TILESIZE - 22, vec.y*TILESIZE - 150)
+                text = '+'+str(self.allies[x][3])
+                draw_text(text, 20,BLUE , vec.x*TILESIZE + 40, vec.y*TILESIZE - 150)
                 rect = pg.Rect(int(vec.x*TILESIZE - 10), int(vec.y*TILESIZE - 120), int(self.allies[x][3]   ), 20)
                 pg.draw.rect(screen,BLUE,rect)
-            else:
-                text = str(heat)+'/'+str(x.health)
-                draw_text(text, 20, BLACK, vec.x*TILESIZE - 10, vec.y*TILESIZE - 150)
+            
+            text = str(heat)+'/'+str(x.health)
+            draw_text(text, 20, BLACK, vec.x*TILESIZE - 10, vec.y*TILESIZE - 150)
         for x in self.enemy:
             if len(self.enemy[x]) > 1:
                 for y in self.enemy[x]:
@@ -1043,15 +1093,11 @@ class battle():
                 rect = pg.Rect(int(vec.x*TILESIZE - 10), int(vec.y*TILESIZE - 120), int(heat), 20)
                 pg.draw.rect(screen,RED,rect)
     def draw_damage(self):
-        if self.display == True:
-            for x in self.damage:
-
-                if x in self.allies:
-                    if len(self.damage[x]) == 2:
-                        draw_text(str(self.damage[x][0]),30,RED,self.allies[x][0].x*TILESIZE-15, self.allies[x][0].y*TILESIZE-150,align="bottomright")
-                        draw_text(str(self.damage[x][1]),30,RED,self.allies[x][0].x*TILESIZE+15, self.allies[x][0].y*TILESIZE-150,align="bottomright")
-                    else:
-                        draw_text(str(self.damage[x][0]),30,RED,self.allies[x][0].x*TILESIZE, self.allies[x][0].y*TILESIZE-150,align="bottomright")    
+        for x in self.damage:
+            damage = 0
+            for y in self.damage[x]:
+                damage += y
+            draw_text(str(damage),30,RED,self.allies[x][0].x*TILESIZE, self.allies[x][0].y*TILESIZE-150,align="bottomright")    
     def draw_background(self):
         goal_center = int(WIDTH / 2), int(HEIGHT/ 2)
         screen.blit(background_fall, background_fall.get_rect(center=goal_center))
@@ -1082,6 +1128,8 @@ class battle():
         for x in test:
             if test[x][1] <= 0:
                 del self.allies[x]
+                if x == self.selectedchar:
+                    self.selectedchar = 0
                 for w in self.spaces:
                     for a in self.spaces[w]:
                         if a[1] == x:
@@ -1232,19 +1280,20 @@ class battle():
                             z[4][0] -= 1
                             continue
                         attack = z[3]
+                        print(x)
                         self.workingattack(attack)
                 else:
                     if self.enemy[x][0][4][0] > 0:
                         self.enemy[x][0][4][0] -= 1
                         continue
                     attack = self.enemy[x][0][3]
+                    print(x)
                     self.workingattack(attack)
             else:
                 x.attack()
         self.click = True
         self.display = True
         self.statuseffects(True)
-        self.checkifdead()
     def workingattack(self,attack):
         attacks = []
         chance = []
@@ -1269,16 +1318,11 @@ class battle():
         attacking = random.choices(attacks,chance)
         damage = attack[attacking[0]]
         print(attacking,damage[0])
+        #print(damage)
+        
         for x in range(0,damage[3]):
-            if self.allies[target][3] > 0:
-                self.allies[target][3] -= damage[0]
-                if self.allies[target][3] < 0:
-                    self.allies[target][3] = 0
-            else:
-                self.allies[target][1] -= damage[0]
-                if damage[2][1] > 0:
-                    print('bleed')
-                    self.allies[target][4][1] += damage[2][1]
+            target.damage(damage)
+
             if damage[2][0] > 0:
                 print('stun')
                 self.allies[target][4][0] += damage[2][0]
@@ -1337,7 +1381,10 @@ map system with levels +
 maps have shops or camps
 game over screen
 placment order editable in a menu during map -
-add more space for enemies =
+add more space for enemies +
+changing enemy attack to one ata time and show damage=
+apply current cahnges to boss class
+
 
 Art
 drawing heplane +
