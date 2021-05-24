@@ -106,14 +106,17 @@ for aura in auras:
     sword.clickaura.append(vec(aura))
 sword.attacks = {'slash':[4,4,[0,1,0],2],'miss':[0,2,[0,0,0],1]}
 
+lizard = enemy.lizard()
+
 class boss():
     class courptbattlemage():
         def __init__(self):
             self.vec = 0
         def attack(self):
-            if self.turncounter == 5:
+            if self.turncounter%3 == 0:
                 for x in M.allies:
                     M.allies[x][1] - 5
+                self.support([0])
             possible = []
             dead = []
             chance = []
@@ -168,7 +171,7 @@ class boss():
             self.turncounter += 1
         def support(self,target):
             if target[0] == 0:
-                M.enemy[cbm][0][1] += M.enemy[cbm][0][1]/2
+                M.enemy[cbm][0][1] += M.enemy[cbm][0][1]*4/10
             print('heal')
 
 cbm = boss.courptbattlemage()
@@ -180,7 +183,7 @@ cbm.clickaura = []
 cbm.turncounter = 0
 for aura in auras:
     cbm.clickaura.append(vec(aura))
-cbm.attacks = {'slash':[4,4,[0,0,0],2,False],'blast':[15,2,[0,0,1],1,False],'charging fire':[0,2,[0,0,3],1,True],'miss':[0,2,[0,0,0],1,True]}
+cbm.attacks = {'slash':[5,4,[0,0,0],2,False],'blast':[15,2,[0,0,1],1,False],'charging fire':[0,2,[0,0,3],1,True],'blinding light':[0,1,[1,0,0],1,True],'miss':[0,2,[0,0,0],1,True]}
 
 class ally():
     class heplane():
@@ -300,7 +303,7 @@ class ally():
             for x in self.attacks:
                 cur = cri_stunicon_img
                 goal_center = (int(M.allies[self][0].x * TILESIZE + TILESIZE / 2 + 80), int(M.allies[self][0].y * TILESIZE + TILESIZE / 2 - 50))
-                if self.attacks[x][0] < 5:
+                if self.attacks[x][0] < 6:
                     cur = cur.copy( )
                     cur.fill((105, 105, 105, 255),special_flags=pg.BLEND_RGB_MULT)            
                 screen.blit(cur, cur.get_rect(center=goal_center))
