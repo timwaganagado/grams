@@ -53,14 +53,17 @@ class enemy():
             self.clickaura = []
             self.attacks = 0
     class magee():
-        def __int__(self):
+        def __init__(self):
             self.vec = 0
             self.health = 0
             self.combat_animation = 0    
             self.clickaura = []
             self.attacks = 0
     class swordguy():
-        def __int__(self):
+        def __init__(self):
+            self.vec = 0
+    class lizard():
+        def __init__(self):
             self.vec = 0
 filename = os.path.dirname(sys.argv[0])
 filename += '\Halood_images'
@@ -107,6 +110,14 @@ for aura in auras:
 sword.attacks = {'slash':[4,4,[0,1,0],2],'miss':[0,2,[0,0,0],1]}
 
 lizard = enemy.lizard()
+sword.vec = vec(43,20)
+sword.health = 30
+sword.combat_animation = {1:home_img,2:home_img,3:home_img}
+auras = [(0, 3), (1, 3), (2, 3), (2, 2), (1, 2), (0, 2), (0, 1), (1, 1), (2, 1), (2, 0), (1, 0), (0, 0), (0, -1), (1, -1), (2, -1), (2, -2), (1, -2), (0, -2), (0, -3), (1, -3), (2, -3)]
+sword.clickaura = []
+for aura in auras:
+    sword.clickaura.append(vec(aura))
+sword.attacks = {'slash':[4,4,[0,1,0],2],'miss':[0,2,[0,0,0],1]}
 
 class boss():
     class courptbattlemage():
@@ -303,7 +314,7 @@ class ally():
             for x in self.attacks:
                 cur = cri_stunicon_img
                 goal_center = (int(M.allies[self][0].x * TILESIZE + TILESIZE / 2 + 80), int(M.allies[self][0].y * TILESIZE + TILESIZE / 2 - 50))
-                if self.attacks[x][0] < 6:
+                if self.attacks[self.attack1][0] < 7:
                     cur = cur.copy( )
                     cur.fill((105, 105, 105, 255),special_flags=pg.BLEND_RGB_MULT)            
                 screen.blit(cur, cur.get_rect(center=goal_center))
