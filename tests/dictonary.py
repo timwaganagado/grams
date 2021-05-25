@@ -20,5 +20,25 @@ import random
 #z=0
 #xyz = {x:5,y:0,z:0}
 #print(xyz[x])
-l = {'dad':'1','mom':'2','sis':'3'}
-print(l[0])
+dad = 'dad'
+mom = 'mom'
+sis = 'sis'
+l = {dad:['1',3],mom:['2',2],sis:['3',1]}
+move = 99
+while move:
+    move = input()
+    if move in l:
+        new = input()
+        newl = {}
+        save = {}
+        for x in l:
+            save.update({x:l[x]})
+        for x in l:
+            newl.update({x:x})
+        newl[move] = new
+        newl[new] = move
+        print(save)
+        l = {value:key for key, value in newl.items()}
+        for x in save:
+            l[x] = save[x]
+        print(l)

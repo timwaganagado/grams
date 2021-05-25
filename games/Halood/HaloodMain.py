@@ -113,14 +113,6 @@ home_img = pg.image.load(os.path.join(filename,cross)).convert_alpha()
 home_img = pg.transform.scale(home_img, (256, 256))
 
 lizard = enemy.lizard()
-sword.vec = vec(43,20)
-sword.health = 30
-sword.combat_animation = {1:home_img,2:home_img,3:home_img}
-auras = [(0, 3), (1, 3), (2, 3), (2, 2), (1, 2), (0, 2), (0, 1), (1, 1), (2, 1), (2, 0), (1, 0), (0, 0), (0, -1), (1, -1), (2, -1), (2, -2), (1, -2), (0, -2), (0, -3), (1, -3), (2, -3)]
-sword.clickaura = []
-for aura in auras:
-    sword.clickaura.append(vec(aura))
-sword.attacks = {'slash':[4,4,[0,1,0],2],'miss':[0,2,[0,0,0],1]}
 lizard.vec = vec(43,20)
 lizard.health = 25
 lizard.combat_animation = {1:home_img,2:home_img,3:home_img}
@@ -496,12 +488,91 @@ Hap.clickaura = []
 for x in aura:
     Hap.clickaura.append(vec(x))
 
+class shopkeeper():
+    class cleric():
+        def action(self):
+            if self.healparty.collidepoint(mpos*TILESIZE) and main.amountmoney >= 40:
+                for x in M.allies:
+                    M.allies[x][1] += 40
+                    if M.allies[x][1] >= x.health:
+                        M.allies[x][1] = x.health
+                main.amountmoney -= 40
+            if self.healone.collidepoint(mpos*TILESIZE) and main.amountmoney >= 15:
+                self.heal = True
+            elif self.heal == True and M.selectedchar != 0:
+                M.allies[M.selectedchar][1] += 40
+                if M.allies[M.selectedchar][1] >= M.selectedchar.health:
+                    M.allies[M.selectedchar][1] = M.selectedchar.health
+                self.heal = False
+                main.amountmoney -= 15
+            if self.resone.collidepoint(mpos*TILESIZE) and main.amountmoney >= 100:
+                if M.ally1 not in M.allies:
+                    pos = M.ally1.vec
+                    eat = M.ally1.health
+                    lean = M.ally1.shield
+                    M.allies.update({M.ally1:[pos,eat,M.ally1.clickaura,lean,[0,0,0]]})
+                    main.amountmoney -= 100
+                if M.ally2 not in M.allies:
+                    pos = M.ally2.vec
+                    eat = M.ally2.health
+                    lean = M.ally2.shield
+                    M.allies.update({M.ally2:[pos,eat,M.ally2.clickaura,lean,[0,0,0]]})
+                    main.amountmoney -= 100
+                if M.ally3 not in M.allies:
+                    pos = M.ally3.vec
+                    eat = M.ally3.health
+                    lean = M.ally3.shield
+                    M.allies.update({M.ally3:[pos,eat,M.ally3.clickaura,lean,[0,0,0]]})
+                    main.amountmoney -= 100
+                
+                M.numberofallies()
+        def draw_actions(self):
+            pos = M.clericvec
+            x = int(pos.x*TILESIZE-230)
+            y = int(pos.y*TILESIZE-70)
+            rect = pg.Rect(x, y, 135, 30)
+            self.healparty = pg.draw.rect(screen,BLACK,rect)
+            draw_text('heal party',20,WHITE,x+5, y)
+            x2 = int(pos.x*TILESIZE-280)
+            y2 = int(pos.y*TILESIZE-70)
+            rect = pg.Rect(x2, y2, 40, 30)
+            pg.draw.rect(screen,BLACK,rect)
+            draw_text('40',20,WHITE,x2+5, y2)
+            x = int(pos.x*TILESIZE-230)
+            y = int(pos.y*TILESIZE-35)
+            rect = pg.Rect(x, y, 135, 30)
+            self.healone = pg.draw.rect(screen,BLACK,rect)
+            draw_text('heal individual',20,WHITE,x+5, y)
+            x2 = int(pos.x*TILESIZE-280)
+            y2 = int(pos.y*TILESIZE-35)
+            rect = pg.Rect(x2, y2, 40, 30)
+            pg.draw.rect(screen,BLACK,rect)
+            draw_text('15',20,WHITE,x2+5, y2)
+
+            x = int(pos.x*TILESIZE-230)
+            y = int(pos.y*TILESIZE)
+            rect = pg.Rect(x, y, 135, 30)
+            self.resone = pg.draw.rect(screen,BLACK,rect)
+            draw_text('res individual',20,WHITE,x+5, y)
+            x2 = int(pos.x*TILESIZE-280)
+            y2 = int(pos.y*TILESIZE)
+            rect = pg.Rect(x2, y2, 40, 30)
+            pg.draw.rect(screen,BLACK,rect)
+            draw_text('100',20,WHITE,x2+5, y2)
+
+
+skcleric = shopkeeper.cleric()
+skcleric.heal = False
+
 class main():
     def __init__(self):
         current_state = 0
     def draw_level(self):
         text = 'current level '+str(int(L.crossvec.x - 3))
         draw_text(text, 30, BLACK, 50, 10)
+    def draw_money(self):
+        text = 'coin '+str(self.amountmoney)
+        draw_text(text, 30, BLACK, 50, 40)
     def states(self):
         if self.current_state == 'battle':
             pass
@@ -557,12 +628,13 @@ class main():
             if mpos in M.selectingchar() and M.attackselect == False:
                 M.selectchar()
     def battlebottom(self):
+        if current_time - self.anim_timer > 1000:
+            M.current_animation += 1
+            if M.current_animation == 4:
+                M.current_animation = 1
+            self.anim_timer = pg.time.get_ticks()
         if self.current_state == 'battle':
-            if current_time - self.anim_timer > 1000:
-                M.current_animation += 1
-                if M.current_animation == 4:
-                    M.current_animation = 1
-                self.anim_timer = pg.time.get_ticks()
+            
 
             if len(M.actions) >= len(M.allies) and M.enemycanattack == False:
                 self.attck_timer = pg.time.get_ticks()
@@ -571,7 +643,6 @@ class main():
             M.draw_allychar()
             M.draw_enemychar()
             M.draw_icons()
-            M.draw_healthbar()
             M.draw_effects()
             if current_time - self.attck_timer > 1000 and M.enemycanattack == True:
                 M.actions = []
@@ -591,27 +662,34 @@ class main():
     def leveltop(self):
         if self.current_state == 'map':
             L.nextlevel()
+            L.clickmenu()
     def levelbottom(self):
         if self.current_state == 'map':
             L.draw_currentposition()
             L.draw_linestoconnections()
+            L.draw_icons()
     def shoptop(self):
         if self.current_state == 'shop':
-            M.selectingshop()
+            M.selectchar()
+            M.selectingshopaction()
+            M.selectingshop()      
     def shopbottom(self):
         if self.current_state == 'shop':
             M.draw_shopkeeps()   
             M.draw_shopinventory()
             M.draw_allychar()
-            if current_time - self.anim_timer > 1000:
-                M.current_animation += 1
-                if M.current_animation == 4:
-                    M.current_animation = 1
-                self.anim_timer = pg.time.get_ticks()
+    def switchtop(self):
+        if self.current_state == 'switch':
+            M.selectchar()
+            M.switch()
+    def switchbottom(self):
+        if self.current_state == 'switch':
+            M.draw_allychar()
 
 main = main()
 
 main.current_state = 'shop'
+main.amountmoney = 50
 
 def draw_grid():
     for x in range(0, WIDTH, TILESIZE):
@@ -628,12 +706,28 @@ class level():
     def __init__(self):
         self.level = 0
         self.crossvec = 0
+    def clickmenu(self):
+        print(pos)
+        if self.switchbutton.collidepoint(pos):
+            main.current_state = 'switch'
+    def draw_icons(self):
+        pos = vec(20,30)
+        x = int(pos.x*TILESIZE-230)
+        y = int(pos.y*TILESIZE-35)
+        rect = pg.Rect(x, y, 135, 30)
+        self.switchbutton = pg.draw.rect(screen,BLACK,rect)
+        draw_text('heal individual',20,BLACK,x+5, y)
     def draw_currentposition(self):
         vec = self.crossvec
         goal_center = (int(vec.x * TILESIZE*2 + TILESIZE*2 / 2), int(vec.y * TILESIZE*2 + TILESIZE*2 / 2))
         screen.blit(cross, cross.get_rect(center=goal_center))
-        for x in self.levels:
-            pg.draw.circle(screen,BLACK,(int(x.x*TILESIZE*2+TILESIZE*2/2),int(x.y*TILESIZE*2+TILESIZE*2/2)),5)
+
+
+        for x in self.levelindex:
+            if self.levelid[x][1] == 'shop':
+                pg.draw.circle(screen,BLUE,(int(self.levelindex[x].x*TILESIZE*2+TILESIZE*2/2),int(self.levelindex[x].y*TILESIZE*2+TILESIZE*2/2)),5)
+            else:
+                pg.draw.circle(screen,BLACK,(int(self.levelindex[x].x*TILESIZE*2+TILESIZE*2/2),int(self.levelindex[x].y*TILESIZE*2+TILESIZE*2/2)),5)
     def draw_linestoconnections(self):
         for x in self.connections:
             pg.draw.line(screen, BLUE, (int(self.crossvec.x*TILESIZE*2+TILESIZE*2/2),int(self.crossvec.y*TILESIZE*2+TILESIZE*2/2)), (int(x.x*TILESIZE*2+TILESIZE*2/2),int(x.y*TILESIZE*2+TILESIZE*2/2)))
@@ -641,10 +735,24 @@ class level():
         self.levelid = {}
         line = 0
         for x in self.levels:
-            if x.x == 4:
-                #tier = random.choice(['battle','shop'])
-                    tier = 'battle'
-                    cost = 2
+            tier = random.choices(['battle','shop'],[10,1])
+            tier = tier[0]
+            if tier == 'battle':
+                if x.x == 4:
+                        tier = 'battle'
+                        cost = 2
+                        enemies = []
+                        while cost >= 1:
+                            if len(enemies) == 5:
+                                break
+                            enemy = random.choices([sword,mage],[2,1])
+                            remove = self.get_cost(enemy)
+                            cost -= remove
+
+                            enemies.append(enemy[0])
+                        self.make(line,enemies,tier,x)
+                if x.x == 5:
+                    cost = 3
                     enemies = []
                     while cost >= 1:
                         if len(enemies) == 5:
@@ -655,284 +763,274 @@ class level():
 
                         enemies.append(enemy[0])
                     self.make(line,enemies,tier,x)
-            if x.x == 5:
-                cost = 3
-                enemies = []
-                while cost >= 1:
-                    if len(enemies) == 5:
-                        break
-                    enemy = random.choices([sword,mage],[2,1])
-                    remove = self.get_cost(enemy)
-                    cost -= remove
-                    
-                    enemies.append(enemy[0])
-                self.make(line,enemies,tier,x)
-            if x.x == 6:
-                cost = 4
-                enemies = []
-                while cost >= 1:
-                    if len(enemies) == 5:
-                        break
-                    enemy = random.choices([sword,mage],[1,1])
-                    remove = self.get_cost(enemy)
-                    cost -= remove
-                    
-                    enemies.append(enemy[0])
-                self.make(line,enemies,tier,x)
-            if x.x == 7:
-                cost = 5
-                enemies = []
-                while cost >= 1:
-                    if len(enemies) == 5:
-                        break
-                    enemy = random.choices([sword,mage],[1,1])
-                    remove = self.get_cost(enemy)
-                    cost -= remove
-                    
-                    enemies.append(enemy[0])
-                self.make(line,enemies,tier,x)
-            if x.x == 8:
-                cost = 5
-                enemies = []
-                while cost >= 1:
-                    if len(enemies) == 5:
-                        break
-                    enemy = random.choices([sword,mage],[1,2])
-                    remove = self.get_cost(enemy)
-                    cost -= remove
-                    
-                    enemies.append(enemy[0])
-                self.make(line,enemies,tier,x)
-            if x.x == 9:
-                cost = 5
-                enemies = []
-                while cost >= 1:
-                    if len(enemies) == 5:
-                        break
-                    enemy = random.choices([sword,mage],[1,1])
-                    remove = self.get_cost(enemy)
-                    cost -= remove
-                    
-                    enemies.append(enemy[0])
-                self.make(line,enemies,tier,x)
-            if x.x == 10:
-                cost = 5
-                enemies = []
-                while cost >= 1:
-                    if len(enemies) == 5:
-                        break
-                    enemy = random.choices([sword,mage,lizard],[1,1,5])
-                    remove = self.get_cost(enemy)
-                    cost -= remove
-                    
-                    enemies.append(enemy[0])
-                self.make(line,enemies,tier,x)
-            if x.x == 11:
-                cost = 6
-                enemies = []
-                while cost >= 1:
-                    if len(enemies) == 5:
-                        break
-                    enemy = random.choices([sword,mage,lizard],[1,2,2])
-                    remove = self.get_cost(enemy)
-                    cost -= remove
-                    
-                    enemies.append(enemy[0])
-                self.make(line,enemies,tier,x)
-            if x.x == 12:
-                cost = 7
-                enemies = []
-                while cost >= 1:
-                    if len(enemies) == 5:
-                        break
-                    enemy = random.choices([sword,mage,lizard],[1,2,2])
-                    remove = self.get_cost(enemy)
-                    cost -= remove
-                    
-                    enemies.append(enemy[0])
-                self.make(line,enemies,tier,x)
-            if x.x == 13:
-                cost = 8
-                enemies = []
-                while cost >= 1:
-                    if len(enemies) == 5:
-                        break
-                    enemy = random.choices([sword,mage,lizard],[1,1,2])
-                    remove = self.get_cost(enemy)
-                    cost -= remove
-                    
-                    enemies.append(enemy[0])
-                self.make(line,enemies,tier,x)
-            if x.x == 14:
-                cost = 8
-                enemies = []
-                while cost >= 1:
-                    if len(enemies) == 5:
-                        break
-                    enemy = random.choices([sword,mage,lizard],[1,1,2])
-                    remove = self.get_cost(enemy)
-                    cost -= remove
-                    
-                    enemies.append(enemy[0])
-                self.make(line,enemies,tier,x)
-            if x.x == 15:
-                cost = 9
-                enemies = []
-                while cost >= 1:
-                    if len(enemies) == 5:
-                        break
-                    enemy = random.choices([sword,mage,lizard],[1,1,3])
-                    remove = self.get_cost(enemy)
-                    cost -= remove
-                    
-                    enemies.append(enemy[0])
-                self.make(line,enemies,tier,x)
-            if x.x == 16:
-                cost = 10
-                enemies = []
-                while cost >= 1:
-                    if len(enemies) == 5:
-                        break
-                    enemy = random.choices([sword,mage,lizard],[1,1,1])
-                    remove = self.get_cost(enemy)
-                    cost -= remove
-                    
-                    enemies.append(enemy[0])
-                self.make(line,enemies,tier,x)
-            if x.x == 17:
-                cost = 11
-                enemies = []
-                while cost >= 1:
-                    if len(enemies) == 5:
-                        break
-                    enemy = random.choices([sword,mage,C,lizard],[1,1,2,1])
-                    remove = self.get_cost(enemy)
-                    cost -= remove
-                    
-                    enemies.append(enemy[0])
-                self.make(line,enemies,tier,x)
-            if x.x == 18:
-                cost = 11
-                enemies = []
-                while cost >= 1:
-                    if len(enemies) == 5:
-                        break
-                    enemy = random.choices([sword,mage,C,lizard],[1,1,3,1])
-                    remove = self.get_cost(enemy)
-                    cost -= remove
-                    
-                    enemies.append(enemy[0])
-                self.make(line,enemies,tier,x)
-            if x.x == 19:
-                cost = 12
-                enemies = []
-                while cost >= 1:
-                    if len(enemies) == 5:
-                        break
-                    enemy = random.choices([sword,mage,C,lizard],[4,1,1,1])
-                    remove = self.get_cost(enemy)
-                    cost -= remove
-                    
-                    enemies.append(enemy[0])
-                self.make(line,enemies,tier,x)
-            if x.x == 20:
-                cost = 12
-                enemies = []
-                while cost >= 1:
-                    if len(enemies) == 5:
-                        break
-                    enemy = random.choices([sword,mage,C,lizard],[3,2,1,2])
-                    remove = self.get_cost(enemy)
-                    cost -= remove
-                    
-                    enemies.append(enemy[0])
-                self.make(line,enemies,tier,x)
-            if x.x == 21:
-                cost = 13
-                enemies = []
-                while cost >= 1:
-                    if len(enemies) == 5:
-                        break
-                    enemy = random.choices([sword,mage,C,lizard],[1,1,1,1])
-                    remove = self.get_cost(enemy)
-                    cost -= remove
-                    
-                    enemies.append(enemy[0])
-                self.make(line,enemies,tier,x)
-            if x.x == 22:
-                cost = 13
-                enemies = []
-                while cost >= 1:
-                    if len(enemies) == 5:
-                        break
-                    enemy = random.choices([sword,mage],[1,1])
-                    remove = self.get_cost(enemy)
-                    cost -= remove
-                    
-                    enemies.append(enemy[0])
-                self.make(line,enemies,tier,x)
-            if x.x == 23:
-                cost = 14
-                enemies = []
-                while cost >= 1:
-                    if len(enemies) == 5:
-                        break
-                    enemy = random.choices([sword,mage,C,lizard],[1,1,1,1])
-                    remove = self.get_cost(enemy)
-                    cost -= remove
-                    
-                    enemies.append(enemy[0])
-                self.make(line,enemies,tier,x)
-            if x.x == 24:
-                cost = 14
-                enemies = []
-                while cost >= 1:
-                    if len(enemies) == 5:
-                        break
-                    enemy = random.choices([sword,mage,C,lizard],[1,1,1,1])
-                    remove = self.get_cost(enemy)
-                    cost -= remove
-                    
-                    enemies.append(enemy[0])
-                self.make(line,enemies,tier,x)
-            if x.x == 25:
-                cost = 14
-                enemies = []
-                while cost >= 1:
-                    if len(enemies) == 5:
-                        break
-                    enemy = random.choices([sword,mage,C,lizard],[1,2,2,1])
-                    remove = self.get_cost(enemy)
-                    cost -= remove
-                    
-                    enemies.append(enemy[0])
-                self.make(line,enemies,tier,x)
-            if x.x == 26:
-                cost = 15
-                enemies = []
-                while cost >= 1:
-                    if len(enemies) == 5:
-                        break
-                    enemy = random.choices([sword,mage,C,lizard],[1,5,3,1])
-                    remove = self.get_cost(enemy)
-                    cost -= remove
-                    
-                    enemies.append(enemy[0])
-                self.make(line,enemies,tier,x)
-            if x.x == 27:
-                cost = 15
-                enemies = []
-                while cost >= 1:
-                    if len(enemies) == 5:
-                        break
-                    enemy = random.choices([mage,C],[1,1])
-                    remove = self.get_cost(enemy)
-                    cost -= remove
-                    
-                    enemies.append(enemy[0])
-                self.make(line,enemies,tier,x)
+                if x.x == 6:
+                    cost = 4
+                    enemies = []
+                    while cost >= 1:
+                        if len(enemies) == 5:
+                            break
+                        enemy = random.choices([sword,mage],[1,1])
+                        remove = self.get_cost(enemy)
+                        cost -= remove
+
+                        enemies.append(enemy[0])
+                    self.make(line,enemies,tier,x)
+                if x.x == 7:
+                    cost = 5
+                    enemies = []
+                    while cost >= 1:
+                        if len(enemies) == 5:
+                            break
+                        enemy = random.choices([sword,mage],[1,1])
+                        remove = self.get_cost(enemy)
+                        cost -= remove
+
+                        enemies.append(enemy[0])
+                    self.make(line,enemies,tier,x)
+                if x.x == 8:
+                    cost = 5
+                    enemies = []
+                    while cost >= 1:
+                        if len(enemies) == 5:
+                            break
+                        enemy = random.choices([sword,mage],[1,2])
+                        remove = self.get_cost(enemy)
+                        cost -= remove
+
+                        enemies.append(enemy[0])
+                    self.make(line,enemies,tier,x)
+                if x.x == 9:
+                    cost = 5
+                    enemies = []
+                    while cost >= 1:
+                        if len(enemies) == 5:
+                            break
+                        enemy = random.choices([sword,mage],[1,1])
+                        remove = self.get_cost(enemy)
+                        cost -= remove
+
+                        enemies.append(enemy[0])
+                    self.make(line,enemies,tier,x)
+                if x.x == 10:
+                    cost = 5
+                    enemies = []
+                    while cost >= 1:
+                        if len(enemies) == 5:
+                            break
+                        enemy = random.choices([sword,mage,lizard],[1,1,5])
+                        remove = self.get_cost(enemy)
+                        cost -= remove
+
+                        enemies.append(enemy[0])
+                    self.make(line,enemies,tier,x)
+                if x.x == 11:
+                    cost = 6
+                    enemies = []
+                    while cost >= 1:
+                        if len(enemies) == 5:
+                            break
+                        enemy = random.choices([sword,mage,lizard],[1,2,2])
+                        remove = self.get_cost(enemy)
+                        cost -= remove
+
+                        enemies.append(enemy[0])
+                    self.make(line,enemies,tier,x)
+                if x.x == 12:
+                    cost = 7
+                    enemies = []
+                    while cost >= 1:
+                        if len(enemies) == 5:
+                            break
+                        enemy = random.choices([sword,mage,lizard],[1,2,2])
+                        remove = self.get_cost(enemy)
+                        cost -= remove
+
+                        enemies.append(enemy[0])
+                    self.make(line,enemies,tier,x)
+                if x.x == 13:
+                    cost = 8
+                    enemies = []
+                    while cost >= 1:
+                        if len(enemies) == 5:
+                            break
+                        enemy = random.choices([sword,mage,lizard],[1,1,2])
+                        remove = self.get_cost(enemy)
+                        cost -= remove
+
+                        enemies.append(enemy[0])
+                    self.make(line,enemies,tier,x)
+                if x.x == 14:
+                    cost = 8
+                    enemies = []
+                    while cost >= 1:
+                        if len(enemies) == 5:
+                            break
+                        enemy = random.choices([sword,mage,lizard],[1,1,2])
+                        remove = self.get_cost(enemy)
+                        cost -= remove
+
+                        enemies.append(enemy[0])
+                    self.make(line,enemies,tier,x)
+                if x.x == 15:
+                    cost = 9
+                    enemies = []
+                    while cost >= 1:
+                        if len(enemies) == 5:
+                            break
+                        enemy = random.choices([sword,mage,lizard],[1,1,3])
+                        remove = self.get_cost(enemy)
+                        cost -= remove
+
+                        enemies.append(enemy[0])
+                    self.make(line,enemies,tier,x)
+                if x.x == 16:
+                    cost = 10
+                    enemies = []
+                    while cost >= 1:
+                        if len(enemies) == 5:
+                            break
+                        enemy = random.choices([sword,mage,lizard],[1,1,1])
+                        remove = self.get_cost(enemy)
+                        cost -= remove
+
+                        enemies.append(enemy[0])
+                    self.make(line,enemies,tier,x)
+                if x.x == 17:
+                    cost = 11
+                    enemies = []
+                    while cost >= 1:
+                        if len(enemies) == 5:
+                            break
+                        enemy = random.choices([sword,mage,C,lizard],[1,1,2,1])
+                        remove = self.get_cost(enemy)
+                        cost -= remove
+
+                        enemies.append(enemy[0])
+                    self.make(line,enemies,tier,x)
+                if x.x == 18:
+                    cost = 11
+                    enemies = []
+                    while cost >= 1:
+                        if len(enemies) == 5:
+                            break
+                        enemy = random.choices([sword,mage,C,lizard],[1,1,3,1])
+                        remove = self.get_cost(enemy)
+                        cost -= remove
+
+                        enemies.append(enemy[0])
+                    self.make(line,enemies,tier,x)
+                if x.x == 19:
+                    cost = 12
+                    enemies = []
+                    while cost >= 1:
+                        if len(enemies) == 5:
+                            break
+                        enemy = random.choices([sword,mage,C,lizard],[4,1,1,1])
+                        remove = self.get_cost(enemy)
+                        cost -= remove
+
+                        enemies.append(enemy[0])
+                    self.make(line,enemies,tier,x)
+                if x.x == 20:
+                    cost = 12
+                    enemies = []
+                    while cost >= 1:
+                        if len(enemies) == 5:
+                            break
+                        enemy = random.choices([sword,mage,C,lizard],[3,2,1,2])
+                        remove = self.get_cost(enemy)
+                        cost -= remove
+
+                        enemies.append(enemy[0])
+                    self.make(line,enemies,tier,x)
+                if x.x == 21:
+                    cost = 13
+                    enemies = []
+                    while cost >= 1:
+                        if len(enemies) == 5:
+                            break
+                        enemy = random.choices([sword,mage,C,lizard],[1,1,1,1])
+                        remove = self.get_cost(enemy)
+                        cost -= remove
+
+                        enemies.append(enemy[0])
+                    self.make(line,enemies,tier,x)
+                if x.x == 22:
+                    cost = 13
+                    enemies = []
+                    while cost >= 1:
+                        if len(enemies) == 5:
+                            break
+                        enemy = random.choices([sword,mage],[1,1])
+                        remove = self.get_cost(enemy)
+                        cost -= remove
+
+                        enemies.append(enemy[0])
+                    self.make(line,enemies,tier,x)
+                if x.x == 23:
+                    cost = 14
+                    enemies = []
+                    while cost >= 1:
+                        if len(enemies) == 5:
+                            break
+                        enemy = random.choices([sword,mage,C,lizard],[1,1,1,1])
+                        remove = self.get_cost(enemy)
+                        cost -= remove
+
+                        enemies.append(enemy[0])
+                    self.make(line,enemies,tier,x)
+                if x.x == 24:
+                    cost = 14
+                    enemies = []
+                    while cost >= 1:
+                        if len(enemies) == 5:
+                            break
+                        enemy = random.choices([sword,mage,C,lizard],[1,1,1,1])
+                        remove = self.get_cost(enemy)
+                        cost -= remove
+
+                        enemies.append(enemy[0])
+                    self.make(line,enemies,tier,x)
+                if x.x == 25:
+                    cost = 14
+                    enemies = []
+                    while cost >= 1:
+                        if len(enemies) == 5:
+                            break
+                        enemy = random.choices([sword,mage,C,lizard],[1,2,2,1])
+                        remove = self.get_cost(enemy)
+                        cost -= remove
+
+                        enemies.append(enemy[0])
+                    self.make(line,enemies,tier,x)
+                if x.x == 26:
+                    cost = 15
+                    enemies = []
+                    while cost >= 1:
+                        if len(enemies) == 5:
+                            break
+                        enemy = random.choices([sword,mage,C,lizard],[1,5,3,1])
+                        remove = self.get_cost(enemy)
+                        cost -= remove
+
+                        enemies.append(enemy[0])
+                    self.make(line,enemies,tier,x)
+                if x.x == 27:
+                    cost = 15
+                    enemies = []
+                    while cost >= 1:
+                        if len(enemies) == 5:
+                            break
+                        enemy = random.choices([mage,C],[1,1])
+                        remove = self.get_cost(enemy)
+                        cost -= remove
+
+                        enemies.append(enemy[0])
+                    self.make(line,enemies,tier,x)
+            else:
+                self.make(line,[],tier,x)
             if x.x == 28:
-                self.levelid.update({line:[cbm]})
+                self.levelid.update({line:[cbm,'battle']})
                 self.levelindex.update({line:x})
             line += 1         
     def get_connections(self):
@@ -958,18 +1056,19 @@ class level():
         self.levelid.update({line:[enemies,tier]})
         self.levelindex.update({line:x}) 
     def nextlevel(self):
-        #if mpos2 in self.connections:
+        if mpos2 in self.connections:
             if self.click == True:
                 self.crossvec = mpos2
                 self.level = mpos2.x - 3
                 e,tier = self.getlevel()
                 if self.level == 1:
                     M.restart()
-                if tier == 'battle':
+                if 'battle' == tier:
                     M.start()
                 else:
                     M.shopstart()
                 L.get_connections()
+                print(tier)
                 main.current_state = tier
                 self.click = False
     def getlevel(self):
@@ -1008,20 +1107,47 @@ class battle():
         self.enemy = 0
         self.display = 0
         self.damage = 0
+    def switch(self):
+        if self.selected1 == 0:
+            self.selected1 = self.selectedchar
+        elif self.selected2 == 0:
+            self.selected2 = self.selectedchar
+        if self.selected1 != 0 and self.selected2 != 0:
+            move = self.selected1
+            if move in self.allies:
+                new = self.selected2
+                newl = {}
+                save = {}
+                for x in self.allies:
+                    save.update({x:self.allies[x]})
+                for x in self.allies:
+                    newl.update({x:x})
+                newl[move] = new
+                newl[new] = move
+                print(save)
+                self.allies = {value:key for key, value in newl.items()}
+                for x in save:
+                    self.allies[x] = save[x]
+            self.selected1 = 0
+            self.selected2 = 0
+            self.numberofallies()
+        print(self.selected1,self.selected2)
     def shopstart(self):
         self.selectedshop = 0
     def draw_shopkeeps(self):
         vec = self.clericvec
         img = self.cleric_img
         goal_center = (int(vec.x * TILESIZE + TILESIZE / 2), int(vec.y * TILESIZE + TILESIZE / 2))    
-        screen.blit(img, img.get_rect(center=goal_center))
+        self.b = screen.blit(img, img.get_rect(center=goal_center))
     def draw_shopinventory(self):
         if self.selectedshop == 'cleric':
-            pass
+            skcleric.draw_actions()
     def selectingshop(self):
-        if mpos in self.clericclickaura:
-            print('bra')
+        if self.b.collidepoint(mpos*TILESIZE):
             self.selectedshop = 'cleric'
+    def selectingshopaction(self):
+        if self.selectedshop == 'cleric':
+            skcleric.action()
     def restart(self):
         ally1 = Hap
         ally2 = H
@@ -1053,6 +1179,7 @@ class battle():
 
     def start(self):
         enemy,tier = L.getlevel()
+        self.savecost = enemy
         for x in enemy:
             if x in self.enemy:
                 tout = x.vec
@@ -1083,28 +1210,6 @@ class battle():
                 lel[1] -=2
                 screen.blit(lol, lel)
             screen.blit(cur, cur.get_rect(center=goal_center))
-    def draw_enemychar(self):
-        for x in self.enemy:   
-            if len(self.enemy[x]) > 1:
-                for y in self.enemy[x]:
-                    ani = x.combat_animation
-                    vec = y[0]
-                    goal_center = (int(vec.x * TILESIZE + TILESIZE / 2), int(vec.y * TILESIZE + TILESIZE / 2))
-                    screen.blit(ani[self.current_animation], ani[self.current_animation].get_rect(center=goal_center))
-            else:
-                ani = x.combat_animation 
-                vec = self.enemy[x][0][0]    
-                goal_center = (int(vec.x * TILESIZE + TILESIZE / 2), int(vec.y * TILESIZE + TILESIZE / 2))
-                screen.blit(ani[self.current_animation], ani[self.current_animation].get_rect(center=goal_center))
-    def draw_icons(self):
-        if M.selectedchar == self.ally1:
-            self.ally1.draw_icons()
-        if M.selectedchar == self.ally2:
-            self.ally2.draw_icons()
-        if M.selectedchar == self.ally3:
-            self.ally3.draw_icons()
-    def draw_healthbar(self):
-        for x in self.allies:
             vec = self.allies[x][0]
             heat = self.allies[x][1]
             rect = pg.Rect(int(vec.x*TILESIZE - 10), int(vec.y*TILESIZE - 120), int(heat), 20)
@@ -1117,9 +1222,14 @@ class battle():
             
             text = str(heat)+'/'+str(x.health)
             draw_text(text, 20, BLACK, vec.x*TILESIZE - 10, vec.y*TILESIZE - 150)
-        for x in self.enemy:
+    def draw_enemychar(self):
+        for x in self.enemy:   
             if len(self.enemy[x]) > 1:
                 for y in self.enemy[x]:
+                    ani = x.combat_animation
+                    vec = y[0]
+                    goal_center = (int(vec.x * TILESIZE + TILESIZE / 2), int(vec.y * TILESIZE + TILESIZE / 2))
+                    screen.blit(ani[self.current_animation], ani[self.current_animation].get_rect(center=goal_center))
                     vec = y[0]
                     heat = y[1] 
                     text = str(round(heat))+'/'+str(x.health)
@@ -1127,12 +1237,26 @@ class battle():
                     rect = pg.Rect(int(vec.x*TILESIZE - 10), int(vec.y*TILESIZE - 120), int(heat), 20)
                     pg.draw.rect(screen,RED,rect)
             else:
+                ani = x.combat_animation 
+                vec = self.enemy[x][0][0]    
+                goal_center = (int(vec.x * TILESIZE + TILESIZE / 2), int(vec.y * TILESIZE + TILESIZE / 2))
+                screen.blit(ani[self.current_animation], ani[self.current_animation].get_rect(center=goal_center))
                 vec = self.enemy[x][0][0]
                 heat = self.enemy[x][0][1] 
                 text = str(round(heat))+'/'+str(x.health)
                 draw_text(text, 20, BLACK, vec.x*TILESIZE - 10, vec.y*TILESIZE - 150)
                 rect = pg.Rect(int(vec.x*TILESIZE - 10), int(vec.y*TILESIZE - 120), int(heat), 20)
                 pg.draw.rect(screen,RED,rect)
+
+                
+    def draw_icons(self):
+        if M.selectedchar == self.ally1:
+            self.ally1.draw_icons()
+        if M.selectedchar == self.ally2:
+            self.ally2.draw_icons()
+        if M.selectedchar == self.ally3:
+            self.ally3.draw_icons()
+            
     def draw_damage(self):
         for x in self.damage:
             damage = 0
@@ -1186,7 +1310,12 @@ class battle():
             self.enemy = {}
             self.l = []
             self.actions = []
-            
+            coins = 0
+            for x in self.savecost:
+                e = L.get_cost([x])
+                coins += e
+            main.amountmoney += coins
+            self.savecost = []
 
             
         if len(self.allies) <= 0:
@@ -1465,10 +1594,7 @@ M.restart()
 M.clericvec = vec(37,20)
 M.cleric_img = pg.image.load(os.path.join(filename,'cleric-1.png.png')).convert_alpha()
 M.cleric_img = pg.transform.scale(M.cleric_img, (256, 256))
-aura = [(1, 2), (0, 2), (-1, 2), (-2, 2), (-3, 2), (-3, 1), (-2, 1), (-1, 1), (0, 1), (1, 1), (1, 0), (0, 0), (-1, 0), (-2, 0), (-3, 0), (-3, -1), (-2, -1), (-1, -1), (0, -1), (1, -1), (1, -2), (0, -2), (-1, -2), (-2, -2), (-3, -2)]
-M.clericclickaura = []
-for x in aura:
-    M.clericclickaura.append(vec(x)+M.clericvec)
+M.savecost = []
 M.shopstart()
 
 M.targetedenemy = 0
@@ -1476,7 +1602,8 @@ background_fall = pg.image.load(os.path.join(filename,'backgorunds-2.png.png'))
 background_fall = pg.transform.scale(background_fall, (1920, 1080))
 
 
-
+M.selected1 = 0
+M.selected2 = 0
 
 M.display = False
 M.damage = {}
@@ -1490,7 +1617,7 @@ M.enemycanattack = False
 
 L.create_map()
 
-
+mpos = vec(0,0)
 create = []
 
 L.get_connections()
@@ -1502,24 +1629,30 @@ while running:
         # duh
         if event.type == pg.MOUSEBUTTONDOWN:
             if event.button == 1:
-                if main.current_state == 'battle' or main.current_state == 'shop':
+                if main.current_state == 'battle' or main.current_state == 'shop' or main.current_state == 'switch':
                     mpos = vec(pg.mouse.get_pos()) // TILESIZE
                     create.append(mpos)
                 if main.current_state == 'map':
                     mpos2 = vec(pg.mouse.get_pos()) // (TILESIZE*2)
+                    pos = pg.mouse.get_pos()
                     L.click = True
+
                 #L.crossvec =  mpos2
                 main.battletop()
                 #L.levels.append(vec(mpos2))
                 main.leveltop()
                 main.shoptop()
-                
+                main.switchtop()
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_r:
                 M.enemy = {}
                 M.checkifdead()
             if event.key == pg.K_e:
                 M.actions = [1,1,1]
+            if event.key == pg.K_q:
+                main.current_state = 'shop'
+
+
             if event.key == pg.K_a:
                 print([(int(loc.x -  M.clericvec.x), int(loc.y - M.clericvec.y)) for loc in create])
             if event.key == pg.K_m:
@@ -1543,4 +1676,6 @@ while running:
     main.battlebottom()
     main.shopbottom()
     main.draw_level()
+    main.draw_money()
+    main.switchbottom()
     pg.display.flip() # dose the changes goto doccumentation for other ways
