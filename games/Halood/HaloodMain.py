@@ -120,7 +120,7 @@ auras = [(1, 2), (0, 2), (-1, 2), (-2, 2), (-3, 2), (-3, 1), (-2, 1), (-1, 1), (
 lizard.clickaura = []
 for aura in auras:
     lizard.clickaura.append(vec(aura))
-lizard.attacks = {'pierce':[2,4,[0,1,0],3],'constrict':[5,1,[2,0,0],1],'miss':[0,2,[0,0,0],1]}
+lizard.attacks = {'pierce':[2,5,[0,1,0],3],'constrict':[5,1,[2,0,0],1],'miss':[0,2,[0,0,0],1]}
 
 class boss():
     class courptbattlemage():
@@ -491,13 +491,13 @@ for x in aura:
 class shopkeeper():
     class cleric():
         def action(self):
-            if self.healparty.collidepoint(mpos*TILESIZE) and main.amountmoney >= 40:
+            if self.healparty.collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)) and main.amountmoney >= 40:
                 for x in M.allies:
                     M.allies[x][1] += 40
                     if M.allies[x][1] >= x.health:
                         M.allies[x][1] = x.health
                 main.amountmoney -= 40
-            if self.healone.collidepoint(mpos*TILESIZE) and main.amountmoney >= 15:
+            if self.healone.collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)) and main.amountmoney >= 15:
                 self.heal = True
             elif self.heal == True and M.selectedchar != 0:
                 M.allies[M.selectedchar][1] += 40
@@ -505,7 +505,7 @@ class shopkeeper():
                     M.allies[M.selectedchar][1] = M.selectedchar.health
                 self.heal = False
                 main.amountmoney -= 15
-            if self.resone.collidepoint(mpos*TILESIZE) and main.amountmoney >= 100:
+            if self.resone.collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)) and main.amountmoney >= 100:
                 if M.ally1 not in M.allies:
                     pos = M.ally1.vec
                     eat = M.ally1.health
@@ -528,35 +528,32 @@ class shopkeeper():
                 M.numberofallies()
         def draw_actions(self):
             pos = M.clericvec
-            x = int(pos.x*TILESIZE-230)
+            x = int(pos.x*TILESIZE-250)
             y = int(pos.y*TILESIZE-70)
-            rect = pg.Rect(x, y, 135, 30)
+            rect = pg.Rect(x, y, 135, 45)
             self.healparty = pg.draw.rect(screen,BLACK,rect)
             draw_text('heal party',20,WHITE,x+5, y)
-            x2 = int(pos.x*TILESIZE-280)
+            x2 = int(pos.x*TILESIZE-300)
             y2 = int(pos.y*TILESIZE-70)
-            rect = pg.Rect(x2, y2, 40, 30)
+            rect = pg.Rect(x2, y2, 40, 45)
             pg.draw.rect(screen,BLACK,rect)
             draw_text('40',20,WHITE,x2+5, y2)
-            x = int(pos.x*TILESIZE-230)
-            y = int(pos.y*TILESIZE-35)
-            rect = pg.Rect(x, y, 135, 30)
+            
+            y = int(pos.y*TILESIZE-20)
+            rect = pg.Rect(x, y, 135, 45)
             self.healone = pg.draw.rect(screen,BLACK,rect)
             draw_text('heal individual',20,WHITE,x+5, y)
-            x2 = int(pos.x*TILESIZE-280)
-            y2 = int(pos.y*TILESIZE-35)
-            rect = pg.Rect(x2, y2, 40, 30)
+            y2 = int(pos.y*TILESIZE-20)
+            rect = pg.Rect(x2, y2, 40, 45)
             pg.draw.rect(screen,BLACK,rect)
             draw_text('15',20,WHITE,x2+5, y2)
 
-            x = int(pos.x*TILESIZE-230)
-            y = int(pos.y*TILESIZE)
-            rect = pg.Rect(x, y, 135, 30)
+            y = int(pos.y*TILESIZE+30)
+            rect = pg.Rect(x, y, 135, 45)
             self.resone = pg.draw.rect(screen,BLACK,rect)
             draw_text('res individual',20,WHITE,x+5, y)
-            x2 = int(pos.x*TILESIZE-280)
-            y2 = int(pos.y*TILESIZE)
-            rect = pg.Rect(x2, y2, 40, 30)
+            y2 = int(pos.y*TILESIZE+30)
+            rect = pg.Rect(x2, y2, 40, 45)
             pg.draw.rect(screen,BLACK,rect)
             draw_text('100',20,WHITE,x2+5, y2)
 
@@ -639,7 +636,7 @@ class main():
             if len(M.actions) >= len(M.allies) and M.enemycanattack == False:
                 self.attck_timer = pg.time.get_ticks()
                 M.enemycanattack = True
-            #M.draw_background()
+            M.draw_background()
             M.draw_allychar()
             M.draw_enemychar()
             M.draw_icons()
@@ -707,7 +704,6 @@ class level():
         self.level = 0
         self.crossvec = 0
     def clickmenu(self):
-        print(pos)
         if self.switchbutton.collidepoint(pos):
             main.current_state = 'switch'
     def draw_icons(self):
@@ -1030,7 +1026,7 @@ class level():
             else:
                 self.make(line,[],tier,x)
             if x.x == 28:
-                self.levelid.update({line:[cbm,'battle']})
+                self.levelid.update({line:[[cbm],'battle']})
                 self.levelindex.update({line:x})
             line += 1         
     def get_connections(self):
@@ -1068,7 +1064,6 @@ class level():
                 else:
                     M.shopstart()
                 L.get_connections()
-                print(tier)
                 main.current_state = tier
                 self.click = False
     def getlevel(self):
@@ -1124,14 +1119,12 @@ class battle():
                     newl.update({x:x})
                 newl[move] = new
                 newl[new] = move
-                print(save)
                 self.allies = {value:key for key, value in newl.items()}
                 for x in save:
                     self.allies[x] = save[x]
             self.selected1 = 0
             self.selected2 = 0
             self.numberofallies()
-        print(self.selected1,self.selected2)
     def shopstart(self):
         self.selectedshop = 0
     def draw_shopkeeps(self):
@@ -1143,7 +1136,7 @@ class battle():
         if self.selectedshop == 'cleric':
             skcleric.draw_actions()
     def selectingshop(self):
-        if self.b.collidepoint(mpos*TILESIZE):
+        if self.b.collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)):
             self.selectedshop = 'cleric'
     def selectingshopaction(self):
         if self.selectedshop == 'cleric':
@@ -1486,7 +1479,6 @@ class battle():
         attacking = random.choices(attacks,chance)
         damage = attack[attacking[0]]
         print(attacking,damage[0])
-        #print(damage)
         
         for x in range(0,damage[3]):
             target.damage(damage)
@@ -1670,8 +1662,8 @@ while running:
     pg.display.set_caption("{:.2f}".format(clock.get_fps())) # changes the name of the application
     screen.fill(WHITE) # fills screnn with color
     # anything down here will be displayed ontop of anything above
-    draw_grid()
-    #draw_biggrid()
+    #draw_grid()
+    draw_biggrid()
     main.levelbottom()
     main.battlebottom()
     main.shopbottom()
