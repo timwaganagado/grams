@@ -200,6 +200,18 @@ for aura in auras:
 cbm.attacks = {'slash':[5,4,[0,0,0],2,False],'blast':[15,2,[0,0,1],1,False],'charging fire':[1,2,[0,0,3],1,True],'blinding light':[1,1,[1,0,0],1,True],'miss':[0,2,[0,0,0],1,True]}
 
 class ally():
+    def __init__(self):
+        l = 0
+    def profile(self,current):
+        current = current[1]
+        l = vec(40,10)
+        current = current.copy()
+        rect = pg.Rect(0,100,0,150)
+        current = pg.transform.chop(current,rect)
+        current = pg.transform.scale(current,(300,128))
+        goal_center = (int(l.x * TILESIZE + TILESIZE / 2), int(l.y * TILESIZE + TILESIZE / 2))
+        screen.blit(current, current.get_rect(center=goal_center))
+
     class heplane():
         def __init__(self):
             self.attack1 = 0
@@ -255,6 +267,8 @@ class ally():
                     draw_text(text, 20, GREEN, self.attacks[self.attack3][2].x*TILESIZE, self.attacks[self.attack3][2].y*TILESIZE + 65)
         def draw_attack(self):
             pass
+        def draw_skilltree(self):
+            ally.profile(self.combat_animation)
     class cri():
         def __int__(self):
             self.attack1 = 0
@@ -336,6 +350,8 @@ class ally():
                     draw_text(text, 20, GREEN, self.attacks[self.attack3][2].x*TILESIZE, self.attacks[self.attack3][2].y*TILESIZE + 75)
         def draw_attack(self):
             pass
+        def draw_skilltree(self):
+            ally.profile(self.combat_animation)
     class haptic():
         def __init__(self):
             attack1 = 0
@@ -385,28 +401,54 @@ class ally():
                     print('bleed')
                     M.allies[self][4][1] += taken[2][1]
         def draw_icons(self):
-            for x in self.attacks:
-                rect = pg.Rect(int(M.allies[self][0].x*TILESIZE+80), int(M.allies[self][0].y*TILESIZE-50), 20, 135)
-                pg.draw.rect(screen,MOMENTUMCOLOR,rect)
-                for y in range(0,self.momentum):
-                    rect = pg.Rect(int(M.allies[self][0].x*TILESIZE+80), int(M.allies[self][0].y*TILESIZE+50-50*y), 20, 45)
-                    pg.draw.rect(screen,WHITE,rect)
+        
+            rect = pg.Rect(int(M.allies[self][0].x*TILESIZE+80), int(M.allies[self][0].y*TILESIZE-50), 20, 135)
+            pg.draw.rect(screen,MOMENTUMCOLOR,rect)
+            for y in range(0,self.momentum):
+                rect = pg.Rect(int(M.allies[self][0].x*TILESIZE+80), int(M.allies[self][0].y*TILESIZE+50-50*y), 20, 45)
+                pg.draw.rect(screen,WHITE,rect)
+            
                 
-                    
-                icon = self.attacks[x][1]
-                pos = self.attacks[x][2]
-                
+            icon = self.attacks[self.attack1][1]
+            pos = self.attacks[self.attack1][2]
+            rect = pg.Rect(int(pos.x*TILESIZE-49), int(pos.y*TILESIZE-50), 128, 150)
+            pg.draw.rect(screen,BLACK,rect)
+            goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))
+            screen.blit(icon, icon.get_rect(center=goal_center))
+            text = str(self.attacks[self.attack1][0]*self.momentum)
+            draw_text(text, 20, RED, self.attacks[self.attack1][2].x*TILESIZE, self.attacks[self.attack1][2].y*TILESIZE + 75)
+
+            icon = self.attacks[self.attack2][1]
+            pos = self.attacks[self.attack2][2]
+            rect = pg.Rect(int(pos.x*TILESIZE-49), int(pos.y*TILESIZE-50), 128, 150)
+            pg.draw.rect(screen,BLACK,rect)
+            goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))
+            screen.blit(icon, icon.get_rect(center=goal_center))
+            text = str(self.attacks[self.attack2][0])
+            draw_text(text, 20, RED, self.attacks[self.attack2][2].x*TILESIZE, self.attacks[self.attack2][2].y*TILESIZE + 75)
+
+            if 'acceleration' in self.unlockedabilites:
+                icon = self.attacks[self.attack3][1]
+                pos = self.attacks[self.attack3][2]
+
                 rect = pg.Rect(int(pos.x*TILESIZE-49), int(pos.y*TILESIZE-50), 128, 150)
                 pg.draw.rect(screen,BLACK,rect)
                 goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))
                 screen.blit(icon, icon.get_rect(center=goal_center))
-                text = str(self.attacks[self.attack1][0]*self.momentum)
-                draw_text(text, 20, RED, self.attacks[self.attack1][2].x*TILESIZE, self.attacks[self.attack1][2].y*TILESIZE + 75)
-                text = str(self.attacks[self.attack2][0])
-                draw_text(text, 20, RED, self.attacks[self.attack2][2].x*TILESIZE, self.attacks[self.attack2][2].y*TILESIZE + 75)
                 text = str(self.attacks[self.attack3][0])
                 draw_text(text, 20, BLACK, self.attacks[self.attack3][2].x*TILESIZE, self.attacks[self.attack3][2].y*TILESIZE + 75)
-                    
+        def draw_skilltree(self):
+            ally.profile(self.combat_animation)
+            for z in self.abilities:
+                pos = self.abilities[z][1]
+                x = int(pos.x*TILESIZE-230)
+                y = int(pos.y*TILESIZE-35)
+                rect = pg.Rect(x, y, 50, 50)
+                self.abilities[z][0] = pg.draw.rect(screen,BLACK,rect)
+
+
+
+ally = ally()
                     
 iconaura = [(2, 2), (2, 1), (2, 0), (2, -1), (2, -2), (1, -2), (1, -1), (1, 0), (1, 1), (1, 2), (0, 2), (0, 1), (0, 0), (0, -1), (0, -2), (-1, -2), (-1, -1), (-1, 0), (-1, 1), (-1, 2), (-2, 2), (-2, 1), (-2, 0), (-2, -1), (-2, -2)]            
 H = ally.heplane()
@@ -427,6 +469,8 @@ H.attack3 = 'blood heal'
 H.vec = vec(20,15)
 H.health = 50
 H.shield = 0
+H.abilities = {}
+H.unlockedabilites = []
 H.combat_animation = {1:heplane_combat_img,2:heplane_combat2_img,3:heplane_combat3_img}
 H.attacks = {H.attack1:[[10,15],heplane_ability1_img,vec(18, 31),[vec(18,31) + a for a in iconaura],False,[1,0,0]],H.attack2:[[5,0],heplane_ability2_img,vec(23,31),[vec(23,31) + a for a in iconaura],False,[0,0,0]],H.attack3:[[0,0],heplane_ability3_img,vec(28,31),[vec(28,31)+ a for a in iconaura],True,[0,0,0]]}
 H.healdam = []
@@ -444,9 +488,9 @@ cri_combat3_img = pg.image.load(os.path.join(filename,'Layer 1_cri_combat3.png')
 cri_combat3_img = pg.transform.scale(cri_combat3_img, (256, 256))
 cri_ability1_img = pg.image.load(os.path.join(filename,'crystal_icons-2.png.png'))
 cri_ability1_img = pg.transform.scale(cri_ability1_img, (128, 128))
-cri_ability2_img = pg.image.load(os.path.join(filename,'crystal_icons-1.png.png'))
+cri_ability2_img = pg.image.load(os.path.join(filename,'crystal_icons-3.png.png'))
 cri_ability2_img = pg.transform.scale(cri_ability2_img, (128, 128))
-cri_ability3_img = pg.image.load(os.path.join(filename,'crystal_icons-3.png.png'))
+cri_ability3_img = pg.image.load(os.path.join(filename,'crystal_icons-1.png.png'))
 cri_ability3_img = pg.transform.scale(cri_ability3_img, (128, 128))
 cri_stunicon_img = pg.image.load(os.path.join(filename,'sri_stun-1.png.png'))
 cri_stunicon_img = pg.transform.scale(cri_stunicon_img, (128, 128))
@@ -456,8 +500,10 @@ S.attack3 = 'karen and her healing balony'
 S.vec = vec(20,25)
 S.health = 25
 S.shield = 10
+S.abilities = {}
+S.unlockedabilites = []
 S.combat_animation = {1:cri_combat_img,2:cri_combat2_img,3:cri_combat3_img}
-S.attacks = {S.attack1:[5,cri_ability1_img,vec(18,31),[vec(18,31) + a for a in iconaura],False,[0,0,0]],S.attack2:[2,cri_ability2_img,vec(23,31),[vec(23,31) + a for a in iconaura],True,[0,0,0]],S.attack3:[2,cri_ability3_img,vec(28,31),[vec(28,31)+a for a in iconaura],True,[0,0,0]]}
+S.attacks = {S.attack1:[5,cri_ability1_img,vec(18,31),[vec(18,31) + a for a in iconaura],False,[0,0,0]],S.attack2:[2,cri_ability3_img,vec(28,31),[vec(28,31)+a for a in iconaura],True,[0,0,0]],S.attack3:[2,cri_ability2_img,vec(23,31),[vec(23,31) + a for a in iconaura],True,[0,0,0]]}
 S.clickaura = []
 for x in aura:
     S.clickaura.append(vec(x))
@@ -482,6 +528,8 @@ Hap.health = 60
 Hap.shield = 0
 Hap.momentum = 0
 Hap.attacktwice = False
+Hap.abilities = {Hap.attack3:[0,vec(40,20),False]}
+Hap.unlockedabilites = []
 Hap.combat_animation = {1:haptic_combat_img,2:haptic_combat2_img,3:haptic_combat3_img}
 Hap.attacks = {Hap.attack1:[5,haptic_ability1_img,vec(18,31),[vec(18,31) + a for a in iconaura],False,[0,0,0]],Hap.attack2:[5,haptic_ability2_img,vec(23,31),[vec(23,31) + a for a in iconaura],False,[0,0,0]],Hap.attack3:[0,haptic_ability3_img,vec(28,31),[vec(28,31)+a for a in iconaura],True,[0,0,0]]}
 Hap.clickaura = []
@@ -682,6 +730,7 @@ class main():
     def switchbottom(self):
         if self.current_state == 'switch':
             M.draw_allychar()
+            M.draw_switchbuttons()
 
 main = main()
 
@@ -712,13 +761,11 @@ class level():
         y = int(pos.y*TILESIZE-35)
         rect = pg.Rect(x, y, 135, 30)
         self.switchbutton = pg.draw.rect(screen,BLACK,rect)
-        draw_text('heal individual',20,BLACK,x+5, y)
+        draw_text('Party',20,WHITE,x+5, y)
     def draw_currentposition(self):
         vec = self.crossvec
         goal_center = (int(vec.x * TILESIZE*2 + TILESIZE*2 / 2), int(vec.y * TILESIZE*2 + TILESIZE*2 / 2))
         screen.blit(cross, cross.get_rect(center=goal_center))
-
-
         for x in self.levelindex:
             if self.levelid[x][1] == 'shop':
                 pg.draw.circle(screen,BLUE,(int(self.levelindex[x].x*TILESIZE*2+TILESIZE*2/2),int(self.levelindex[x].y*TILESIZE*2+TILESIZE*2/2)),5)
@@ -1102,29 +1149,54 @@ class battle():
         self.enemy = 0
         self.display = 0
         self.damage = 0
+    def draw_switchbuttons(self):
+        pos = vec(20,30)
+        x = int(pos.x*TILESIZE-230)
+        y = int(pos.y*TILESIZE-35)
+        rect = pg.Rect(x, y, 135, 30)
+        self.swapbutton = pg.draw.rect(screen,BLACK,rect)
+        text = 'done'
+        if self.swap == False:
+            text = 'change order'
+        draw_text(text,20,WHITE,x+5, y)
+        self.selectedchar = Hap
+        if self.selectedchar != 0:
+            self.selectedchar.draw_skilltree()
+
     def switch(self):
-        if self.selected1 == 0:
-            self.selected1 = self.selectedchar
-        elif self.selected2 == 0:
-            self.selected2 = self.selectedchar
-        if self.selected1 != 0 and self.selected2 != 0:
-            move = self.selected1
-            if move in self.allies:
-                new = self.selected2
-                newl = {}
-                save = {}
-                for x in self.allies:
-                    save.update({x:self.allies[x]})
-                for x in self.allies:
-                    newl.update({x:x})
-                newl[move] = new
-                newl[new] = move
-                self.allies = {value:key for key, value in newl.items()}
-                for x in save:
-                    self.allies[x] = save[x]
-            self.selected1 = 0
-            self.selected2 = 0
-            self.numberofallies()
+        for l in self.allies:
+            for k in l.abilities:
+                if l.abilities[k][0].collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)):
+                    print(check)
+        if self.swapbutton.collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)):
+            if self.swap == False:
+                self.swap = True
+            elif self.swap == True:
+                self.swap = False
+        if self.swap == True:
+            if self.selected1 == 0:
+                self.selected1 = self.selectedchar
+            elif self.selected2 == 0:
+                self.selected2 = self.selectedchar
+            if self.selected1 != 0 and self.selected2 != 0:
+                move = self.selected1
+                if move in self.allies:
+                    new = self.selected2
+                    newl = {}
+                    save = {}
+                    for x in self.allies:
+                        save.update({x:self.allies[x]})
+                    for x in self.allies:
+                        newl.update({x:x})
+                    newl[move] = new
+                    newl[new] = move
+                    self.allies = {value:key for key, value in newl.items()}
+                    for x in save:
+                        self.allies[x] = save[x]
+                self.selected1 = 0
+                self.selected2 = 0
+                self.numberofallies()
+
     def shopstart(self):
         self.selectedshop = 0
     def draw_shopkeeps(self):
@@ -1577,6 +1649,10 @@ delay when entering and exiting a fight
 TRY
 cool downs all
 cool downs coilent
+
+bonnied
+evolution of a halood
+affects bones
 '''
 M = battle()
 
@@ -1596,6 +1672,7 @@ background_fall = pg.transform.scale(background_fall, (1920, 1080))
 
 M.selected1 = 0
 M.selected2 = 0
+M.swap = False
 
 M.display = False
 M.damage = {}
@@ -1630,11 +1707,12 @@ while running:
                     L.click = True
 
                 #L.crossvec =  mpos2
+                main.switchtop()
                 main.battletop()
                 #L.levels.append(vec(mpos2))
                 main.leveltop()
                 main.shoptop()
-                main.switchtop()
+                
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_r:
                 M.enemy = {}
@@ -1663,11 +1741,12 @@ while running:
     screen.fill(WHITE) # fills screnn with color
     # anything down here will be displayed ontop of anything above
     #draw_grid()
+    
     draw_biggrid()
+    main.switchbottom()
     main.levelbottom()
     main.battlebottom()
     main.shopbottom()
     main.draw_level()
     main.draw_money()
-    main.switchbottom()
     pg.display.flip() # dose the changes goto doccumentation for other ways
