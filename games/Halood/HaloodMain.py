@@ -307,13 +307,14 @@ class ally():
         def passive(self,used):
             for x in self.attacks:
                 if x == used:
-                    self.attacks[x][0] += 1
+                    self.attacks[x][0] += (1 + self.inc)
                 else:
-                    self.attacks[x][0] += 2
+                    self.attacks[x][0] += (2 + self.inc)
                 if x == self.attack1:
-                    if self.attacks[x][0] > 6:
+                    if self.attacks[x][0] >= self.stuncap:
                         self.attacks[x][5][0] = 1
-                    if self.attacks[x][0] < 6:
+                        print('stun')
+                    if self.attacks[x][0] < self.stuncap:
                         self.attacks[x][5][0] = 0
                 if self.attacks[x][0] > 10:
                     self.attacks[x][0] = 2
@@ -331,7 +332,7 @@ class ally():
             for x in self.attacks:
                 cur = cri_stunicon_img
                 goal_center = (int(M.allies[self][0].x * TILESIZE + TILESIZE / 2 + 80), int(M.allies[self][0].y * TILESIZE + TILESIZE / 2 - 50))
-                if self.attacks[self.attack1][0] < 7:
+                if self.attacks[self.attack1][0] < self.stuncap:
                     cur = cur.copy( )
                     cur.fill((105, 105, 105, 255),special_flags=pg.BLEND_RGB_MULT)            
                 screen.blit(cur, cur.get_rect(center=goal_center))
@@ -352,6 +353,21 @@ class ally():
             pass
         def draw_skilltree(self):
             ally.profile(self.combat_animation)
+            for z in self.abilities:
+                pos = self.abilities[z][1]
+                x = int(pos.x*TILESIZE-230)
+                y = int(pos.y*TILESIZE-35)
+                rect = pg.Rect(x, y, 50, 50)
+                self.abilities[z][0] = pg.draw.rect(screen,BLACK,rect)
+        def skill(self,cur):
+            if cur == 'stun':
+                self.abilities[cur][2] = False
+                self.unlockedabilites.append(cur)
+                self.stuncap = 6
+            if cur == 'increase':
+                self.abilities[cur][2] = False
+                self.unlockedabilites.append(cur)
+                self.inc = 1
     class haptic():
         def __init__(self):
             attack1 = 0
@@ -362,11 +378,11 @@ class ally():
             else:
                 self.attacks[self.attack1][5][1] = 0
             if attack == self.attack1:
-                damage = self.attacks[attack][0]*self.momentum
+                damage = (self.attacks[attack][0]+self.inc)*self.momentum
                 
                 self.momentum = 0
             else:
-                damage = self.attacks[attack][0]
+                damage = self.attacks[attack][0]+self.inc
                 self.passive()
             
             M.enemy[target][dup][1] -= damage
@@ -415,7 +431,7 @@ class ally():
             pg.draw.rect(screen,BLACK,rect)
             goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))
             screen.blit(icon, icon.get_rect(center=goal_center))
-            text = str(self.attacks[self.attack1][0]*self.momentum)
+            text = str((self.attacks[self.attack1][0]+self.inc)*self.momentum)
             draw_text(text, 20, RED, self.attacks[self.attack1][2].x*TILESIZE, self.attacks[self.attack1][2].y*TILESIZE + 75)
 
             icon = self.attacks[self.attack2][1]
@@ -424,7 +440,7 @@ class ally():
             pg.draw.rect(screen,BLACK,rect)
             goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))
             screen.blit(icon, icon.get_rect(center=goal_center))
-            text = str(self.attacks[self.attack2][0])
+            text = str(self.attacks[self.attack2][0]+self.inc)
             draw_text(text, 20, RED, self.attacks[self.attack2][2].x*TILESIZE, self.attacks[self.attack2][2].y*TILESIZE + 75)
 
             if 'acceleration' in self.unlockedabilites:
@@ -445,8 +461,14 @@ class ally():
                 y = int(pos.y*TILESIZE-35)
                 rect = pg.Rect(x, y, 50, 50)
                 self.abilities[z][0] = pg.draw.rect(screen,BLACK,rect)
-
-
+        def skill(self,cur):
+            if cur == 'acceleration':
+                self.abilities[cur][2] = False
+                self.unlockedabilites.append(cur)
+            if cur == 'increase':
+                self.abilities[cur][2] = False
+                self.unlockedabilites.append(cur)
+                self.inc = 1
 
 ally = ally()
                     
@@ -500,7 +522,9 @@ S.attack3 = 'karen and her healing balony'
 S.vec = vec(20,25)
 S.health = 25
 S.shield = 10
-S.abilities = {}
+S.stuncap = 7
+S.inc = 0
+S.abilities = {'stun':[0,vec(47,17),True],'increase':[0,vec(47,20),True]}
 S.unlockedabilites = []
 S.combat_animation = {1:cri_combat_img,2:cri_combat2_img,3:cri_combat3_img}
 S.attacks = {S.attack1:[5,cri_ability1_img,vec(18,31),[vec(18,31) + a for a in iconaura],False,[0,0,0]],S.attack2:[2,cri_ability3_img,vec(28,31),[vec(28,31)+a for a in iconaura],True,[0,0,0]],S.attack3:[2,cri_ability2_img,vec(23,31),[vec(23,31) + a for a in iconaura],True,[0,0,0]]}
@@ -527,8 +551,9 @@ Hap.vec = vec(20,15)
 Hap.health = 60
 Hap.shield = 0
 Hap.momentum = 0
+Hap.inc = 0
 Hap.attacktwice = False
-Hap.abilities = {Hap.attack3:[0,vec(40,20),False]}
+Hap.abilities = {Hap.attack3:[0,vec(47,17),True],'increase':[0,vec(47,20),True]}
 Hap.unlockedabilites = []
 Hap.combat_animation = {1:haptic_combat_img,2:haptic_combat2_img,3:haptic_combat3_img}
 Hap.attacks = {Hap.attack1:[5,haptic_ability1_img,vec(18,31),[vec(18,31) + a for a in iconaura],False,[0,0,0]],Hap.attack2:[5,haptic_ability2_img,vec(23,31),[vec(23,31) + a for a in iconaura],False,[0,0,0]],Hap.attack3:[0,haptic_ability3_img,vec(28,31),[vec(28,31)+a for a in iconaura],True,[0,0,0]]}
@@ -1159,15 +1184,22 @@ class battle():
         if self.swap == False:
             text = 'change order'
         draw_text(text,20,WHITE,x+5, y)
-        self.selectedchar = Hap
+
         if self.selectedchar != 0:
             self.selectedchar.draw_skilltree()
-
+            if self.hov != False:
+                draw_text('does thing this is some more information that can influence your decison and using this ability',20,BLACK,(self.selectedchar.abilities[self.hov][1].x-5)*TILESIZE,self.selectedchar.abilities[self.hov][1].y*TILESIZE)
+    def switchhover(self):
+        if self.selectedchar != 0:
+            for k in self.selectedchar.abilities:
+                if self.selectedchar.abilities[k][0].collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)):
+                    self.hov = k
     def switch(self):
         for l in self.allies:
             for k in l.abilities:
-                if l.abilities[k][0].collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)):
-                    print(check)
+                if l.abilities[k][0].collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)) and l.abilities[k][2]:
+                    l.skill(k)
+
         if self.swapbutton.collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)):
             if self.swap == False:
                 self.swap = True
@@ -1241,7 +1273,8 @@ class battle():
         self.allies.update({self.ally3:[pos,eat,self.ally3.clickaura,lean,[0,0,0]]})
         self.numberofallies()
         #for x in range(1,3):#range(1,random.randint(2,3))
-
+        for x in self.allies:
+            x.draw_skilltree()
     def start(self):
         enemy,tier = L.getlevel()
         self.savecost = enemy
@@ -1674,6 +1707,8 @@ M.selected1 = 0
 M.selected2 = 0
 M.swap = False
 
+M.hov = False
+
 M.display = False
 M.damage = {}
 M.click = False
@@ -1696,6 +1731,9 @@ while running:
     for event in pg.event.get(): # to find what this does print: event
         # write important things here 
         # duh
+        if main.current_state == 'switch':
+            mpos = vec(pg.mouse.get_pos()) // TILESIZE
+            M.switchhover()
         if event.type == pg.MOUSEBUTTONDOWN:
             if event.button == 1:
                 if main.current_state == 'battle' or main.current_state == 'shop' or main.current_state == 'switch':
@@ -1712,7 +1750,7 @@ while running:
                 #L.levels.append(vec(mpos2))
                 main.leveltop()
                 main.shoptop()
-                
+
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_r:
                 M.enemy = {}
