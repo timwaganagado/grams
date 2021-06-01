@@ -202,7 +202,7 @@ cbm.attacks = {'slash':[5,4,[0,0,0],2,False],'blast':[15,2,[0,0,1],1,False],'cha
 class ally():
     def __init__(self):
         l = 0
-    def profile(self,current):
+    def profile(self,current,thing):
         current = current[1]
         l = vec(40,10)
         current = current.copy()
@@ -211,13 +211,15 @@ class ally():
         current = pg.transform.scale(current,(300,128))
         goal_center = (int(l.x * TILESIZE + TILESIZE / 2), int(l.y * TILESIZE + TILESIZE / 2))
         screen.blit(current, current.get_rect(center=goal_center))
+        draw_text(str(thing.lvl),50,BLACK,int(l.x * TILESIZE)-70,int(l.y * TILESIZE))
+        draw_text(str(thing.exp)+'/'+str(thing.needtolvl),30,BLACK,int(l.x * TILESIZE)-90,int(l.y * TILESIZE+50))
 
     class heplane():
         def __init__(self):
             self.attack1 = 0
         def attack(self,target,attack):
             target,dup = target
-            blooddamage = int(M.allies[H][1])/int(self.health)+1
+            blooddamage = int(M.allies[H][1])/int(self.health)+1+self.inc
             M.allies[self][1] -= self.attacks[attack][0][1]
             self.healdam.append(int((blooddamage * self.attacks[attack][0][0])/2))
             M.enemy[target][dup][1] -= blooddamage * self.attacks[attack][0][0]
@@ -228,12 +230,15 @@ class ally():
             if self.attacks[attack][5][2] > 0:
                 M.enemy[target][dup][4][2] += self.attacks[attack][5][2]
         def support(self,target):
-            if target == H:
-                for x in self.healdam:
-                    M.allies[M.selectedchar][1] += x
-                self.healdam = []
-                if M.allies[M.selectedchar][1] > 50:
-                    M.allies[M.selectedchar][1] = 50
+            if 'self heal' in self.unlockedabilites:
+                if target == H:
+                    for x in self.healdam:
+                        M.allies[M.selectedchar][1] += x
+                    self.healdam = []
+                    if M.allies[M.selectedchar][1] > 50:
+                        M.allies[M.selectedchar][1] = 50
+            else:
+                M.actions.remove(H)
         def damage(self,taken):
             if M.allies[self][3] > 0:
                 M.allies[self][3] -= taken[0]
@@ -245,30 +250,72 @@ class ally():
                     print('bleed')
                     M.allies[self][4][1] += taken[2][1]
         def draw_icons(self):
-            for x in self.attacks:
-                if H in M.allies: 
-                    icon = self.attacks[x][1]
-                    pos = self.attacks[x][2]
-                    rect = pg.Rect(int(pos.x*TILESIZE-49), int(pos.y*TILESIZE-50), 128, 140)
-                    pg.draw.rect(screen,BLACK,rect)
-                    goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))
-                    screen.blit(icon, icon.get_rect(center=goal_center))
-                    text = str(round(int((M.allies[H][1]/self.health+1) * self.attacks[self.attack1][0][0])))
-                    draw_text(text, 20, RED, self.attacks[self.attack1][2].x*TILESIZE, self.attacks[self.attack1][2].y*TILESIZE + 65)
-                    text = str(round(int((M.allies[H][1]/self.health+1) * self.attacks[self.attack2][0][0])))
-                    draw_text(text, 20, RED, self.attacks[self.attack2][2].x*TILESIZE, self.attacks[self.attack2][2].y*TILESIZE + 65)
-                    if len(self.healdam) != 0:
-                        l = 0
-                        for x in self.healdam:
-                            l += x
+
+            text = str(round(int((M.allies[H][1]/self.health+1) * self.attacks[self.attack1][0][0])))
+
+            text = str(round(int((M.allies[H][1]/self.health+1) * self.attacks[self.attack2][0][0])))
+            
+            
+            icon = self.attacks[self.attack1][1]
+            pos = self.attacks[self.attack1][2]
+            rect = pg.Rect(int(pos.x*TILESIZE-49), int(pos.y*TILESIZE-50), 128, 140)
+            pg.draw.rect(screen,BLACK,rect)
+            goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))
+            screen.blit(icon, icon.get_rect(center=goal_center))
+            text = str(round(int((M.allies[H][1]/self.health+1+self.inc) * self.attacks[self.attack1][0][0])))
+            draw_text(text, 20, RED, self.attacks[self.attack1][2].x*TILESIZE, self.attacks[self.attack1][2].y*TILESIZE + 65)
+            
+            icon = self.attacks[self.attack2][1]
+            pos = self.attacks[self.attack2][2]
+            rect = pg.Rect(int(pos.x*TILESIZE-49), int(pos.y*TILESIZE-50), 128, 140)
+            pg.draw.rect(screen,BLACK,rect)
+            goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))
+            screen.blit(icon, icon.get_rect(center=goal_center))
+            text = str(round(int((M.allies[H][1]/self.health+1+self.inc) * self.attacks[self.attack2][0][0])))
+            draw_text(text, 20, RED, self.attacks[self.attack2][2].x*TILESIZE, self.attacks[self.attack2][2].y*TILESIZE + 65)
+
+            
+            if 'self heal' in self.unlockedabilites:
+                if len(self.healdam) != 0:
+                    l = 0
+                    for x in self.healdam:
+                        l += x
                         text = str(l)
-                    else:
-                        text = str(0)
-                    draw_text(text, 20, GREEN, self.attacks[self.attack3][2].x*TILESIZE, self.attacks[self.attack3][2].y*TILESIZE + 65)
+                else:
+                    text = str(0)
+                icon = self.attacks[self.attack3][1]
+                pos = self.attacks[self.attack3][2]
+                rect = pg.Rect(int(pos.x*TILESIZE-49), int(pos.y*TILESIZE-50), 128, 140)
+                pg.draw.rect(screen,BLACK,rect)
+                goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))
+                screen.blit(icon, icon.get_rect(center=goal_center))
+                draw_text(text, 20, GREEN, self.attacks[self.attack3][2].x*TILESIZE, self.attacks[self.attack3][2].y*TILESIZE + 65)
         def draw_attack(self):
             pass
         def draw_skilltree(self):
-            ally.profile(self.combat_animation)
+            ally.profile(self.combat_animation,self)
+            for z in self.abilities:
+                pos = self.abilities[z][1]
+                x = int(pos.x*TILESIZE-230)
+                y = int(pos.y*TILESIZE-35)
+                rect = pg.Rect(x, y, 50, 50)
+                if self.abilities[z][2] == True:
+                    self.abilities[z][0] = pg.draw.rect(screen,GREEN,rect)
+                else:
+                    self.abilities[z][0] = pg.draw.rect(screen,BLACK,rect)
+        def skill(self,cur):
+            if cur == 'self heal':
+                self.abilities[cur][2] = False
+                self.unlockedabilites.append(cur)
+            if cur == 'increase':
+                self.abilities[cur][2] = False
+                self.unlockedabilites.append(cur)
+                self.inc = 0.1
+        def checklevel(self):
+            if self.exp >= self.needtolvl:
+                self.lvl += 1
+                self.exp -= self.needtolvl
+                self.needtolvl *= 2
     class cri():
         def __int__(self):
             self.attack1 = 0
@@ -352,13 +399,16 @@ class ally():
         def draw_attack(self):
             pass
         def draw_skilltree(self):
-            ally.profile(self.combat_animation)
+            ally.profile(self.combat_animation,self)
             for z in self.abilities:
                 pos = self.abilities[z][1]
                 x = int(pos.x*TILESIZE-230)
                 y = int(pos.y*TILESIZE-35)
                 rect = pg.Rect(x, y, 50, 50)
-                self.abilities[z][0] = pg.draw.rect(screen,BLACK,rect)
+                if self.abilities[z][2] == True:
+                    self.abilities[z][0] = pg.draw.rect(screen,GREEN,rect)
+                else:
+                    self.abilities[z][0] = pg.draw.rect(screen,BLACK,rect)
         def skill(self,cur):
             if cur == 'stun':
                 self.abilities[cur][2] = False
@@ -368,6 +418,11 @@ class ally():
                 self.abilities[cur][2] = False
                 self.unlockedabilites.append(cur)
                 self.inc = 1
+        def checklevel(self):
+            if self.exp >= self.needtolvl:
+                self.lvl += 1
+                self.exp -= self.needtolvl
+                self.needtolvl *= 2
     class haptic():
         def __init__(self):
             attack1 = 0
@@ -397,25 +452,31 @@ class ally():
                 M.enemy[target][dup][4][2] += self.attacks[attack][5][2]
             
         def support(self,target):
-            if target == Hap:
-                if  self.momentum > 0:
-                    self.attacktwice = True
-                    self.momentum -= 1
+            if 'acceleration' in self.unlockedabilites:
+                if target == Hap:
+                    if  self.momentum > 0:
+                        self.attacktwice = True
+                        self.momentum -= 1
+            else:
+                M.actions.remove(Hap)
         def passive(self):
             self.momentum += 1
             if self.momentum >=3:
                 self.momentum = 3
         def damage(self,taken):
             self.passive()
-            if M.allies[self][3] > 0:
-                M.allies[self][3] -= taken[0]
-                if M.allies[self][3] < 0:
-                    M.allies[self][3] = 0
-            else:
-                M.allies[self][1] -= taken[0]
-                if taken[2][1] > 0:
-                    print('bleed')
-                    M.allies[self][4][1] += taken[2][1]
+            chance = random.choices([1,0],[4,self.momentum*self.dodgec])
+            print('yes')
+            if chance[0] == 1:
+                if M.allies[self][3] > 0:
+                    M.allies[self][3] -= taken[0]
+                    if M.allies[self][3] < 0:
+                        M.allies[self][3] = 0
+                else:
+                    M.allies[self][1] -= taken[0]
+                    if taken[2][1] > 0:
+                        print('bleed')
+                        M.allies[self][4][1] += taken[2][1]
         def draw_icons(self):
         
             rect = pg.Rect(int(M.allies[self][0].x*TILESIZE+80), int(M.allies[self][0].y*TILESIZE-50), 20, 135)
@@ -454,13 +515,16 @@ class ally():
                 text = str(self.attacks[self.attack3][0])
                 draw_text(text, 20, BLACK, self.attacks[self.attack3][2].x*TILESIZE, self.attacks[self.attack3][2].y*TILESIZE + 75)
         def draw_skilltree(self):
-            ally.profile(self.combat_animation)
+            ally.profile(self.combat_animation,self)
             for z in self.abilities:
                 pos = self.abilities[z][1]
                 x = int(pos.x*TILESIZE-230)
                 y = int(pos.y*TILESIZE-35)
                 rect = pg.Rect(x, y, 50, 50)
-                self.abilities[z][0] = pg.draw.rect(screen,BLACK,rect)
+                if self.abilities[z][2] == True:
+                    self.abilities[z][0] = pg.draw.rect(screen,GREEN,rect)
+                else:
+                    self.abilities[z][0] = pg.draw.rect(screen,BLACK,rect)
         def skill(self,cur):
             if cur == 'acceleration':
                 self.abilities[cur][2] = False
@@ -469,6 +533,15 @@ class ally():
                 self.abilities[cur][2] = False
                 self.unlockedabilites.append(cur)
                 self.inc = 1
+            if cur == 'dodge':
+                self.abilities[cur][2] = False
+                self.unlockedabilites.append(cur)
+                self.dodge = 1
+        def checklevel(self):
+            if self.exp >= self.needtolvl:
+                self.lvl += 1
+                self.exp -= self.needtolvl
+                self.needtolvl *=2
 
 ally = ally()
                     
@@ -491,11 +564,15 @@ H.attack3 = 'blood heal'
 H.vec = vec(20,15)
 H.health = 50
 H.shield = 0
-H.abilities = {}
+H.healdam = []
+H.inc = 0
+H.abilities = {'self heal':[0,vec(47,17),True,'heal for half the damage dealt on enemies'],'increase':[0,vec(47,20),True,'Increases damage by 0.1']}
 H.unlockedabilites = []
+H.exp = 0
+H.lvl = 0
+H.needtolvl = 60
 H.combat_animation = {1:heplane_combat_img,2:heplane_combat2_img,3:heplane_combat3_img}
 H.attacks = {H.attack1:[[10,15],heplane_ability1_img,vec(18, 31),[vec(18,31) + a for a in iconaura],False,[1,0,0]],H.attack2:[[5,0],heplane_ability2_img,vec(23,31),[vec(23,31) + a for a in iconaura],False,[0,0,0]],H.attack3:[[0,0],heplane_ability3_img,vec(28,31),[vec(28,31)+ a for a in iconaura],True,[0,0,0]]}
-H.healdam = []
 aura = [(1, 3), (0, 3), (-1, 3), (-1, 2), (0, 2), (1, 2), (1, 1), (0, 1), (-1, 1), (-1, 0), (0, 0), (1, 0), (1, -1), (0, -1), (-1, -1), (-1, -2), (0, -2), (1, -2), (1, -3), (0, -3), (-1, -3)]
 H.clickaura = []
 for x in aura:
@@ -524,13 +601,17 @@ S.health = 25
 S.shield = 10
 S.stuncap = 7
 S.inc = 0
-S.abilities = {'stun':[0,vec(47,17),True],'increase':[0,vec(47,20),True]}
+S.abilities = {'stun':[0,vec(47,17),True,'decreases the damage needed to stun from 7 to 6'],'increase':[0,vec(47,20),True,'increases the value that abilites increase to 2 rather then 1']}
 S.unlockedabilites = []
+S.exp = 0
+S.lvl = 0
+S.needtolvl = 60
 S.combat_animation = {1:cri_combat_img,2:cri_combat2_img,3:cri_combat3_img}
 S.attacks = {S.attack1:[5,cri_ability1_img,vec(18,31),[vec(18,31) + a for a in iconaura],False,[0,0,0]],S.attack2:[2,cri_ability3_img,vec(28,31),[vec(28,31)+a for a in iconaura],True,[0,0,0]],S.attack3:[2,cri_ability2_img,vec(23,31),[vec(23,31) + a for a in iconaura],True,[0,0,0]]}
 S.clickaura = []
 for x in aura:
     S.clickaura.append(vec(x))
+    
 Hap = ally.haptic()
 haptic_combat_img = pg.image.load(os.path.join(filename,'Layer 1_haptic_combat1.png')).convert_alpha()
 haptic_combat_img = pg.transform.scale(haptic_combat_img, (256, 256))
@@ -552,9 +633,13 @@ Hap.health = 60
 Hap.shield = 0
 Hap.momentum = 0
 Hap.inc = 0
+Hap.dodgec = 0
 Hap.attacktwice = False
-Hap.abilities = {Hap.attack3:[0,vec(47,17),True],'increase':[0,vec(47,20),True]}
+Hap.abilities = {Hap.attack3:[0,vec(47,17),True,'An ability which when activated the next turns attack will happen twice'],'increase':[0,vec(47,20),True,'Increase all attacks by 1'],'dodge':[0,vec(47,23),True,'allows haptic to dodge attacks']}
 Hap.unlockedabilites = []
+Hap.exp = 0
+Hap.lvl = 0
+Hap.needtolvl = 60
 Hap.combat_animation = {1:haptic_combat_img,2:haptic_combat2_img,3:haptic_combat3_img}
 Hap.attacks = {Hap.attack1:[5,haptic_ability1_img,vec(18,31),[vec(18,31) + a for a in iconaura],False,[0,0,0]],Hap.attack2:[5,haptic_ability2_img,vec(23,31),[vec(23,31) + a for a in iconaura],False,[0,0,0]],Hap.attack3:[0,haptic_ability3_img,vec(28,31),[vec(28,31)+a for a in iconaura],True,[0,0,0]]}
 Hap.clickaura = []
@@ -686,8 +771,7 @@ class main():
                             M.actions.append(M.selectedchar)
                             M.checkifdead()
                         except:
-                            pass
-                        M.attackselect = False         
+                            M.attackselect = False         
                 else:
                     pass 
             elif mpos not in M.getaura() and mpos not in M.selectingattack():
@@ -1188,17 +1272,23 @@ class battle():
         if self.selectedchar != 0:
             self.selectedchar.draw_skilltree()
             if self.hov != False:
-                draw_text('does thing this is some more information that can influence your decison and using this ability',20,BLACK,(self.selectedchar.abilities[self.hov][1].x-5)*TILESIZE,self.selectedchar.abilities[self.hov][1].y*TILESIZE)
+                draw_text(self.selectedchar.abilities[self.hov][3],20,BLACK,(self.selectedchar.abilities[self.hov][1].x-5)*TILESIZE,self.selectedchar.abilities[self.hov][1].y*TILESIZE)
     def switchhover(self):
         if self.selectedchar != 0:
             for k in self.selectedchar.abilities:
                 if self.selectedchar.abilities[k][0].collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)):
                     self.hov = k
+                    self.hovertime = pg.time.get_ticks()
+                elif current_time - self.hovertime > 1000:
+                    self.hov = False
     def switch(self):
-        for l in self.allies:
-            for k in l.abilities:
-                if l.abilities[k][0].collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)) and l.abilities[k][2]:
-                    l.skill(k)
+        if self.selectedchar != 0:
+            for k in self.selectedchar.abilities:
+                if self.selectedchar.abilities[k][0].collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)) and self.selectedchar.abilities[k][2] and self.selectedchar.lvl > 0:
+                    self.selectedchar.skill(k)
+                    self.selectedchar.lvl -= 1
+                else:
+                    self.hov = False
 
         if self.swapbutton.collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)):
             if self.swap == False:
@@ -1382,11 +1472,14 @@ class battle():
                 for y in test[x]:
                     if y[1] <= 0:
                         self.enemy[x].remove(y)
+                        self.killhistory.append(self.selectedchar)
                 if len(test[x]) <= 0:
                     del self.enemy[x]
+                    self.killhistory.append(self.selectedchar)
             else:
                 if test[x][0][1] <=0 :
                     del self.enemy[x]
+                    self.killhistory.append(self.selectedchar)
         test = dict(self.allies)
         for x in test:
             if test[x][1] <= 0:
@@ -1413,9 +1506,28 @@ class battle():
                 e = L.get_cost([x])
                 coins += e
             main.amountmoney += coins
-            self.savecost = []
-
             
+            splitcoins = coins/len(self.allies)
+            for x in self.killhistory:
+                for z in self.allies:
+                    if z == x:
+                        z.exp += round(splitcoins*2)
+                    else:
+                        z.exp += round(splitcoins)
+                    z.checklevel()
+            thing = []
+            for x in self.allies:
+                thing.append(x)
+            if len(self.killhistory) == 0:
+                for l in range(len(self.savecost)):
+                    x = random.choice(thing)
+                    for z in self.allies:
+                        if z == x:
+                            z.exp += round(splitcoins*2)
+                        else:
+                            z.exp += round(splitcoins)
+                        z.checklevel()
+            self.savecost = []
         if len(self.allies) <= 0:
             self.restart()
             L.crossvec = vec(3,8)
@@ -1708,6 +1820,10 @@ M.selected2 = 0
 M.swap = False
 
 M.hov = False
+M.hovertime = 9999
+
+
+M.killhistory = []
 
 M.display = False
 M.damage = {}
@@ -1755,6 +1871,7 @@ while running:
             if event.key == pg.K_r:
                 M.enemy = {}
                 M.checkifdead()
+                M.hov = False
             if event.key == pg.K_e:
                 M.actions = [1,1,1]
             if event.key == pg.K_q:

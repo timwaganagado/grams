@@ -1,4 +1,7 @@
 import random
+
+from pygame import Vector2
+vec = Vector2
 #l = {'connected':True,'conncode':0,'lsit':[1,'gay',True]}
 #
 #l.update({'lost':True})
@@ -20,10 +23,15 @@ import random
 #z=0
 #xyz = {x:5,y:0,z:0}
 #print(xyz[x])
+
+
+
 dad = 'dad'
 mom = 'mom'
 sis = 'sis'
-l = {dad:['1',3],mom:['2',2],sis:['3',1]}
+bro = 'bro'
+friend = 'friend'
+l = {dad:vec(22,33),mom:['2',2],sis:['3',1],bro:['4',0],friend:['5',-1]}
 move = 99
 while move:
     move = input()
