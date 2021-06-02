@@ -122,6 +122,10 @@ for aura in auras:
     lizard.clickaura.append(vec(aura))
 lizard.attacks = {'pierce':[2,5,[0,1,0],3],'constrict':[5,1,[2,0,0],1],'miss':[0,2,[0,0,0],1]}
 
+
+cross = pg.image.load(os.path.join(filename,cross)).convert_alpha()
+cross = pg.transform.scale(cross, (128, 128))
+
 class boss():
     class courptbattlemage():
         def __init__(self):
@@ -161,7 +165,7 @@ class boss():
                             for j in M.spaces[x]:
                                 possible.append(j[1])
                 target = random.choice(possible)
-                #print(attacking,damage[0])
+                ##print(attacking,damage[0])
                 for x in range(0,damage[3]):
                     if M.allies[target][3] > 0:
                         M.allies[target][3] -= damage[0]
@@ -170,13 +174,13 @@ class boss():
                     else:
                         M.allies[target][1] -= damage[0]
                         if damage[2][1] > 0:
-                            print('bleed')
+                            #print('bleed')
                             M.allies[target][4][1] += damage[2][1]
                     if damage[2][0] > 0:
-                        print('stun')
+                        #print('stun')
                         M.allies[target][4][0] += damage[2][0]
                     if damage[2][2] > 0:
-                        print('fire')
+                        #print('fire')
                         M.allies[target][4][2] += damage[2][2]
                     if target in M.damage:
                         M.damage[target].append(int(damage[0]))
@@ -186,7 +190,7 @@ class boss():
         def support(self,target):
             if target[0] == 0:
                 M.enemy[cbm][0][1] += M.enemy[cbm][0][1]*4/10
-            print('heal')
+            #print('heal')
 
 cbm = boss.courptbattlemage()
 cbm.vec = vec(43,20)
@@ -230,15 +234,23 @@ class ally():
             if self.attacks[attack][5][2] > 0:
                 M.enemy[target][dup][4][2] += self.attacks[attack][5][2]
         def support(self,target):
-            if 'self heal' in self.unlockedabilites:
-                if target == H:
+            if M.selectedattack == self.attack3:
+                if 'self heal' in self.unlockedabilites:
                     for x in self.healdam:
                         M.allies[M.selectedchar][1] += x
                     self.healdam = []
                     if M.allies[M.selectedchar][1] > 50:
                         M.allies[M.selectedchar][1] = 50
-            else:
-                M.actions.remove(H)
+                else:
+                    M.actions.remove(H)
+            if M.selectedattack == self.attack4:
+                if 'static blood' in self.unlockedabilites:
+                    M.allies[M.selectedchar][3] += 20
+                    M.allies[M.selectedchar][1] -= 10
+                    if M.allies[M.selectedchar][3] > 50:
+                        M.allies[M.selectedchar][3] = 50
+                else:
+                    M.actions.remove(H)
         def damage(self,taken):
             if M.allies[self][3] > 0:
                 M.allies[self][3] -= taken[0]
@@ -247,7 +259,7 @@ class ally():
             else:
                 M.allies[self][1] -= taken[0]
                 if taken[2][1] > 0:
-                    print('bleed')
+                    #print('bleed')
                     M.allies[self][4][1] += taken[2][1]
         def draw_icons(self):
 
@@ -290,6 +302,15 @@ class ally():
                 goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))
                 screen.blit(icon, icon.get_rect(center=goal_center))
                 draw_text(text, 20, GREEN, self.attacks[self.attack3][2].x*TILESIZE, self.attacks[self.attack3][2].y*TILESIZE + 65)
+            if 'static blood' in self.unlockedabilites:
+                icon = self.attacks[self.attack4][1]
+                pos = self.attacks[self.attack4][2]
+                rect = pg.Rect(int(pos.x*TILESIZE-49), int(pos.y*TILESIZE-50), 128, 140)
+                pg.draw.rect(screen,BLACK,rect)
+                goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))
+                screen.blit(icon, icon.get_rect(center=goal_center))
+                text = '10'
+                draw_text(text, 20, BLUE, pos.x*TILESIZE, pos.y*TILESIZE + 65)
         def draw_attack(self):
             pass
         def draw_skilltree(self):
@@ -311,6 +332,9 @@ class ally():
                 self.abilities[cur][2] = False
                 self.unlockedabilites.append(cur)
                 self.inc = 0.1
+            if cur == 'static blood':
+                self.abilities[cur][2] = False
+                self.unlockedabilites.append(cur)
         def checklevel(self):
             if self.exp >= self.needtolvl:
                 self.lvl += 1
@@ -360,7 +384,7 @@ class ally():
                 if x == self.attack1:
                     if self.attacks[x][0] >= self.stuncap:
                         self.attacks[x][5][0] = 1
-                        print('stun')
+                        #print('stun')
                     if self.attacks[x][0] < self.stuncap:
                         self.attacks[x][5][0] = 0
                 if self.attacks[x][0] > 10:
@@ -373,7 +397,7 @@ class ally():
             else:
                 M.allies[self][1] -= taken[0]
                 if taken[2][1] > 0:
-                    print('bleed')
+                    #print('bleed')
                     M.allies[self][4][1] += taken[2][1]
         def draw_icons(self):
             for x in self.attacks:
@@ -466,7 +490,7 @@ class ally():
         def damage(self,taken):
             self.passive()
             chance = random.choices([1,0],[4,self.momentum*self.dodgec])
-            print('yes')
+            #print(chance)
             if chance[0] == 1:
                 if M.allies[self][3] > 0:
                     M.allies[self][3] -= taken[0]
@@ -475,7 +499,7 @@ class ally():
                 else:
                     M.allies[self][1] -= taken[0]
                     if taken[2][1] > 0:
-                        print('bleed')
+                        #print('bleed')
                         M.allies[self][4][1] += taken[2][1]
         def draw_icons(self):
         
@@ -514,6 +538,7 @@ class ally():
                 screen.blit(icon, icon.get_rect(center=goal_center))
                 text = str(self.attacks[self.attack3][0])
                 draw_text(text, 20, BLACK, self.attacks[self.attack3][2].x*TILESIZE, self.attacks[self.attack3][2].y*TILESIZE + 75)
+            
         def draw_skilltree(self):
             ally.profile(self.combat_animation,self)
             for z in self.abilities:
@@ -536,7 +561,7 @@ class ally():
             if cur == 'dodge':
                 self.abilities[cur][2] = False
                 self.unlockedabilites.append(cur)
-                self.dodge = 1
+                self.dodgec = 1
         def checklevel(self):
             if self.exp >= self.needtolvl:
                 self.lvl += 1
@@ -561,18 +586,19 @@ heplane_ability3_img = pg.image.load(os.path.join(filename,'blood heal-1.png'))
 H.attack1 = 'coilent'
 H.attack2 = 'punch'
 H.attack3 = 'blood heal'
+H.attack4 = 'static blood'
 H.vec = vec(20,15)
 H.health = 50
 H.shield = 0
 H.healdam = []
 H.inc = 0
-H.abilities = {'self heal':[0,vec(47,17),True,'heal for half the damage dealt on enemies'],'increase':[0,vec(47,20),True,'Increases damage by 0.1']}
+H.abilities = {'self heal':[0,vec(47,17),True,'heal for half the damage dealt on enemies'],'increase':[0,vec(47,20),True,'Increases damage by 0.1'],'static blood':[0,vec(47,23),True,'allows heplane to trade health for shields']}
 H.unlockedabilites = []
 H.exp = 0
 H.lvl = 0
 H.needtolvl = 60
 H.combat_animation = {1:heplane_combat_img,2:heplane_combat2_img,3:heplane_combat3_img}
-H.attacks = {H.attack1:[[10,15],heplane_ability1_img,vec(18, 31),[vec(18,31) + a for a in iconaura],False,[1,0,0]],H.attack2:[[5,0],heplane_ability2_img,vec(23,31),[vec(23,31) + a for a in iconaura],False,[0,0,0]],H.attack3:[[0,0],heplane_ability3_img,vec(28,31),[vec(28,31)+ a for a in iconaura],True,[0,0,0]]}
+H.attacks = {H.attack1:[[10,15],heplane_ability1_img,vec(18, 31),[vec(18,31) + a for a in iconaura],False,[1,0,0]],H.attack2:[[5,0],heplane_ability2_img,vec(23,31),[vec(23,31) + a for a in iconaura],False,[0,0,0]],H.attack3:[[0,0],heplane_ability3_img,vec(28,31),[vec(28,31)+ a for a in iconaura],True,[0,0,0]],H.attack4:[[0,0],cross,vec(33,31),[vec(33,31)+ a for a in iconaura],True,[0,0,0]]}
 aura = [(1, 3), (0, 3), (-1, 3), (-1, 2), (0, 2), (1, 2), (1, 1), (0, 1), (-1, 1), (-1, 0), (0, 0), (1, 0), (1, -1), (0, -1), (-1, -1), (-1, -2), (0, -2), (1, -2), (1, -3), (0, -3), (-1, -3)]
 H.clickaura = []
 for x in aura:
@@ -1559,7 +1585,7 @@ class battle():
                 for x in spaces:
                     for z in spaces:
                         taken.append(spaces[z][1])
-                    #print('enemy',taken)
+                    ##print('enemy',taken)
                     if spaces[x][1] == 99:
                         if y not in taken:
                             spaces[x][1] = y
@@ -1606,15 +1632,21 @@ class battle():
                 y.append(x)
         return y
     def selectattack(self):
-        if mpos in M.selectedchar.attacks[self.selectedchar.attack1][3]:
-            M.selectedattack = self.selectedchar.attack1
-            M.attackselect = True
-        if mpos in M.selectedchar.attacks[self.selectedchar.attack2][3]:
-            M.selectedattack = self.selectedchar.attack2
-            M.attackselect = True
-        if mpos in M.selectedchar.attacks[self.selectedchar.attack3][3]:
-            M.selectedattack = self.selectedchar.attack3
-            M.attackselect = True
+        try:
+            if mpos in M.selectedchar.attacks[self.selectedchar.attack1][3]:
+                M.selectedattack = self.selectedchar.attack1
+                M.attackselect = True
+            if mpos in M.selectedchar.attacks[self.selectedchar.attack2][3]:
+                M.selectedattack = self.selectedchar.attack2
+                M.attackselect = True
+            if mpos in M.selectedchar.attacks[self.selectedchar.attack3][3]:
+                M.selectedattack = self.selectedchar.attack3
+                M.attackselect = True
+            if mpos in M.selectedchar.attacks[self.selectedchar.attack4][3]:
+                M.selectedattack = self.selectedchar.attack4
+                M.attackselect = True
+        except:
+            pass
         if self.selectedchar in self.actions:
             M.attackselect = False
     def selectchar(self):
@@ -1695,16 +1727,16 @@ class battle():
         
         attacking = random.choices(attacks,chance)
         damage = attack[attacking[0]]
-        print(attacking,damage[0])
+        #print(attacking,damage[0])
         
         for x in range(0,damage[3]):
             target.damage(damage)
 
             if damage[2][0] > 0:
-                print('stun')
+                #print('stun')
                 self.allies[target][4][0] += damage[2][0]
             if damage[2][2] > 0:
-                print('fire')
+                #print('fire')
                 self.allies[target][4][2] += damage[2][2]
             if target in self.damage:
                 self.damage[target].append(int(damage[0]))
@@ -1844,7 +1876,7 @@ L.get_connections()
 running = True
 while running:
     clock.tick(FPS)
-    for event in pg.event.get(): # to find what this does print: event
+    for event in pg.event.get(): # to find what this does #print: event
         # write important things here 
         # duh
         if main.current_state == 'switch':
@@ -1876,12 +1908,17 @@ while running:
                 M.actions = [1,1,1]
             if event.key == pg.K_q:
                 main.current_state = 'shop'
+            if event.key == pg.K_c:
+                M.selectedchar.lvl += 1
+            if event.key == pg.K_h:
+                M.allies[M.selectedchar] += 100
+            if event.key == pg.K_n:
+                M.allies[M.selectedchar][1] = 0
 
-
-            if event.key == pg.K_a:
-                print([(int(loc.x -  M.clericvec.x), int(loc.y - M.clericvec.y)) for loc in create])
-            if event.key == pg.K_m:
-                print([(int(loc.x),int(loc.y))for loc in L.levels])
+            #if event.key == pg.K_a:
+            #    print([(int(loc.x -  M.clericvec.x), int(loc.y - M.clericvec.y)) for loc in create])
+            #if event.key == pg.K_m:
+            #    print([(int(loc.x),int(loc.y))for loc in L.levels])
             if event.key == pg.K_ESCAPE:
                 running = False
                 pg.quit
