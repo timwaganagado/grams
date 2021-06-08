@@ -596,7 +596,7 @@ H.abilities = {'self heal':[0,vec(47,17),True,'heal for half the damage dealt on
 H.unlockedabilites = []
 H.exp = 0
 H.lvl = 0
-H.needtolvl = 60
+H.needtolvl = 10
 H.combat_animation = {1:heplane_combat_img,2:heplane_combat2_img,3:heplane_combat3_img}
 H.attacks = {H.attack1:[[10,15],heplane_ability1_img,vec(18, 31),[vec(18,31) + a for a in iconaura],False,[1,0,0]],H.attack2:[[5,0],heplane_ability2_img,vec(23,31),[vec(23,31) + a for a in iconaura],False,[0,0,0]],H.attack3:[[0,0],heplane_ability3_img,vec(28,31),[vec(28,31)+ a for a in iconaura],True,[0,0,0]],H.attack4:[[0,0],cross,vec(33,31),[vec(33,31)+ a for a in iconaura],True,[0,0,0]]}
 aura = [(1, 3), (0, 3), (-1, 3), (-1, 2), (0, 2), (1, 2), (1, 1), (0, 1), (-1, 1), (-1, 0), (0, 0), (1, 0), (1, -1), (0, -1), (-1, -1), (-1, -2), (0, -2), (1, -2), (1, -3), (0, -3), (-1, -3)]
@@ -631,7 +631,7 @@ S.abilities = {'stun':[0,vec(47,17),True,'decreases the damage needed to stun fr
 S.unlockedabilites = []
 S.exp = 0
 S.lvl = 0
-S.needtolvl = 60
+S.needtolvl = 10
 S.combat_animation = {1:cri_combat_img,2:cri_combat2_img,3:cri_combat3_img}
 S.attacks = {S.attack1:[5,cri_ability1_img,vec(18,31),[vec(18,31) + a for a in iconaura],False,[0,0,0]],S.attack2:[2,cri_ability3_img,vec(28,31),[vec(28,31)+a for a in iconaura],True,[0,0,0]],S.attack3:[2,cri_ability2_img,vec(23,31),[vec(23,31) + a for a in iconaura],True,[0,0,0]]}
 S.clickaura = []
@@ -665,7 +665,7 @@ Hap.abilities = {Hap.attack3:[0,vec(47,17),True,'An ability which when activated
 Hap.unlockedabilites = []
 Hap.exp = 0
 Hap.lvl = 0
-Hap.needtolvl = 60
+Hap.needtolvl = 10
 Hap.combat_animation = {1:haptic_combat_img,2:haptic_combat2_img,3:haptic_combat3_img}
 Hap.attacks = {Hap.attack1:[5,haptic_ability1_img,vec(18,31),[vec(18,31) + a for a in iconaura],False,[0,0,0]],Hap.attack2:[5,haptic_ability2_img,vec(23,31),[vec(23,31) + a for a in iconaura],False,[0,0,0]],Hap.attack3:[0,haptic_ability3_img,vec(28,31),[vec(28,31)+a for a in iconaura],True,[0,0,0]]}
 Hap.clickaura = []
@@ -824,21 +824,42 @@ class main():
             M.draw_enemychar()
             M.draw_icons()
             M.draw_effects()
-            if current_time - self.attck_timer > 1000 and M.enemycanattack == True:
+            if current_time - self.attck_timer > 500 and M.enemycanattack == True:
                 M.actions = []
-                M.enemyattack()
-                self.display_time = pg.time.get_ticks()   
+                self.little = {}
+                self.k = 0
+                self.enemy_attck_time = pg.time.get_ticks()
+                print(M.enemy)
+                for x in M.enemy:
+                    if len(M.enemy[x]) > 1:
+                        self.little.update({self.k:x})
+                        self.k += 1
+                    else:
+                        self.little.update({[self.k:x]}) # fix make dictonary a list plzx god plz
+                print(self.little)
+                self.k = 0
                 M.enemycanattack = False
                 M.attackselect = False
+                self.enemycanattack = True
+            if current_time - self.enemy_attck_time > 500 and self.enemycanattack:
+                M.click = True
+                self.display_time = pg.time.get_ticks()  
+                self.enemy_attck_time = pg.time.get_ticks()
+                M.enemyattack(self.k)
+                self.k += 1
+                if self.k >= len(self.little):
+                    self.enemycanattack = False
+                    M.statuseffects(True)
+  
             if M.click == True:
                 M.draw_damage()
+                
                 if current_time - self.display_time > 1000:
                     
                     M.enemycanattack = False
-                    M.display == False
                     M.checkifdead()
-                    M.damage = {}
                     M.click = False
+                    M.damage = {}
     def leveltop(self):
         if self.current_state == 'map':
             L.nextlevel()
@@ -871,6 +892,8 @@ main = main()
 
 main.current_state = 'shop'
 main.amountmoney = 50
+main.enemy_attck_time = 0
+main.enemycanattack = False
 
 def draw_grid():
     for x in range(0, WIDTH, TILESIZE):
@@ -1234,7 +1257,22 @@ class level():
         self.levelid.update({line:[enemies,tier]})
         self.levelindex.update({line:x}) 
     def nextlevel(self):
-        if mpos2 in self.connections:
+        if lock == True:
+            if mpos2 in self.connections:
+                if self.click == True:
+                    self.crossvec = mpos2
+                    self.level = mpos2.x - 3
+                    e,tier = self.getlevel()
+                    if self.level == 1:
+                        M.restart()
+                    if 'battle' == tier:
+                        M.start()
+                    else:
+                        M.shopstart()
+                    L.get_connections()
+                    main.current_state = tier
+                    self.click = False
+        else:
             if self.click == True:
                 self.crossvec = mpos2
                 self.level = mpos2.x - 3
@@ -1496,7 +1534,7 @@ class battle():
         for x in test:
             if self.dup:
                 for y in test[x]:
-                    if y[1] <= 0:
+                    if int(y[1]) <= 0:
                         self.enemy[x].remove(y)
                         self.killhistory.append(self.selectedchar)
                 if len(test[x]) <= 0:
@@ -1532,28 +1570,54 @@ class battle():
                 e = L.get_cost([x])
                 coins += e
             main.amountmoney += coins
-            
+            print(coins)
             splitcoins = coins/len(self.allies)
-            for x in self.killhistory:
-                for z in self.allies:
-                    if z == x:
-                        z.exp += round(splitcoins*2)
-                    else:
-                        z.exp += round(splitcoins)
-                    z.checklevel()
-            thing = []
-            for x in self.allies:
-                thing.append(x)
-            if len(self.killhistory) == 0:
+            if len(self.killhistory) != 0:
+                if len(self.allies)-len(self.killhistory) != 0:
+                    tsplitcoins = coins - (splitcoins*1.2)*len(self.killhistory)
+                    tsplitcoins = tsplitcoins/(len(self.allies)-len(self.killhistory))
+                    for x in self.killhistory:
+                        x.exp += round(splitcoins*1.2)
+
+                        x.checklevel()
+                    print(tsplitcoins)
+                    for z in self.allies:
+                        if z not in self.killhistory:
+                            z.exp += round(tsplitcoins)
+                            z.checklevel()
+                else:
+                    for x in self.killhistory:
+                        x.exp += round(splitcoins*1.2)
+
+                        x.checklevel()
+            else:
+                thing = []
+                dumbcheck = {}
+                blah = []
+                for x in self.allies:
+                    thing.append(x)
                 for l in range(len(self.savecost)):
                     x = random.choice(thing)
+                    blah.append(x)
+                if len(self.allies)-len(self.savecost) != 0:
+                    tsplitcoins = coins - (splitcoins*1.2)*len(self.savecost)
+                    tsplitcoins = tsplitcoins/(len(self.allies)-len(self.savecost))
+                    print(tsplitcoins)
+
+
+                    for x in blah:
+                        x.exp += round(splitcoins*1.2)
+                        x.checklevel()
                     for z in self.allies:
-                        if z == x:
-                            z.exp += round(splitcoins*2)
-                        else:
-                            z.exp += round(splitcoins)
-                        z.checklevel()
+                        if z not in blah:
+                            z.exp += round(tsplitcoins)
+                            z.checklevel()
+                else:
+                    for x in blah:
+                        x.exp += round(splitcoins*1.2)
+                        x.checklevel()
             self.savecost = []
+            self.killhistory = []
         if len(self.allies) <= 0:
             self.restart()
             L.crossvec = vec(3,8)
@@ -1682,28 +1746,25 @@ class battle():
                     cur_enemyspecific = 0
                     cur_enemyclass = x
         return cur_enemyclass,cur_enemyspecific
-    def enemyattack(self):
+    def enemyattack(self,cur):
         self.statuseffects(False)
-        for x in self.enemy:
-            if x != cbm:
-                if self.dup:
-                    for z in self.enemy[x]:
-                        if z[4][0] > 0:
-                            z[4][0] -= 1
-                            continue
-                        attack = z[3]
-                        self.workingattack(attack)
-                else:
-                    if self.enemy[x][0][4][0] > 0:
-                        self.enemy[x][0][4][0] -= 1
-                        continue
-                    attack = self.enemy[x][0][3]
+        x = main.little[cur]
+        if x != cbm:
+            if self.dup:
+                for z in self.enemy[x]:
+                    if z[4][0] > 0:
+                        z[4][0] -= 1
+                        pass
+                    attack = z[3]
                     self.workingattack(attack)
             else:
-                x.attack()
-        self.click = True
-        self.display = True
-        self.statuseffects(True)
+                if self.enemy[x][0][4][0] > 0:
+                    self.enemy[x][0][4][0] -= 1
+                    pass
+                attack = self.enemy[x][0][3]
+                self.workingattack(attack)
+        else:
+            x.attack()
     def workingattack(self,attack):
         attacks = []
         chance = []
@@ -1857,7 +1918,6 @@ M.hovertime = 9999
 
 M.killhistory = []
 
-M.display = False
 M.damage = {}
 M.click = False
 M.attackselect = False
@@ -1871,6 +1931,7 @@ L.create_map()
 
 mpos = vec(0,0)
 create = []
+lock = True
 
 L.get_connections()
 running = True
@@ -1883,6 +1944,7 @@ while running:
             mpos = vec(pg.mouse.get_pos()) // TILESIZE
             M.switchhover()
         if event.type == pg.MOUSEBUTTONDOWN:
+
             if event.button == 1:
                 if main.current_state == 'battle' or main.current_state == 'shop' or main.current_state == 'switch':
                     mpos = vec(pg.mouse.get_pos()) // TILESIZE
@@ -1900,6 +1962,7 @@ while running:
                 main.shoptop()
 
         if event.type == pg.KEYDOWN:
+
             if event.key == pg.K_r:
                 M.enemy = {}
                 M.checkifdead()
@@ -1914,7 +1977,15 @@ while running:
                 M.allies[M.selectedchar] += 100
             if event.key == pg.K_n:
                 M.allies[M.selectedchar][1] = 0
-
+            if event.key == pg.K_l:
+                if lock == True:
+                    lock = False
+                else:
+                    lock = True
+            if event.key == pg.K_k:
+                for x in M.allies:
+                    x.exp = 0
+            print(lock)
             #if event.key == pg.K_a:
             #    print([(int(loc.x -  M.clericvec.x), int(loc.y - M.clericvec.y)) for loc in create])
             #if event.key == pg.K_m:

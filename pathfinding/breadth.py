@@ -74,7 +74,7 @@ def breadth_first_search(graph, start):
 
 
 arrows = {}
-arrow_img = pg.image.load('grams/New Piskel-1.png (2).png').convert_alpha()
+arrow_img = pg.image.load('images/arrow.png').convert_alpha()
 arrow_img = pg.transform.scale(arrow_img, (50, 50))
 for dir in [(1, 0), (0, 1), (-1, 0), (0, -1)]:
     arrows[dir] = pg.transform.rotate(arrow_img, vec(dir).angle_to(vec(1, 0)))

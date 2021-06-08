@@ -86,15 +86,15 @@ def breadth_first_search(graph, start, end):
                 path[vec2int(next)] = current - next
     return path
 
-home_img = pg.image.load('grams/house-1.png.png').convert_alpha()
+home_img = pg.image.load('images/house-1.png.png').convert_alpha()
 home_img = pg.transform.scale(home_img, (50, 50))
 home_ui = pg.transform.scale(home_img, (40, 40))
 home_img.fill((0, 255, 0, 255), special_flags=pg.BLEND_RGBA_MULT)
-cross_img = pg.image.load('grams/cross-1.png.png').convert_alpha()
+cross_img = pg.image.load('images/cross-1.png.png').convert_alpha()
 cross_img = pg.transform.scale(cross_img, (50, 50))
 cross_img.fill((255, 0, 0, 255), special_flags=pg.BLEND_RGBA_MULT)
 arrows = {}
-arrow_img = pg.image.load('grams/New Piskel-1.png (2).png').convert_alpha()
+arrow_img = pg.image.load('images/arrow.png').convert_alpha()
 arrow_img = pg.transform.scale(arrow_img, (50, 50))
 for dir in [(1, 0), (0, 1), (-1, 0), (0, -1), (1, 1), (-1, 1), (1, -1), (-1, -1)]:
     arrows[dir] = pg.transform.rotate(arrow_img, vec(dir).angle_to(vec(1, 0)))
