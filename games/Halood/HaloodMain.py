@@ -1,3 +1,4 @@
+
 import pygame as pg
 from os import path
 from collections import deque
@@ -5,6 +6,7 @@ import random
 import copy
 import shelve
 import os , sys
+import math
 vec = pg.math.Vector2
 
 TILESIZE = 30
@@ -28,6 +30,8 @@ LIGHTGRAY = (140, 140, 140)
 GREY = (128,128,128)
 DARKBLUE = (0,0,139)
 MOMENTUMCOLOR = (166, 138, 178)
+PURPLE = (149, 53, 83)
+VIOLET = (127,0,255)
 check = 'working'
 
 pg.init()
@@ -123,8 +127,8 @@ for aura in auras:
 lizard.attacks = {'pierce':[2,5,[0,1,0],3],'constrict':[5,1,[2,0,0],1],'miss':[0,2,[0,0,0],1]}
 
 
-cross = pg.image.load(os.path.join(filename,cross)).convert_alpha()
-cross = pg.transform.scale(cross, (128, 128))
+kcross = pg.image.load(os.path.join(filename,cross)).convert_alpha()
+kcross = pg.transform.scale(kcross, (128, 128))
 
 class boss():
     class courptbattlemage():
@@ -203,6 +207,9 @@ for aura in auras:
     cbm.clickaura.append(vec(aura))
 cbm.attacks = {'slash':[5,4,[0,0,0],2,False],'blast':[15,2,[0,0,1],1,False],'charging fire':[1,2,[0,0,3],1,True],'blinding light':[1,1,[1,0,0],1,True],'miss':[0,2,[0,0,0],1,True]}
 
+
+
+
 class ally():
     def __init__(self):
         l = 0
@@ -217,7 +224,13 @@ class ally():
         screen.blit(current, current.get_rect(center=goal_center))
         draw_text(str(thing.lvl),50,BLACK,int(l.x * TILESIZE)-70,int(l.y * TILESIZE))
         draw_text(str(thing.exp)+'/'+str(thing.needtolvl),30,BLACK,int(l.x * TILESIZE)-90,int(l.y * TILESIZE+50))
-
+    def applyeffects(self,target,dup,attack,ally):
+        if ally.attacks[attack][5][0] > 0:
+            M.enemy[target][dup][4][0] += ally.attacks[attack][5][0]
+        if ally.attacks[attack][5][1] > 0:
+            M.enemy[target][dup][4][1] += ally.attacks[attack][5][1]
+        if ally.attacks[attack][5][2] > 0:
+            M.enemy[target][dup][4][2] += ally.attacks[attack][5][2]
     class heplane():
         def __init__(self):
             self.attack1 = 0
@@ -400,26 +413,42 @@ class ally():
                     #print('bleed')
                     M.allies[self][4][1] += taken[2][1]
         def draw_icons(self):
-            for x in self.attacks:
-                cur = cri_stunicon_img
-                goal_center = (int(M.allies[self][0].x * TILESIZE + TILESIZE / 2 + 80), int(M.allies[self][0].y * TILESIZE + TILESIZE / 2 - 50))
-                if self.attacks[self.attack1][0] < self.stuncap:
-                    cur = cur.copy( )
-                    cur.fill((105, 105, 105, 255),special_flags=pg.BLEND_RGB_MULT)            
-                screen.blit(cur, cur.get_rect(center=goal_center))
-                if S in M.allies: 
-                    icon = self.attacks[x][1]
-                    pos = self.attacks[x][2]
-                    rect = pg.Rect(int(pos.x*TILESIZE-49), int(pos.y*TILESIZE-50), 128, 150)
-                    pg.draw.rect(screen,BLACK,rect)
-                    goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))
-                    screen.blit(icon, icon.get_rect(center=goal_center))
-                    text = str(self.attacks[self.attack1][0])
-                    draw_text(text, 20, RED, self.attacks[self.attack1][2].x*TILESIZE, self.attacks[self.attack1][2].y*TILESIZE + 75)
-                    text = str(self.attacks[self.attack2][0])
-                    draw_text(text, 20, BLUE, self.attacks[self.attack2][2].x*TILESIZE, self.attacks[self.attack2][2].y*TILESIZE + 75)
-                    text = str(self.attacks[self.attack3][0])
-                    draw_text(text, 20, GREEN, self.attacks[self.attack3][2].x*TILESIZE, self.attacks[self.attack3][2].y*TILESIZE + 75)
+            cur = cri_stunicon_img
+            goal_center = (int(M.allies[self][0].x * TILESIZE + TILESIZE / 2 + 80), int(M.allies[self][0].y * TILESIZE + TILESIZE / 2 - 50))
+            if self.attacks[self.attack1][0] < self.stuncap:
+                cur = cur.copy( )
+                cur.fill((105, 105, 105, 255),special_flags=pg.BLEND_RGB_MULT)            
+            screen.blit(cur, cur.get_rect(center=goal_center))
+
+            attack = self.attack1
+            icon = self.attacks[attack][1]
+            pos = self.attacks[attack][2]
+            rect = pg.Rect(int(pos.x*TILESIZE-49), int(pos.y*TILESIZE-50), 128, 150)
+            pg.draw.rect(screen,BLACK,rect)
+            goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))
+            screen.blit(icon, icon.get_rect(center=goal_center))
+            text = str(self.attacks[attack][0])
+            draw_text(text, 20, RED, pos.x*TILESIZE, pos.y*TILESIZE + 75)
+
+            attack = self.attack2
+            icon = self.attacks[attack][1]
+            pos = self.attacks[attack][2]
+            rect = pg.Rect(int(pos.x*TILESIZE-49), int(pos.y*TILESIZE-50), 128, 150)
+            pg.draw.rect(screen,BLACK,rect)
+            goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))
+            screen.blit(icon, icon.get_rect(center=goal_center))
+            text = str(self.attacks[attack][0])
+            draw_text(text, 20, BLUE, pos.x*TILESIZE, pos.y*TILESIZE + 75)
+
+            attack = self.attack3
+            icon = self.attacks[attack][1]
+            pos = self.attacks[attack][2]
+            rect = pg.Rect(int(pos.x*TILESIZE-49), int(pos.y*TILESIZE-50), 128, 150)
+            pg.draw.rect(screen,BLACK,rect)
+            goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))
+            screen.blit(icon, icon.get_rect(center=goal_center))
+            text = str(self.attacks[attack][0])
+            draw_text(text, 20, GREEN, pos.x*TILESIZE, pos.y*TILESIZE + 75)
         def draw_attack(self):
             pass
         def draw_skilltree(self):
@@ -567,10 +596,322 @@ class ally():
                 self.lvl += 1
                 self.exp -= self.needtolvl
                 self.needtolvl *=2
+    
+    class sillid():
+        def __int__(self):
+            self.attack1 = 0
+        def attack(self,target,attack):
+            target,dup = target
+            if self.attacks[attack][0][1] != 0:
+                damage = (self.attacks[attack][0][0]+self.inc)*int(random.choices([1,2],[int(100-self.chance),int(0+self.chance)])[0])
+                
+                self.passive(attack)
+                if attack == self.attack4:
+                    for x in M.enemy:
+                        for y in M.enemy[x]:
+                            y[1] -= self.attacks[self.attack4][0][0]
 
+                            ally.applyeffects(target,dup,attack,self)
+                else:
+                    ally.applyeffects(target,dup,attack,self)
+                M.enemy[target][dup][1] -= damage
+            else:
+                M.actions.remove(self)
+            
+        def support(self,target):
+            if self.acts != 0:
+                for x in range(self.acts):
+                    if self.attack4 in self.unlockedabilites:
+                        cur = random.choices([self.attack1,self.attack2,self.attack4],[35,45,20])[0]
+                    else:
+                        cur = random.choices([self.attack1,self.attack2],[30,70])[0]
+                    self.attacks[cur][0][1] += 1
+                self.acts = 0
+            else:
+                M.actions.remove(self)
+        def passive(self,used):
+            self.attacks[used][0][1] -= 1
+            self.acts += 1
+        def damage(self,taken):
+            if M.allies[self][3] > 0:
+                M.allies[self][3] -= taken[0]
+                if M.allies[self][3] < 0:
+                    M.allies[self][3] = 0
+            else:
+                M.allies[self][1] -= taken[0]
+                if taken[2][1] > 0:
+                    M.allies[self][4][1] += taken[2][1]
+        def draw_icons(self):
+            #cur = cri_stunicon_img
+            #goal_center = (int(M.allies[self][0].x * TILESIZE + TILESIZE / 2 + 80), int(M.allies[self][0].y * TILESIZE + TILESIZE / 2 - 50))
+            #if self.attacks[self.attack1][0] < self.stuncap:
+            #    cur = cur.copy( )
+            #    cur.fill((105, 105, 105, 255),special_flags=pg.BLEND_RGB_MULT)            
+            #screen.blit(cur, cur.get_rect(center=goal_center))
+
+            attack = self.attack1
+            icon = self.attacks[attack][1]
+            pos = self.attacks[attack][2]
+            rect = pg.Rect(int(pos.x*TILESIZE-49), int(pos.y*TILESIZE-50), 128, 150)
+            pg.draw.rect(screen,BLACK,rect)
+            goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))
+            screen.blit(icon, icon.get_rect(center=goal_center))
+            text = str(self.attacks[attack][0][1])
+            draw_text(text, 50, VIOLET, pos.x*TILESIZE + 40, pos.y*TILESIZE - 50)
+            text = str(self.attacks[attack][0][0]+self.inc)
+            draw_text(text, 20, RED, pos.x*TILESIZE, pos.y*TILESIZE + 75)
+
+            attack = self.attack2
+            icon = self.attacks[attack][1]
+            pos = self.attacks[attack][2]
+            rect = pg.Rect(int(pos.x*TILESIZE-49), int(pos.y*TILESIZE-50), 128, 150)
+            pg.draw.rect(screen,BLACK,rect)
+            goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))
+            screen.blit(icon, icon.get_rect(center=goal_center))
+            text = str(self.attacks[attack][0][1])
+            draw_text(text, 50, VIOLET, pos.x*TILESIZE + 40, pos.y*TILESIZE - 50)
+            text = str(self.attacks[attack][0][0]+self.inc)
+            draw_text(text, 20, BLUE, pos.x*TILESIZE, pos.y*TILESIZE + 75)
+
+            attack = self.attack3
+            icon = self.attacks[attack][1]
+            pos = self.attacks[attack][2]
+            rect = pg.Rect(int(pos.x*TILESIZE-49), int(pos.y*TILESIZE-50), 128, 150)
+            pg.draw.rect(screen,BLACK,rect)
+            goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))
+            screen.blit(icon, icon.get_rect(center=goal_center))
+            text = str(self.acts)
+            draw_text(text, 20, GREEN, pos.x*TILESIZE, pos.y*TILESIZE + 75)
+
+            if self.attack4 in self.unlockedabilites:
+                attack = self.attack4
+                icon = self.attacks[attack][1]
+                pos = self.attacks[attack][2]
+                rect = pg.Rect(int(pos.x*TILESIZE-49), int(pos.y*TILESIZE-50), 128, 150)
+                pg.draw.rect(screen,BLACK,rect)
+                goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))
+                screen.blit(icon, icon.get_rect(center=goal_center))
+                text = str(self.attacks[attack][0][1])
+                draw_text(text, 50, VIOLET, pos.x*TILESIZE + 40, pos.y*TILESIZE - 50)
+                text = str(self.attacks[attack][0][0]+self.inc)
+                draw_text(text, 20, GREEN, pos.x*TILESIZE, pos.y*TILESIZE + 75)
+        def draw_attack(self):
+            pass
+        def draw_skilltree(self):
+            ally.profile(self.combat_animation,self)
+            for z in self.abilities:
+                pos = self.abilities[z][1]
+                x = int(pos.x*TILESIZE-230)
+                y = int(pos.y*TILESIZE-35)
+                rect = pg.Rect(x, y, 50, 50)
+                if self.abilities[z][2] == True:
+                    self.abilities[z][0] = pg.draw.rect(screen,GREEN,rect)
+                else:
+                    self.abilities[z][0] = pg.draw.rect(screen,BLACK,rect)
+        def skill(self,cur):
+            if cur == self.attack4:
+                self.abilities[cur][2] = False
+                self.unlockedabilites.append(cur)
+            if cur == 'increase':
+                self.abilities[cur][2] = False
+                self.unlockedabilites.append(cur)
+                self.inc = 1
+            if cur == 'critical':
+                self.abilities[cur][2] = False
+                self.unlockedabilites.append(cur)
+                self.chance = 20
+        def checklevel(self):
+            if self.exp >= self.needtolvl:
+                self.lvl += 1
+                self.exp -= self.needtolvl
+                self.needtolvl *= 2
+
+    class noverence():
+        def __int__(self):
+            self.attack1 = 0
+        def attack(self,target,attack):
+            if self.block:
+                self.block = False
+            target,dup = target
+            damage = 0
+            if self.transformed:
+                for x in M.allies:
+                    M.allies[x][1] -= 5
+                M.allies[self][1] += 5
+                damage = self.attacks[attack][0][1]
+                if M.enemy[target][dup][4][1] > 0:
+                    damage *= 1.5
+            else:
+                damage = self.attacks[attack][0][0]
+            ally.applyeffects(target,dup,attack,self)
+            M.enemy[target][dup][1] -= damage
+            self.passive(attack)
+            
+        def support(self,target):
+            if self.block:
+                self.block = False
+            if M.selectedattack == self.attack3:
+                if self.acts == 0:
+                    if self.transformed:
+                        self.combat_animation = {1:nover_combat_img,2:nover_combat2_img,3:nover_combat3_img}
+                        self.transformed = False
+                    else:
+                        self.combat_animation = {1:nover_transformed_img,2:nover_transformed_img,3:nover_transformed_img}
+                        self.transformed = True
+                else:
+                    M.actions.remove(self)
+            elif M.selectedattack == self.attack1:
+                if self.transformed:
+                    M.allies[self][3] += self.attacks[self.attack1][0][1]
+                    self.block = True
+                else:
+                    M.allies[self][3] += self.attacks[self.attack1][0][0]
+                    self.block = True
+                pass
+        def passive(self,used):           
+            self.acts -= 1
+            if self.acts < 0:
+                self.acts = 0 
+        def damage(self,taken):
+            if self.block:
+                taken[0] = int(taken[0]/2)
+            if M.allies[self][3] > 0:
+                M.allies[self][3] -= taken[0]
+                if M.allies[self][3] < 0:
+                    M.allies[self][3] = 0
+            else:
+                M.allies[self][1] -= taken[0]
+                if taken[2][1] > 0:
+                    M.allies[self][4][1] += taken[2][1]
+        def draw_icons(self):
+            #cur = cri_stunicon_img
+            #goal_center = (int(M.allies[self][0].x * TILESIZE + TILESIZE / 2 + 80), int(M.allies[self][0].y * TILESIZE + TILESIZE / 2 - 50))
+            #if self.attacks[self.attack1][0] < self.stuncap:
+            #    cur = cur.copy( )
+            #    cur.fill((105, 105, 105, 255),special_flags=pg.BLEND_RGB_MULT)            
+            #screen.blit(cur, cur.get_rect(center=goal_center))
+
+            attack = self.attack1
+            icon = self.attacks[attack][1]
+            pos = self.attacks[attack][2]
+            rect = pg.Rect(int(pos.x*TILESIZE-49), int(pos.y*TILESIZE-50), 128, 150)
+            pg.draw.rect(screen,BLACK,rect)
+            goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))
+            screen.blit(icon, icon.get_rect(center=goal_center))
+            if self.transformed:
+                text = str(self.attacks[attack][0][1])
+            else:
+                text = str(self.attacks[attack][0][0]+self.inc)
+            draw_text(text, 20, BLUE, pos.x*TILESIZE, pos.y*TILESIZE + 75)
+
+            attack = self.attack2
+            icon = self.attacks[attack][1]
+            pos = self.attacks[attack][2]
+            rect = pg.Rect(int(pos.x*TILESIZE-49), int(pos.y*TILESIZE-50), 128, 150)
+            pg.draw.rect(screen,BLACK,rect)
+            goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))
+            screen.blit(icon, icon.get_rect(center=goal_center))
+            if self.transformed:
+                text = str(self.attacks[attack][0][1])
+            else:
+                text = str(self.attacks[attack][0][0]+self.inc)
+            draw_text(text, 20, BLUE, pos.x*TILESIZE, pos.y*TILESIZE + 75)
+
+            attack = self.attack3
+            icon = self.attacks[attack][1]
+            pos = self.attacks[attack][2]
+            rect = pg.Rect(int(pos.x*TILESIZE-49), int(pos.y*TILESIZE-50), 128, 150)
+            pg.draw.rect(screen,BLACK,rect)
+            goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))
+            screen.blit(icon, icon.get_rect(center=goal_center))
+            text = str(self.acts)
+            draw_text(text, 50, VIOLET, pos.x*TILESIZE + 40, pos.y*TILESIZE - 50)
+
+            #if self.attack4 in self.unlockedabilites:
+            #    attack = self.attack4
+            #    icon = self.attacks[attack][1]
+            #    pos = self.attacks[attack][2]
+            #    rect = pg.Rect(int(pos.x*TILESIZE-49), int(pos.y*TILESIZE-50), 128, 150)
+            #    pg.draw.rect(screen,BLACK,rect)
+            #    goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))
+            #    screen.blit(icon, icon.get_rect(center=goal_center))
+            #    text = str(self.attacks[attack][0][1])
+            #    draw_text(text, 50, VIOLET, pos.x*TILESIZE + 40, pos.y*TILESIZE - 50)
+            #    text = str(self.attacks[attack][0][0]+self.inc)
+            #    draw_text(text, 20, GREEN, pos.x*TILESIZE, pos.y*TILESIZE + 75)
+        def draw_attack(self):
+            pass
+        def draw_skilltree(self):
+            ally.profile(self.combat_animation,self)
+            for z in self.abilities:
+                pos = self.abilities[z][1]
+                x = int(pos.x*TILESIZE-230)
+                y = int(pos.y*TILESIZE-35)
+                rect = pg.Rect(x, y, 50, 50)
+                if self.abilities[z][2] == True:
+                    self.abilities[z][0] = pg.draw.rect(screen,GREEN,rect)
+                else:
+                    self.abilities[z][0] = pg.draw.rect(screen,BLACK,rect)
+        def skill(self,cur):
+            if cur == self.attack4:
+                self.abilities[cur][2] = False
+                self.unlockedabilites.append(cur)
+            if cur == 'increase':
+                self.abilities[cur][2] = False
+                self.unlockedabilites.append(cur)
+                self.inc = 1
+            if cur == 'critical':
+                self.abilities[cur][2] = False
+                self.unlockedabilites.append(cur)
+                self.chance = 20
+        def checklevel(self):
+            if self.exp >= self.needtolvl:
+                self.lvl += 1
+                self.exp -= self.needtolvl
+                self.needtolvl *= 2
 ally = ally()
                     
 iconaura = [(2, 2), (2, 1), (2, 0), (2, -1), (2, -2), (1, -2), (1, -1), (1, 0), (1, 1), (1, 2), (0, 2), (0, 1), (0, 0), (0, -1), (0, -2), (-1, -2), (-1, -1), (-1, 0), (-1, 1), (-1, 2), (-2, 2), (-2, 1), (-2, 0), (-2, -1), (-2, -2)]            
+nover = ally.noverence()
+nover_combat_img = pg.image.load(os.path.join(filename,cross)).convert_alpha()
+nover_combat_img = pg.transform.scale(nover_combat_img, (256, 256))
+nover_combat2_img = pg.image.load(os.path.join(filename,cross)).convert_alpha()
+nover_combat2_img = pg.transform.scale(nover_combat2_img, (256, 256))
+nover_combat3_img = pg.image.load(os.path.join(filename,cross)).convert_alpha()
+nover_combat3_img = pg.transform.scale(nover_combat3_img, (256, 256))
+
+nover_transformed_img = pg.image.load(os.path.join(filename,'nover_transformed.png')).convert_alpha()
+nover_transformed_img = pg.transform.scale(nover_transformed_img, (256, 256))
+
+nover_ability1_img = pg.image.load(os.path.join(filename,cross))
+nover_ability1_img = pg.transform.scale(nover_ability1_img, (128, 128))
+nover_ability2_img = pg.image.load(os.path.join(filename,cross))
+nover_ability2_img = pg.transform.scale(nover_ability2_img, (128, 128))
+nover_ability3_img = pg.image.load(os.path.join(filename,cross))
+nover_ability3_img = pg.transform.scale(nover_ability3_img, (128, 128))
+nover.attack1 = 'block'
+nover.attack2 = 'leech'
+nover.attack3 = 'transform'
+nover.attack4 = 'static blood'
+nover.vec = vec(20,15)
+nover.health = 50
+nover.shield = 0
+nover.acts = 0
+nover.transformed = False
+nover.block = False
+nover.inc = 0
+nover.abilities = {'self heal':[0,vec(47,17),True,'heal for half the damage dealt on enemies'],'increase':[0,vec(47,20),True,'Increases damage by 0.1'],'static blood':[0,vec(47,23),True,'allows heplane to trade health for shields']}
+nover.unlockedabilites = []
+nover.exp = 0
+nover.lvl = 0
+nover.needtolvl = 10
+nover.combat_animation = {1:nover_combat_img,2:nover_combat2_img,3:nover_combat3_img}
+nover.attacks = {nover.attack1:[[0,10],nover_ability1_img,vec(18, 31),[vec(18,31) + a for a in iconaura],True,[1,0,0]],nover.attack2:[[5,10],nover_ability2_img,vec(23,31),[vec(23,31) + a for a in iconaura],False,[0,1,0]],nover.attack3:[[0,0],nover_ability3_img,vec(28,31),[vec(28,31)+ a for a in iconaura],True,[0,0,0]],nover.attack4:[[0,0],cross,vec(33,31),[vec(33,31)+ a for a in iconaura],True,[0,0,0]]}
+aura = [(1, 3), (0, 3), (-1, 3), (-1, 2), (0, 2), (1, 2), (1, 1), (0, 1), (-1, 1), (-1, 0), (0, 0), (1, 0), (1, -1), (0, -1), (-1, -1), (-1, -2), (0, -2), (1, -2), (1, -3), (0, -3), (-1, -3)]
+nover.clickaura = []
+for x in aura:
+    nover.clickaura.append(vec(x))
+
 H = ally.heplane()
 heplane_combat_img = pg.image.load(os.path.join(filename,'Layer 1_heplane_combat1.png')).convert_alpha()
 heplane_combat_img = pg.transform.scale(heplane_combat_img, (256, 256))
@@ -604,7 +945,7 @@ H.clickaura = []
 for x in aura:
     H.clickaura.append(vec(x))
 
-S = ally.cri()
+Cri = ally.cri()
 cri_combat_img = pg.image.load(os.path.join(filename,'Layer 1_cri_combat1.png')).convert_alpha()
 cri_combat_img = pg.transform.scale(cri_combat_img, (256, 256))
 cri_combat2_img = pg.image.load(os.path.join(filename,'Layer 1_cri_combat2.png')).convert_alpha()
@@ -619,24 +960,24 @@ cri_ability3_img = pg.image.load(os.path.join(filename,'crystal_icons-1.png.png'
 cri_ability3_img = pg.transform.scale(cri_ability3_img, (128, 128))
 cri_stunicon_img = pg.image.load(os.path.join(filename,'sri_stun-1.png.png'))
 cri_stunicon_img = pg.transform.scale(cri_stunicon_img, (128, 128))
-S.attack1 = 'flash and crash'
-S.attack2 = 'crystal glass'
-S.attack3 = 'karen and her healing balony'
-S.vec = vec(20,25)
-S.health = 25
-S.shield = 10
-S.stuncap = 7
-S.inc = 0
-S.abilities = {'stun':[0,vec(47,17),True,'decreases the damage needed to stun from 7 to 6'],'increase':[0,vec(47,20),True,'increases the value that abilites increase to 2 rather then 1']}
-S.unlockedabilites = []
-S.exp = 0
-S.lvl = 0
-S.needtolvl = 10
-S.combat_animation = {1:cri_combat_img,2:cri_combat2_img,3:cri_combat3_img}
-S.attacks = {S.attack1:[5,cri_ability1_img,vec(18,31),[vec(18,31) + a for a in iconaura],False,[0,0,0]],S.attack2:[2,cri_ability3_img,vec(28,31),[vec(28,31)+a for a in iconaura],True,[0,0,0]],S.attack3:[2,cri_ability2_img,vec(23,31),[vec(23,31) + a for a in iconaura],True,[0,0,0]]}
-S.clickaura = []
+Cri.attack1 = 'flash and crash'
+Cri.attack2 = 'crystal glass'
+Cri.attack3 = 'karen and her healing balony'
+Cri.vec = vec(20,25)
+Cri.health = 25
+Cri.shield = 10
+Cri.stuncap = 7
+Cri.inc = 0
+Cri.abilities = {'stun':[0,vec(47,17),True,'decreases the damage needed to stun from 7 to 6'],'increase':[0,vec(47,20),True,'increases the value that abilites increase to 2 rather then 1']}
+Cri.unlockedabilites = []
+Cri.exp = 0
+Cri.lvl = 0
+Cri.needtolvl = 10
+Cri.combat_animation = {1:cri_combat_img,2:cri_combat2_img,3:cri_combat3_img}
+Cri.attacks = {Cri.attack1:[5,cri_ability1_img,vec(18,31),[vec(18,31) + a for a in iconaura],False,[0,0,0]],Cri.attack2:[2,cri_ability3_img,vec(28,31),[vec(28,31)+a for a in iconaura],True,[0,0,0]],Cri.attack3:[2,cri_ability2_img,vec(23,31),[vec(23,31) + a for a in iconaura],True,[0,0,0]]}
+Cri.clickaura = []
 for x in aura:
-    S.clickaura.append(vec(x))
+    Cri.clickaura.append(vec(x))
     
 Hap = ally.haptic()
 haptic_combat_img = pg.image.load(os.path.join(filename,'Layer 1_haptic_combat1.png')).convert_alpha()
@@ -672,15 +1013,45 @@ Hap.clickaura = []
 for x in aura:
     Hap.clickaura.append(vec(x))
 
+sillid = ally.sillid()
+sillid_combat_img = pg.image.load(os.path.join(filename,'sillid_temp.png')).convert_alpha()
+sillid_combat_img = pg.transform.scale(sillid_combat_img, (256, 256))
+sillid_combat2_img = pg.image.load(os.path.join(filename,'sillid_temp.png')).convert_alpha()
+sillid_combat2_img = pg.transform.scale(sillid_combat2_img, (256, 256))
+sillid_combat3_img = pg.image.load(os.path.join(filename,'sillid_temp.png')).convert_alpha()
+sillid_combat3_img = pg.transform.scale(sillid_combat3_img, (256, 256))
+sillid_ability1_img = pg.image.load(os.path.join(filename,'cross-1.png.png'))
+sillid_ability1_img = pg.transform.scale(sillid_ability1_img, (128, 128))
+sillid_ability2_img = pg.image.load(os.path.join(filename,'cross-1.png.png'))
+sillid_ability2_img = pg.transform.scale(sillid_ability2_img, (128, 128))
+sillid_ability3_img = pg.image.load(os.path.join(filename,'cross-1.png.png'))
+sillid_ability3_img = pg.transform.scale(sillid_ability3_img, (128, 128))
+sillid_ability4_img = pg.image.load(os.path.join(filename,'cross-1.png.png'))
+sillid_ability4_img = pg.transform.scale(sillid_ability4_img, (128, 128))
+sillid.attack1 = 'iron arrow'
+sillid.attack2 = 'dirt arrow'
+sillid.attack3 = 'restock'
+sillid.attack4 = 'uranium arrow'
+sillid.vec = vec(20,15)
+sillid.health = 60
+sillid.shield = 0
+sillid.acts = 0
+sillid.inc = 0
+sillid.chance = 0
+sillid.abilities = {sillid.attack4:[0,vec(47,17),True,'access to uranium arrows appears sometimes when restocking'],'increase':[0,vec(47,20),True,'Increase all attacks by 1'],'critical':[0,vec(47,23),True,'allows haptic to dodge attacks']}
+sillid.unlockedabilites = []
+sillid.exp = 0
+sillid.lvl = 0
+sillid.needtolvl = 10
+sillid.combat_animation = {1:sillid_combat_img,2:sillid_combat2_img,3:sillid_combat3_img}
+sillid.attacks = {sillid.attack1:[[10,1],sillid_ability1_img,vec(18,31),[vec(18,31) + a for a in iconaura],False,[0,1,0]],sillid.attack2:[[5,3],sillid_ability2_img,vec(23,31),[vec(23,31) + a for a in iconaura],False,[0,0,0]],sillid.attack3:[[0,0],sillid_ability3_img,vec(28,31),[vec(28,31)+a for a in iconaura],True,[0,0,0]],sillid.attack4:[[10,1],sillid_ability4_img,vec(33,31),[vec(33,31) + a for a in iconaura],False,[1,0,1]]}
+sillid.clickaura = []
+for x in aura:
+    sillid.clickaura.append(vec(x))
+
 class shopkeeper():
     class cleric():
         def action(self):
-            if self.healparty.collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)) and main.amountmoney >= 40:
-                for x in M.allies:
-                    M.allies[x][1] += 40
-                    if M.allies[x][1] >= x.health:
-                        M.allies[x][1] = x.health
-                main.amountmoney -= 40
             if self.healone.collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)) and main.amountmoney >= 15:
                 self.heal = True
             elif self.heal == True and M.selectedchar != 0:
@@ -689,6 +1060,13 @@ class shopkeeper():
                     M.allies[M.selectedchar][1] = M.selectedchar.health
                 self.heal = False
                 main.amountmoney -= 15
+            if self.healparty.collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)) and main.amountmoney >= 40:
+                for x in M.allies:
+                    M.allies[x][1] += 40
+                    if M.allies[x][1] >= x.health:
+                        M.allies[x][1] = x.health
+                main.amountmoney -= 40
+            
             if self.resone.collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)) and main.amountmoney >= 100:
                 if M.ally1 not in M.allies:
                     pos = M.ally1.vec
@@ -764,38 +1142,38 @@ class main():
                     if M.selectedchar.attacks[M.selectedattack][4] != False:
                         try:    
                             if mpos in M.allies[M.ally1][2]:
-                                M.selectedchar.support(M.ally1)
                                 M.actions.append(M.selectedchar)
+                                M.selectedchar.support(M.ally1)
                                 M.attackselect = False
                                 M.checkifdead()
                         except:
                             pass
                         try:
                             if mpos in M.allies[M.ally2][2]:
-                                M.selectedchar.support(M.ally2)
                                 M.actions.append(M.selectedchar)
+                                M.selectedchar.support(M.ally2)
                                 M.attackselect = False
                                 M.checkifdead()
                         except:
                             pass
                         try:
                             if mpos in M.allies[M.ally3][2]:
-                                M.selectedchar.support(M.ally3)
                                 M.actions.append(M.selectedchar)
+                                M.selectedchar.support(M.ally3)                              
                                 M.attackselect = False
                                 M.checkifdead()
                         except:
                             pass
                         M.attackselect = False
                     else:
-                        try:
-                            der,xxer = M.selectenemy()
                         
+                            der,xxer = M.selectenemy()
+                            M.actions.append(M.selectedchar)
                             M.selectedchar.attack((der,xxer),M.selectedattack)
                             M.attackselect = False
-                            M.actions.append(M.selectedchar)
+                            
                             M.checkifdead()
-                        except:
+                        
                             M.attackselect = False         
                 else:
                     pass 
@@ -823,13 +1201,11 @@ class main():
                 for x in M.enemy:
                     if len(M.enemy[x]) > 1:
                         for y in range(len(M.enemy[x])):
-                            print(y)
                             self.little.update({self.k:[x,y]})
                             self.k += 1
                     else:
                         self.little.update({self.k:[x,0]})
                         self.k += 1 
-                print(self.little)
                 self.k = 0
                 self.enemycanattack = True
                 M.statuseffects(True)
@@ -950,11 +1326,11 @@ O.maps = []
 maps = [(5, 6), (5, 10), (7, 8), (9, 6), (9, 10), (7, 12), (7, 4), (7, 4), (9, 2), (9, 2), (9, 14), (11, 12), (11, 8), (11, 4), (13, 2), (13, 6), (13, 10), (13, 14), (15, 4), (15, 8), (15, 12), (17, 14), (17, 10), (17, 6), (17, 2), (19, 4), (19, 8), (19, 12), (21, 14), (21, 10), (21, 6), (21, 2), (23, 4), (25, 6), (27, 8), (25, 10), (23, 12), (23, 8)]
 for x in maps:
     O.maps.append(vec(x))
-O.mapmaster = {1:{4:[2,[sword,mage],[2,1]],5:[3,[sword,mage],[2,1]],6:[4,[sword,mage],[1,1]],7:[5,[sword,mage],[1,1]],8:[5,[sword,mage],[1,2]],9:[5,[sword,mage],[1,1]],10:[5,[sword,mage,lizard],[1,1,5]]
+O.mapmaster = {1:{0:[2,[sword,mage],[2,1]],1:[2,[sword,mage],[2,1]],2:[2,[sword,mage],[2,1]],3:[2,[sword,mage],[2,1]],4:[2,[sword,mage],[2,1]],5:[3,[sword,mage],[2,1]],6:[4,[sword,mage],[1,1]],7:[5,[sword,mage],[1,1]],8:[5,[sword,mage],[1,2]],9:[5,[sword,mage],[1,1]],10:[5,[sword,mage,lizard],[1,1,5]]
 ,11:[6,[sword,mage,lizard],[1,2,2]],12:[7,[sword,mage,lizard],[1,2,2]],13:[8,[sword,mage,lizard],[1,1,2]],14:[8,[sword,mage,lizard],[1,1,2]],15:[9,[sword,mage,lizard],[1,1,3]]
 ,16:[10,[sword,mage,lizard],[1,1,1]],17:[11,[sword,mage,C,lizard],[1,1,2,1]],18:[11,[sword,mage,C,lizard],[1,1,3,1]],19:[12,[sword,mage,C,lizard],[4,1,1,1]],20:[12,[sword,mage,C,lizard],[3,2,1,2]]
 ,21:[13,[sword,mage,C,lizard],[1,1,1,1]],22:[13,[sword,mage],[1,1]],23:[14,[sword,mage,C,lizard],[1,1,1,1]],24:[14,[sword,mage,C,lizard],[1,1,1,1]],25:[14,[sword,mage,C,lizard],[1,2,2,1]]
-,26:[15,[sword,mage,C,lizard],[1,5,3,1]],27:[15,[mage,C],[1,1]]},
+,26:[15,[sword,mage,C,lizard],[1,5,3,1]],27:[15,[mage,C],[1,1]],28:[15,[mage,C],[1,1]]},
 2:{4:[2,[sword,mage],[2,1]],5:[3,[sword,mage],[2,1]]}}
 
 O.get_connections()
@@ -984,23 +1360,118 @@ class level():
             else:
                 pg.draw.circle(screen,BLACK,(int(self.levelindex[x].x*TILESIZE*2+TILESIZE*2/2),int(self.levelindex[x].y*TILESIZE*2+TILESIZE*2/2)),5)
     def draw_linestoconnections(self):
-        for x in self.connections:
-            pg.draw.line(screen, BLUE, (int(self.crossvec.x*TILESIZE*2+TILESIZE*2/2),int(self.crossvec.y*TILESIZE*2+TILESIZE*2/2)), (int(x.x*TILESIZE*2+TILESIZE*2/2),int(x.y*TILESIZE*2+TILESIZE*2/2)))
+        #for x in self.connections:
+        #    pg.draw.line(screen, BLUE, (int(self.crossvec.x*TILESIZE*2+TILESIZE*2/2),int(self.crossvec.y*TILESIZE*2+TILESIZE*2/2)), (int(x.x*TILESIZE*2+TILESIZE*2/2),int(x.y*TILESIZE*2+TILESIZE*2/2)))
+        a,b = self.finddis(self.crossvec)
+        #print(a ** random.choice([1.5,1.55,1.6]))
+        pg.draw.line(screen, BLUE, (int(self.crossvec.x*TILESIZE*2+TILESIZE*2/2),int(self.crossvec.y*TILESIZE*2+TILESIZE*2/2)), (int(b.x*TILESIZE*2+TILESIZE*2/2),int(b.y*TILESIZE*2+TILESIZE*2/2)))
+        for x in self.drawdis:
+            x2 = int(x)
+            y = self.tierasi[x]
+            dis = self.drawdis[x]
+            dis2 = int(dis)
+            once = True
+            while dis > 0:
+                if dis <= dis2/2 and once:
+                    pg.draw.line(screen, BLUE, (int(x*TILESIZE*2+TILESIZE*2/2),int(y*TILESIZE*2+TILESIZE*2/2)), (int((x+2)*TILESIZE*2+TILESIZE*2/2),int(y*TILESIZE*2+TILESIZE*2/2)))
+                    x += 2
+                    once = False
+                pg.draw.line(screen, BLUE, (int(x*TILESIZE*2+TILESIZE*2/2),int(y*TILESIZE*2+TILESIZE*2/2)), (int(x*TILESIZE*2+TILESIZE*2/2),int((y-1)*TILESIZE*2+TILESIZE*2/2)))
+                y -= 1
+                dis -= 1
+                
+            while dis < 0:
+                if dis >= dis2/2 and once:
+                    pg.draw.line(screen, BLUE, (int(x*TILESIZE*2+TILESIZE*2/2),int(y*TILESIZE*2+TILESIZE*2/2)), (int((x+2)*TILESIZE*2+TILESIZE*2/2),int(y*TILESIZE*2+TILESIZE*2/2)))
+                    x += 2
+                    once = False
+                pg.draw.line(screen, BLUE, (int(x*TILESIZE*2+TILESIZE*2/2),int(y*TILESIZE*2+TILESIZE*2/2)), (int(x*TILESIZE*2+TILESIZE*2/2),int((y+1)*TILESIZE*2+TILESIZE*2/2)))
+                y += 1
+                dis += 1
+            while x != x2 + 4:
+                pg.draw.line(screen, BLUE, (int(x*TILESIZE*2+TILESIZE*2/2),int(y*TILESIZE*2+TILESIZE*2/2)), (int((x+1)*TILESIZE*2+TILESIZE*2/2),int(y*TILESIZE*2+TILESIZE*2/2)))
+                x += 1
     def create_map(self):
         self.levelid = {}
         self.levelindex = {}
+        self.drawdis = {}
+        self.levelstatus = []
+        self.path = {}
+        self.pathloc = []
+        tier = {}
+        self.tierasi = {}
         line = 0
+        self.closest = {}
         for x in self.levels:
-            tier = random.choices(['battle','shop'],[10,1])
-            tier = tier[0]
+            if x.x % 4 == 1:
+                if x.x not in tier:
+                    tier.update({x.x:[x.y]})
+                else:
+                    tier[x.x].append(x.y)
+        
+        for x in tier:
+            l = random.choice(tier[x])
+            self.tierasi.update({x:l})
+        print(tier)
+        print(self.tierasi)
+        for x in self.tierasi:
+            if x != 25:
+                x2 = x + 4
+                print(x2,self.tierasi[x2])
+                dis = self.tierasi[x] - self.tierasi[x2] 
+                print(dis)
+                self.drawdis.update({x:dis})
+
+        for x in self.drawdis:
+            x2 = int(x)
+            y = self.tierasi[x]
+            dis = self.drawdis[x]
+            dis2 = int(dis)
+            once = True
+            while dis > 0:
+                if dis <= dis2/2 and once:
+                    pg.draw.line(screen, BLUE, (int(x*TILESIZE*2+TILESIZE*2/2),int(y*TILESIZE*2+TILESIZE*2/2)), (int((x+1)*TILESIZE*2+TILESIZE*2/2),int(y*TILESIZE*2+TILESIZE*2/2)))
+                    x += 2
+                    once = False
+                    self.pathloc.append(vec(x,y))
+                pg.draw.line(screen, BLUE, (int(x*TILESIZE*2+TILESIZE*2/2),int(y*TILESIZE*2+TILESIZE*2/2)), (int(x*TILESIZE*2+TILESIZE*2/2),int((y-1)*TILESIZE*2+TILESIZE*2/2)))
+                y -= 1
+                dis -= 1
+                self.pathloc.append(vec(x,y))
+            while dis < 0:
+                if dis >= dis2/2 and once:
+                    pg.draw.line(screen, BLUE, (int(x*TILESIZE*2+TILESIZE*2/2),int(y*TILESIZE*2+TILESIZE*2/2)), (int((x+1)*TILESIZE*2+TILESIZE*2/2),int(y*TILESIZE*2+TILESIZE*2/2)))
+                    x += 2
+                    once = False
+                    self.pathloc.append(vec(x,y))
+                pg.draw.line(screen, BLUE, (int(x*TILESIZE*2+TILESIZE*2/2),int(y*TILESIZE*2+TILESIZE*2/2)), (int(x*TILESIZE*2+TILESIZE*2/2),int((y+1)*TILESIZE*2+TILESIZE*2/2)))
+                y += 1
+                dis += 1
+                self.pathloc.append(vec(x,y))
+            while x != x2 + 4:
+                pg.draw.line(screen, BLUE, (int(x*TILESIZE*2+TILESIZE*2/2),int(y*TILESIZE*2+TILESIZE*2/2)), (int((x+1)*TILESIZE*2+TILESIZE*2/2),int(y*TILESIZE*2+TILESIZE*2/2)))
+                x += 1
+                self.pathloc.append(vec(x,y))
+        print(self.pathloc)
+
+        for x in self.levels:
+            tier = 'battle'
+            if x.x in self.tierasi:
+                if x.y == self.tierasi[x.x]:
+                    tier = 'shop'
             if tier == 'battle':
                 if x.x in self.levelmaster:
-                    cost = self.levelmaster[x.x][0]
+                    level,b = self.finddis(x)
+                    
                     enemies = []
+                    level **= random.choice([1.5,1.51,1.52,1.53,1.55,1.56,1.57,1.58,1.59,1.6])
+                    level = int(round(level))
+                    print(level)
+                    cost = self.levelmaster[level][0]
                     while cost >= 1:
                         if len(enemies) == 5:
                             break
-                        enemy = random.choices(self.levelmaster[x.x][1],self.levelmaster[x.x][2])
+                        enemy = random.choices(self.levelmaster[level][1],self.levelmaster[level][2])
                         remove = self.get_cost(enemy)
                         cost -= remove
                         enemies.append(enemy[0])
@@ -1013,11 +1484,22 @@ class level():
             line += 1         
     def get_connections(self):
         self.connections = []
-        possible = [vec(1,0),vec(1,-1),vec(1,1)]
+        possible = [vec(1,0),vec(1,-1),vec(1,1),vec(0,1),vec(0,-1)]
         for x in possible:
             newcheck = self.crossvec + x
             if newcheck in self.levels:
                 self.connections.append(newcheck)
+    def finddis(self,a):
+        dis = 100
+        newb = 100
+        for b in self.pathloc:
+            
+            newdis = math.sqrt((a.x-b.x)**2 + (a.y-b.y)**2)
+            if newdis < dis:
+                dis = newdis
+                newb = b
+        
+        return int(dis),newb
     def get_cost(self,target):
         cost = 0
         
@@ -1044,7 +1526,7 @@ class level():
                         M.restart()
                     if 'battle' == tier:
                         M.start()
-                    else:
+                    elif 'shop' == tier:
                         M.shopstart()
                     L.get_connections()
                     main.current_state = tier
@@ -1064,10 +1546,15 @@ class level():
                 main.current_state = tier
                 self.click = False
     def getlevel(self):
-        for x in self.levelindex:
-            if self.levelindex[x] == mpos2:
-                e = self.levelid[x][0]
-                tier = self.levelid[x][1]
+        if mpos2 in self.levelstatus:
+            main.current_state = 'map'
+            e = 0
+            tier = 'map'
+        else:
+            for x in self.levelindex:
+                if self.levelindex[x] == mpos2:
+                    e = self.levelid[x][0]
+                    tier = self.levelid[x][1]
         return e,tier
 
 
@@ -1178,8 +1665,9 @@ class battle():
             skcleric.action()
     def restart(self):
         ally1 = Hap
-        ally2 = H
-        ally3 = S
+        ally2 = nover
+        ally3 = sillid
+        ally4 = Cri
         self.selectedattack = 0
         self.selectedchar = 0
         self.current_animation = 1
@@ -1202,6 +1690,11 @@ class battle():
         eat = self.ally3.health
         lean = self.ally3.shield
         self.allies.update({self.ally3:[pos,eat,self.ally3.clickaura,lean,[0,0,0]]})
+        self.ally4 = ally4
+        pos = self.ally4.vec
+        eat = self.ally4.health
+        lean = self.ally4.shield
+        self.allies.update({self.ally4:[pos,eat,self.ally4.clickaura,lean,[0,0,0]]})
         self.numberofallies()
         #for x in range(1,3):#range(1,random.randint(2,3))
         for x in self.allies:
@@ -1279,12 +1772,9 @@ class battle():
 
                 
     def draw_icons(self):
-        if M.selectedchar == self.ally1:
-            self.ally1.draw_icons()
-        if M.selectedchar == self.ally2:
-            self.ally2.draw_icons()
-        if M.selectedchar == self.ally3:
-            self.ally3.draw_icons()
+        for x in self.allies:
+            if self.selectedchar == x:
+                x.draw_icons()
             
     def draw_damage(self):
         for x in self.damage:
@@ -1333,8 +1823,11 @@ class battle():
                             a[1] = 99
         if len(self.enemy) <= 0:
             #ally1 = H
-            #ally2 = S
+            #ally2 = Cri
+            if main.current_state == 'battle':
+                L.levelstatus.append(mpos2)
             main.current_state = 'map'
+            
             self.selectedattack = 0
             self.selectedchar = 0
             self.current_animation = 1
@@ -1369,7 +1862,6 @@ class battle():
                         x.checklevel()
             else:
                 thing = []
-                dumbcheck = {}
                 blah = []
                 for x in self.allies:
                     thing.append(x)
@@ -1438,7 +1930,7 @@ class battle():
                             self.enemy[y][0][2] = [self.enemy[y][0][0]+ x for x in self.enemy[y][0][2]]
                     taken = []              
     def numberofallies(self):
-        self.spaces = {'front row':[[vec(20,15), 99],[vec(20,25),99]],'back row':[[vec(13,20),99]]}
+        self.spaces = {'front row':[[vec(20,15), 99],[vec(20,25),99]],'back row':[[vec(13,15),99],[vec(13,25),99]]}
         taken = []
         self.dup = False
         for y in self.allies:
@@ -1495,24 +1987,12 @@ class battle():
         if self.selectedchar in self.actions:
             M.attackselect = False
     def selectchar(self):
-        try:
-            if mpos in self.allies[self.ally1][2]:
-                M.selectedchar = self.ally1
+        for x in self.allies:
+            if mpos in self.allies[x][2]:
+                M.selectedchar = x
                 M.charselect = True
-        except:
-            pass
-        try:
-            if mpos in self.allies[self.ally2][2]:
-                M.selectedchar = self.ally2
-                M.charselect = True
-        except:
-            pass
-        try:
-            if mpos in self.allies[self.ally3][2]:
-                M.selectedchar = self.ally3
-                M.charselect = True
-        except:
-            pass
+        
+        
     def selectenemy(self):
         for x in self.enemy:
             if len(self.enemy[x]) > 1:
@@ -1532,10 +2012,8 @@ class battle():
         x = main.little[cur][0]
         ll = int(spec)
         if x != cbm:
-            print(self.enemy[x][ll])
             if self.enemy[x][ll][4][0] > 0:
                 self.enemy[x][ll][4][0] -= 1
-            self.enemy[x]
             attack = self.enemy[x][0][3]
             self.workingattack(attack)
         else:
@@ -1664,6 +2142,11 @@ cool downs coilent
 bonnied
 evolution of a halood
 affects bones
+
+
+
+NAMES 
+zither
 '''
 M = battle()
 
@@ -1742,7 +2225,7 @@ while running:
                 M.checkifdead()
                 M.hov = False
             if event.key == pg.K_e:
-                M.actions = [1,1,1]
+                M.actions = [1,1,1,1]
             if event.key == pg.K_q:
                 main.current_state = 'overmap'
             if event.key == pg.K_c:
