@@ -1,4 +1,5 @@
 l = {1:'a',2:'b',3:'c'}
+w = [{'l':2},{'k':1}]
 
-if 2 in l:
-    print(l[2])
+for x in w:
+    print(x)
