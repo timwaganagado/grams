@@ -7,23 +7,9 @@ p = input('p = ')
 q = input('q = ')
 
 side = input('< or > or = ')
-topf = 1
-for ll in range(1,int(n)+1):
-    topf *= ll
-print('topf',topf)
-bottomf = 1
-for ll in range(1,int(r)+1):
-    bottomf *= ll
-print('bottomf',bottomf)
-fact2 = int(n)-int(r)
-print('fact2',fact2)
-bottomf2 = 1
-for ll in range(1,fact2+1):
-    print('ll',ll)
-    bottomf2 *= ll
-print(bottomf2)
-comb = topf/(bottomf*bottomf2)
-print(comb)
+
+
+
 
 if p == '' and q == '':
     pass 
@@ -32,5 +18,109 @@ elif p == '':
 elif q == '':
     q = 1 - float(p)
 
-final = comb * float(p)**int(r) * float(q)**(int(n)-int(r)) 
-print(final)
+if side == '<' or side == '>':
+    if side == '>':
+        total = 0
+        for ww in range(int(r)+1,int(n)+1):
+            print(ww)            
+            topf = 1
+            for ll in range(1,int(n)+1):
+                topf *= ll
+
+            bottomf = 1
+            for ll in range(1,int(ww)+1):
+                bottomf *= ll
+
+            fact2 = int(n)-int(ww)
+
+            bottomf2 = 1
+            for ll in range(1,fact2+1):
+            
+                bottomf2 *= ll
+
+            comb = topf/(bottomf*bottomf2)
+            total += comb * float(p)**int(ww) * float(q)**(int(n)-int(ww))
+    if side == '<':
+        total = 0
+        for ww in range(0,int(r)):
+            
+
+            topf = 1
+            for ll in range(1,int(n)+1):
+                topf *= ll
+
+            bottomf = 1
+            for ll in range(1,int(ww)+1):
+                bottomf *= ll
+
+            fact2 = int(n)-int(ww)
+
+            bottomf2 = 1
+            for ll in range(1,fact2+1):
+            
+                bottomf2 *= ll
+
+            comb = topf/(bottomf*bottomf2)
+            total += comb * float(p)**int(ww) * float(q)**(int(n)-int(ww))
+elif side == '<=' or side == '>=':
+    if side == '>=':
+        total = 0
+        for ww in range(int(r),int(n)+1):    
+            print(ww)  
+            topf = 1
+            for ll in range(1,int(n)+1):
+                topf *= ll
+
+            bottomf = 1
+            for ll in range(1,int(ww)+1):
+                bottomf *= ll
+
+            fact2 = int(n)-int(ww)
+
+            bottomf2 = 1
+            for ll in range(1,fact2+1):
+            
+                bottomf2 *= ll
+
+            comb = topf/(bottomf*bottomf2)
+            total += comb * float(p)**int(ww) * float(q)**(int(n)-int(ww))
+    if side == '<=':
+        total = 0
+        for ww in range(0,int(r)+1):
+            print(ww)
+            topf = 1
+            for ll in range(1,int(n)+1):
+                topf *= ll
+
+            bottomf = 1
+            for ll in range(1,int(ww)+1):
+                bottomf *= ll
+
+            fact2 = int(n)-int(ww)
+
+            bottomf2 = 1
+            for ll in range(1,fact2+1):
+            
+                bottomf2 *= ll
+
+            comb = topf/(bottomf*bottomf2)
+            total += comb * float(p)**int(ww) * float(q)**(int(n)-int(ww))
+else:
+    topf = 1
+    for ll in range(1,int(n)+1):
+        topf *= ll
+
+    bottomf = 1
+    for ll in range(1,int(r)+1):
+        bottomf *= ll
+
+    fact2 = int(n)-int(r)
+
+    bottomf2 = 1
+    for ll in range(1,fact2+1):
+
+        bottomf2 *= ll
+
+    comb = topf/(bottomf*bottomf2)
+    total = comb * float(p)**int(r) * float(q)**(int(n)-int(r)) 
+print(total)
