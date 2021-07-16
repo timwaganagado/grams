@@ -401,49 +401,30 @@ class ally():
             text = str(round(int((M.allies[H][1]/self.health+1) * self.attacks[self.attack2][0][0])))
             
             
-            icon = self.attacks[self.attack1][1]
-            pos = self.attacks[self.attack1][2]
-            rect = pg.Rect(int(pos.x*TILESIZE-49), int(pos.y*TILESIZE-50), 128, 140)
-            pg.draw.rect(screen,BLACK,rect)
-            goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))
-            screen.blit(icon, icon.get_rect(center=goal_center))
-            text = str(round(int((M.allies[H][1]/self.health+1+self.inc) * self.attacks[self.attack1][0][0])))
-            draw_text(text, 20, RED, self.attacks[self.attack1][2].x*TILESIZE, self.attacks[self.attack1][2].y*TILESIZE + 65)
-            
-            icon = self.attacks[self.attack2][1]
-            pos = self.attacks[self.attack2][2]
-            rect = pg.Rect(int(pos.x*TILESIZE-49), int(pos.y*TILESIZE-50), 128, 140)
-            pg.draw.rect(screen,BLACK,rect)
-            goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))
-            screen.blit(icon, icon.get_rect(center=goal_center))
-            text = str(round(int((M.allies[H][1]/self.health+1+self.inc) * self.attacks[self.attack2][0][0])))
-            draw_text(text, 20, RED, self.attacks[self.attack2][2].x*TILESIZE, self.attacks[self.attack2][2].y*TILESIZE + 65)
+            pos = vec(18,31)
+            for attack in self.attacks:
+                if self.attack3 not in self.unlockedabilites:
+                    if attack == self.attack3:
+                        continue
+                if self.attack4 not in self.unlockedabilites:
+                    if attack == self.attack4:
+                        continue
+                icon = self.attacks[attack][4]
+                rect = pg.Rect(int(pos.x*TILESIZE-49), int(pos.y*TILESIZE-50), 128, 150)
+                pg.draw.rect(screen,BLACK,rect)
+                goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))
+                screen.blit(icon, icon.get_rect(center=goal_center))
+                if attack == self.attack1 or attack == self.attack2:
+                    text = str(round(int((M.allies[H][1]/self.health+1) * self.attacks[attack][0][0])))
+                    draw_text(text, 20, RED, pos.x*TILESIZE, pos.y*TILESIZE + 75)
+                if attack == self.attack3:
+                    text = str(a + 0 for a in self.healdam)
+                    draw_text(text, 20, GREEN, pos.x*TILESIZE, pos.y*TILESIZE + 75)
+                if attack == self.attack4:
+                    text = str(self.attacks[attack][0][0])
+                    draw_text(text, 20, BLUE, pos.x*TILESIZE, pos.y*TILESIZE + 75)
 
-            
-            if 'self heal' in self.unlockedabilites:
-                if len(self.healdam) != 0:
-                    l = 0
-                    for x in self.healdam:
-                        l += x
-                        text = str(l)
-                else:
-                    text = str(0)
-                icon = self.attacks[self.attack3][1]
-                pos = self.attacks[self.attack3][2]
-                rect = pg.Rect(int(pos.x*TILESIZE-49), int(pos.y*TILESIZE-50), 128, 140)
-                pg.draw.rect(screen,BLACK,rect)
-                goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))
-                screen.blit(icon, icon.get_rect(center=goal_center))
-                draw_text(text, 20, GREEN, self.attacks[self.attack3][2].x*TILESIZE, self.attacks[self.attack3][2].y*TILESIZE + 65)
-            if 'static blood' in self.unlockedabilites:
-                icon = self.attacks[self.attack4][1]
-                pos = self.attacks[self.attack4][2]
-                rect = pg.Rect(int(pos.x*TILESIZE-49), int(pos.y*TILESIZE-50), 128, 140)
-                pg.draw.rect(screen,BLACK,rect)
-                goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))
-                screen.blit(icon, icon.get_rect(center=goal_center))
-                text = '10'
-                draw_text(text, 20, BLUE, pos.x*TILESIZE, pos.y*TILESIZE + 65)
+                pos += vec(5,0)
         def draw_attack(self):
             pass
         def draw_skilltree(self):
