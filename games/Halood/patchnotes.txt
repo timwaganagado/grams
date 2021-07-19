@@ -41,7 +41,29 @@ cleanses stas effects other then stun
 
 enemies added:
 conrift - a living obelesk that seeks to rip people to the dark
-
+attacks
+darkness
 magee - a crazy alchemist that has masterd many spells
 
 sword guy - a dude with a sword
+
+version 0.02
+
+added map and levels
+sri passive
+each crystal increase by 2 if not used by 1 if not till 10 then reseting to 2 at 10
+
+
+
+version 0.06
+
+all basic mechanics have been implmented;
+
+shops:
+cleric will take coin for health
+
+enemies:
+lizard 
+two attacks:
+stun last 2 truns
+bleed that attacks twice
