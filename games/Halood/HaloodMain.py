@@ -63,12 +63,16 @@ class testenemy():
         def thunk(self,ll):
             damage = enemy.decision(self)
             enemy.defaultattack(self,damage)
+        def damage(self,dup,damage):
+            M.enemy[self][dup][1] -= damage
     class bleed():
         def __init__(self):
             self.vec = 0
         def thunk(self,ll):
             damage = enemy.decision(self)
             enemy.defaultattack(self,damage)
+        def damage(self,dup,damage):
+            M.enemy[self][dup][1] -= damage
 
 home_img = pg.image.load(os.path.join(filename,cross)).convert_alpha()
 home_img = pg.transform.scale(home_img, (256, 256))
@@ -153,6 +157,8 @@ class enemy():
         def thunk(self,ll):
             damage = enemy.decision(self)
             enemy.defaultattack(self,damage)
+        def damage(self,dup,damage):
+            M.enemy[self][dup][1] -= damage
     class magee():
         def __init__(self):
             self.vec = 0
@@ -186,18 +192,32 @@ class enemy():
                 M.enemy[healb][heals][1] += damage[0]
                 if M.enemy[healb][heals][1] > healb.health:
                     M.enemy[healb][heals][1] = healb.health
+        def damage(self,dup,damage):
+            M.enemy[self][dup][1] -= damage
     class swordguy():
         def __init__(self):
             self.vec = 0
         def thunk(self,ll):
             damage = enemy.decision(self)
             enemy.defaultattack(self,damage)
+        def damage(self,dup,damage):
+            M.enemy[self][dup][1] -= damage
     class lizard():
         def __init__(self):
             self.vec = 0 
         def thunk(self,ll):
             damage = enemy.decision(self)
             enemy.defaultattack(self,damage)
+        def damage(self,dup,damage):
+            M.enemy[self][dup][1] -= damage
+    class boulderine():
+        def __init__(self):
+            self.vec = 0
+        def thunk(self,ll):
+            damage = enemy.decision(self)
+            enemy.defaultattack(self,damage)
+        def damage(self,dup,damage):
+            M.enemy[self][dup][1] -= damage
 
 
 
@@ -255,6 +275,16 @@ lizard.clickaura = []
 for aura in auras:
     lizard.clickaura.append(vec(aura))
 lizard.attacks = {'pierce':[2,[{bleed:1}],False,3,5],'constrict':[5,[{stun:2}],False,1,1],'miss':[0,[0],False,1,2]}
+
+boulderine = enemy.boulderine()
+boulderine.vec = vec(43,20)
+boulderine.health = 25
+boulderine.combat_animation = {1:home_img,2:home_img,3:home_img}
+auras = [(1, 2), (0, 2), (-1, 2), (-2, 2), (-3, 2), (-3, 1), (-2, 1), (-1, 1), (0, 1), (1, 1), (1, 0), (0, 0), (-1, 0), (-2, 0), (-3, 0), (-3, -1), (-2, -1), (-1, -1), (0, -1), (1, -1), (1, -2), (0, -2), (-1, -2), (-2, -2), (-3, -2)]
+boulderine.clickaura = []
+for aura in auras:
+    boulderine.clickaura.append(vec(aura))
+boulderine.attacks = {'weak smoke':[5,[{weakness:1}],False,1,2],'reposte':[0,[{0}],True,0,1],'miss':[0,[0],False,1,2]}
 
 '''
 0 is dmg
@@ -471,7 +501,8 @@ class ally():
             blooddamage = int(M.allies[H][1])/int(self.health)+1+self.inc
             M.allies[self][1] -= self.attacks[attack][0][1]
             self.healdam.append(int((blooddamage * self.attacks[attack][0][0])/2))
-            M.enemy[target][dup][1] -= blooddamage * self.attacks[attack][0][0]
+            damage = blooddamage * self.attacks[attack][0][0]
+            target.damage(dup,damage)
             ally.applyeffects(target,dup,attack,self)
         def support(self,target):
             if M.selectedattack == self.attack3:
