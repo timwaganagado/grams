@@ -55,6 +55,7 @@ fire = 'fire'
 bleed = 'bleed'
 stun = 'stun'
 weakness = 'weakness'
+dodge = 'dodge'
 
 class testenemy():
     class stun():
@@ -215,9 +216,18 @@ class enemy():
             self.vec = 0
         def thunk(self,ll):
             damage = enemy.decision(self)
-            enemy.defaultattack(self,damage)
+            if damage[2]:
+                self.support(damage,ll)
+            else:
+                enemy.defaultattack(self,damage)
+        def support(self,damage,ll):
+            M.enemy[self][ll][4].update({dodge:1})
         def damage(self,dup,damage):
-            M.enemy[self][dup][1] -= damage
+            if dodge in M.enemy[self][dup][4]: 
+                M.selectedchar.damage([10])
+            else:
+                M.enemy[self][dup][1] -= damage
+            
 
 
 
@@ -284,7 +294,7 @@ auras = [(1, 2), (0, 2), (-1, 2), (-2, 2), (-3, 2), (-3, 1), (-2, 1), (-1, 1), (
 boulderine.clickaura = []
 for aura in auras:
     boulderine.clickaura.append(vec(aura))
-boulderine.attacks = {'weak smoke':[5,[{weakness:1}],False,1,2],'reposte':[0,[{0}],True,0,1],'miss':[0,[0],False,1,2]}
+boulderine.attacks = {'weak smoke':[5,[{weakness:1}],False,1,2],'reposte':[0,[{0}],True,0,2],'miss':[0,[0],False,1,1]}
 
 '''
 0 is dmg
@@ -1470,7 +1480,7 @@ O.mapmaster = {1:{0:[2,[sword,mage],[2,1]],1:[2,[sword,mage],[2,1]],2:[2,[sword,
 ,26:[15,[sword,mage,C,lizard],[1,5,3,1]],27:[15,[mage,C],[1,1]],28:[15,[mage,C],[1,1]],29:[15,[mage,C],[1,1]],30:[15,[mage,C],[1,1]],31:[15,[mage,C],[1,1]],32:[15,[mage,C],[1,1]],33:[15,[mage,C],[1,1]],34:[15,[mage,C],[1,1]]
 ,35:[15,[mage,C],[1,1]],36:[15,[mage,C],[1,1]],37:[15,[mage,C],[1,1]],38:[15,[mage,C],[1,1]],39:[15,[mage,C],[1,1]],40:[15,[mage,C],[1,1]],41:[15,[mage,C],[1,1]],42:[15,[mage,C],[1,1]]},
 2:{4:[2,[sword,mage],[2,1]],5:[3,[sword,mage],[2,1]]},
-0:{0:[2,[stunte],[1]],4:[2,[stunte],[1]],5:[2,[bleedte],[1]],6:[2,[stunte,bleedte],[1,1]],7:[100,[mage,stunte],[1,2]]}}
+0:{0:[2,[stunte],[1]],4:[2,[stunte],[1]],5:[2,[bleedte],[1]],6:[2,[stunte,bleedte],[1,1]],7:[100,[mage,stunte],[1,2]],8:[5,[boulderine],[1]]}}
 
 O.get_connections()
 
@@ -1684,6 +1694,8 @@ class level():
             cost = 7
         if lizard in target:
             cost = 3
+        if boulderine in target:
+            cost = 5
         return cost
     def make(self,line,enemies,tier,x):
         self.levelid.update({line:[enemies,tier]})
