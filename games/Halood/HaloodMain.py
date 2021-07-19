@@ -221,7 +221,9 @@ class enemy():
             else:
                 enemy.defaultattack(self,damage)
         def support(self,damage,ll):
+            print(M.enemy[self][ll][4])
             M.enemy[self][ll][4].update({dodge:1})
+            print(M.enemy[self][ll][4])
         def damage(self,dup,damage):
             if dodge in M.enemy[self][dup][4]: 
                 M.selectedchar.damage([10])
@@ -710,9 +712,9 @@ class ally():
                 damage = self.attacks[attack][0]+self.inc
                 self.passive()
             
-            M.enemy[target][dup][1] -= damage
+            target.damage(dup,damage)
             if self.attacktwice == True:
-                M.enemy[target][dup][1] -= damage
+                target.damage(dup,damage)
                 self.attacktwice = False
             ally.applyeffects(target,dup,attack,self)
             
@@ -802,7 +804,7 @@ class ally():
                             ally.applyeffects(target,dup,attack,self)
                 else:
                     ally.applyeffects(target,dup,attack,self)
-                M.enemy[target][dup][1] -= damage
+                target.damage(dup,damage)
             else:
                 M.actions.remove(self)
             
@@ -889,7 +891,7 @@ class ally():
             else:
                 damage = self.attacks[attack][0][0]
             ally.applyeffects(target,dup,attack,self)
-            M.enemy[target][dup][1] -= damage
+            target.damage(dup,damage)
             self.passive(attack)
             
         def support(self,target):
