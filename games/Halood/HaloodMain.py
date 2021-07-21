@@ -170,9 +170,9 @@ class enemy():
             self.vec = 0
         def thunk(self,ll):
             if M.enemy[self][ll][1] < 15:
-                damage = enemy.decision(self)
-            else:
                 damage = self.attacks['heal']
+            else:
+                damage = enemy.decision(self)
             if damage[2]:
                 self.support(damage)
             else:
@@ -912,6 +912,13 @@ class ally():
         def __int__(self):
             self.attack1 = 0
         def attack(self,target,attack):
+            if self.block:
+                self.block = False
+                if self.transformed:
+                    M.allies[self][3] -= self.saveblock 
+                    self.combat_animation = {1:nover_transformed_img,2:nover_transformed_img,3:nover_transformed_img}
+                else:
+                    self.combat_animation = {1:nover_combat_img,2:nover_combat2_img,3:nover_combat3_img}
             target,dup = target
             damage = 0
             if self.transformed:
@@ -926,10 +933,14 @@ class ally():
             ally.applyeffects(target,dup,attack,self)
             target.damage(dup,damage)
             self.passive(attack)
+        def support(self,target):
             if self.block:
                 self.block = False
-                self.combat_animation = {1:nover_combat_img,2:nover_combat2_img,3:nover_combat3_img}
-        def support(self,target):
+                if self.transformed:
+                    M.allies[self][3] -= self.saveblock 
+                    self.combat_animation = {1:nover_transformed_img,2:nover_transformed_img,3:nover_transformed_img}
+                else:
+                    self.combat_animation = {1:nover_combat_img,2:nover_combat2_img,3:nover_combat3_img}
             if M.selectedattack == self.attack3:
                 if self.acts == 0:
                     if self.transformed:
@@ -946,27 +957,22 @@ class ally():
                 self.passive(0)
                 if self.transformed:
                     M.allies[self][3] += self.attacks[self.attack1][0][1]
+                    self.saveblock = self.attacks[self.attack1][0][1]
                     self.block = True
                     
                 else:
                     M.allies[self][3] += self.attacks[self.attack1][0][0]
                     self.block = True
                     self.combat_animation = {1:nover_block_img,2:nover_block_img,3:nover_block_img}
-            if self.block:
-                self.block = False
-                if self.transformed:
-                    self.combat_animation = {1:nover_transformed_img,2:nover_transformed_img,3:nover_transformed_img}
-                else:
-                    self.combat_animation = {1:nover_combat_img,2:nover_combat2_img,3:nover_combat3_img}
-        def passive(self,used):    
-            if self.block:
-                M.allies[self][3] -= self.attacks[self.attack1][0][1]  
+            
+        def passive(self,used):     
             self.acts -= 1
             if self.acts < 0:
                 self.acts = 0 
         def damage(self,taken):
             if self.block:
                 taken[0] = int(taken[0]/2)
+                self.saveblock -= taken[0]
             ally.damage(self,taken)
         def draw_icons(self):
             #cur = cri_stunicon_img
@@ -1076,6 +1082,7 @@ nover.shield = 0
 nover.acts = 2
 nover.transformed = False
 nover.block = False
+nover.saveblock = 0
 nover.inc = 0
 nover.abilities = {'self heal':[0,vec(47,17),True,'heal for half the damage dealt on enemies'],'increase':[0,vec(47,20),True,'Increases damage by 0.1'],'static blood':[0,vec(47,23),True,'allows heplane to trade health for shields']}
 nover.unlockedabilites = []
@@ -1913,8 +1920,12 @@ for x in levels:
     if x not in L.levels:
         L.levels.append(vec(x))
 
-
-
+class ui():
+    def display_dialogue():
+        pass
+class tutorial():
+    def __init__(self):
+        self.t = 0
 
 class battle():
     def __init__(self):
@@ -1936,24 +1947,18 @@ class battle():
 
         if self.selectedchar != 0:
             self.selectedchar.draw_skilltree()
-            if self.hov != False:
-                draw_text(self.selectedchar.abilities[self.hov][3],20,BLACK,(self.selectedchar.abilities[self.hov][1].x-5)*TILESIZE,self.selectedchar.abilities[self.hov][1].y*TILESIZE)
-    def switchhover(self):
-        if self.selectedchar != 0:
-            for k in self.selectedchar.abilities:
-                if self.selectedchar.abilities[k][0].collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)):
-                    self.hov = k
-                    self.hovertime = pg.time.get_ticks()
-                elif current_time - self.hovertime > 1000:
-                    self.hov = False
+            if self.selectedability != 0:
+                draw_text(self.selectedchar.abilities[self.selectedability][3],20,BLACK,(self.selectedchar.abilities[self.selectedability][1].x-5)*TILESIZE,self.selectedchar.abilities[self.selectedability][1].y*TILESIZE)
     def switch(self):
         if self.selectedchar != 0:
             for k in self.selectedchar.abilities:
-                if self.selectedchar.abilities[k][0].collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)) and self.selectedchar.abilities[k][2] and self.selectedchar.lvl > 0:
-                    self.selectedchar.skill(k)
-                    self.selectedchar.lvl -= 1
-                else:
-                    self.hov = False
+                if self.selectedchar.abilities[k][0].collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)) and self.selectedchar.abilities[k][2]:
+                    if self.selectedability != 0 and k == self.selectedability and self.selectedchar.lvl > 0:
+                        self.selectedchar.skill(k)
+                        self.selectedchar.lvl -= 1
+                        self.selectedability = 0
+                    else:
+                        self.selectedability = k
 
         if self.swapbutton.collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)):
             if self.swap == False:
@@ -2310,8 +2315,9 @@ class battle():
     def selectchar(self):
         for x in self.allies:
             if mpos in self.allies[x][2]:
-                M.selectedchar = x
-                M.charselect = True
+                self.selectedchar = x
+                self.charselect = True
+                self.selectedability = 0
     def selectenemy(self):
         cur_enemyspecific = 'pass'
         cur_enemyclass = 'pass'
@@ -2484,6 +2490,7 @@ M.selected2 = 0
 M.swap = False
 
 M.hov = False
+M.selectedability = 0
 M.hovertime = 9999
 
 
@@ -2512,7 +2519,6 @@ while running:
         # duh
         if main.current_state == 'switch':
             mpos = vec(pg.mouse.get_pos()) // TILESIZE
-            M.switchhover()
         if event.type == pg.MOUSEBUTTONDOWN:
 
             if event.button == 1:
