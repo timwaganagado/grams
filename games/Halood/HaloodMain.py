@@ -339,13 +339,13 @@ class boss():
             chance = []
             attacks = []
             for y in self.attacks:
-                chance.append(self.attacks[y][1])
+                chance.append(self.attacks[y][2])
                 attacks.append(y)
             for seesee in range(0,2):
                 dead = []
                 attacking = random.choices(attacks,chance)
                 damage = self.attacks[attacking[0]]
-                if damage[4]:
+                if damage[5]:
                     for x in M.spaces:
                         for l in M.spaces[x]:
                             if l[1] != 99:
@@ -416,7 +416,7 @@ class boss():
                 dead = []
                 attacking = random.choices(attacks,chance)
                 damage = self.attacks[attacking[0]]
-                if damage[4]:
+                if damage[5]:
                     for x in M.spaces:
                         for l in M.spaces[x]:
                             if l[1] != 99:
@@ -472,7 +472,7 @@ cbm.clickaura = []
 cbm.turncounter = 0
 for aura in auras:
     cbm.clickaura.append(vec(aura))
-cbm.attacks = {'slash':[5,[0],False,2,4],'blast':[15,[{fire:1}],False,2,1],'charging fire':[1,[{fire:3}],True,2,1],'blinding light':[1,[{stun:1}],True,1,1],'miss':[0,[0],True,1,2]}
+cbm.attacks = {'slash':[5,[0],False,2,4,False],'blast':[15,[{fire:1}],False,2,1,False],'charging fire':[1,[{fire:3}],True,2,1,True],'blinding light':[1,[{stun:1}],True,1,1,True],'miss':[0,[0],True,1,2,True]}
 
 
 
@@ -912,9 +912,6 @@ class ally():
         def __int__(self):
             self.attack1 = 0
         def attack(self,target,attack):
-            if self.block:
-                self.block = False
-                self.combat_animation = {1:nover_combat_img,2:nover_combat2_img,3:nover_combat3_img}
             target,dup = target
             damage = 0
             if self.transformed:
@@ -929,14 +926,10 @@ class ally():
             ally.applyeffects(target,dup,attack,self)
             target.damage(dup,damage)
             self.passive(attack)
-            
-        def support(self,target):
             if self.block:
                 self.block = False
-                if self.transformed:
-                    self.combat_animation = {1:nover_transformed_img,2:nover_transformed_img,3:nover_transformed_img}
-                else:
-                    self.combat_animation = {1:nover_combat_img,2:nover_combat2_img,3:nover_combat3_img}
+                self.combat_animation = {1:nover_combat_img,2:nover_combat2_img,3:nover_combat3_img}
+        def support(self,target):
             if M.selectedattack == self.attack3:
                 if self.acts == 0:
                     if self.transformed:
@@ -959,8 +952,15 @@ class ally():
                     M.allies[self][3] += self.attacks[self.attack1][0][0]
                     self.block = True
                     self.combat_animation = {1:nover_block_img,2:nover_block_img,3:nover_block_img}
-            
-        def passive(self,used):           
+            if self.block:
+                self.block = False
+                if self.transformed:
+                    self.combat_animation = {1:nover_transformed_img,2:nover_transformed_img,3:nover_transformed_img}
+                else:
+                    self.combat_animation = {1:nover_combat_img,2:nover_combat2_img,3:nover_combat3_img}
+        def passive(self,used):    
+            if self.block:
+                M.allies[self][3] -= self.attacks[self.attack1][0][1]  
             self.acts -= 1
             if self.acts < 0:
                 self.acts = 0 
@@ -1218,7 +1218,7 @@ sillid.shield = 0
 sillid.acts = 0
 sillid.inc = 0
 sillid.chance = 0
-sillid.abilities = {sillid.attack4:[0,vec(47,17),True,'access to uranium arrows appears sometimes when restocking'],'increase':[0,vec(47,20),True,'Increase all attacks by 1'],'critical':[0,vec(47,23),True,'allows haptic to dodge attacks']}
+sillid.abilities = {sillid.attack4:[0,vec(47,17),True,'access to uranium arrows appears sometimes when restocking'],'increase':[0,vec(47,20),True,'Increase all attacks by 1'],'critical':[0,vec(47,23),True,'crits bud']}
 sillid.unlockedabilites = []
 sillid.exp = 0
 sillid.lvl = 0
@@ -1627,7 +1627,7 @@ O.mapmaster = {1:{0:[2,[sword,mage],[2,1]],1:[2,[sword,mage],[2,1]],2:[2,[sword,
 ,26:[15,[sword,mage,C,lizard],[1,5,3,1]],27:[15,[mage,C],[1,1]],28:[15,[mage,C],[1,1]],29:[15,[mage,C],[1,1]],30:[15,[mage,C],[1,1]],31:[15,[mage,C],[1,1]],32:[15,[mage,C],[1,1]],33:[15,[mage,C],[1,1]],34:[15,[mage,C],[1,1]]
 ,35:[15,[mage,C],[1,1]],36:[15,[mage,C,boulderine],[1,1,1]],37:[15,[mage,C,boulderine],[1,1,1]],38:[15,[mage,C,boulderine],[1,1,1]],39:[15,[mage,C,boulderine],[1,1,1]],40:[15,[mage,C,boulderine],[1,1,1]],41:[15,[mage,C,boulderine],[1,1,1]],42:[15,[mage,C,boulderine],[1,1,4]]},
 2:{4:[2,[sword,mage],[2,1]],5:[3,[sword,mage],[2,1]],6:[5,[boulderine],[1]]},
-0:{0:[2,[stunte],[1]],4:[2,[stunte],[1]],5:[2,[bleedte],[1]],6:[2,[stunte,bleedte],[1,1]],7:[100,[mage,stunte],[1,2]],8:[15,[boulderine],[1]]}}
+0:{0:[2,[stunte],[1]],4:[2,[stunte],[1]],5:[2,[bleedte],[1]],6:[2,[stunte,bleedte],[1,1]],7:[100,[mage,stunte],[1,2]],8:[5,[boulderine],[1]]}}
 
 O.get_connections()
 
@@ -1813,7 +1813,7 @@ class level():
             else:
                 self.make(line,[],tier,x)
             if x.x == 28:
-                self.levelid.update({line:[[cbm],'battle']})
+                self.levelid.update({line:[[cbm,boulderine,boulderine],'battle']})
                 self.levelindex.update({line:x})
             line += 1         
         print(save)
