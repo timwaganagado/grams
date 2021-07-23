@@ -67,3 +67,32 @@ lizard
 two attacks:
 stun last 2 truns
 bleed that attacks twice
+
+
+
+myb ltr/2021
+added sillid bow guy with mechanic to restock shotten arrows
+added nover that can transform
+
+reworked main map so that a path is created between shops and further away from shops becomes harder
+
+
+1x/07/2021
+made the boulderine with mechanic to dodge
+had to rework the staus effect system
+
+ideas for nover to mimic enemys which required a rework on how attack dictonarys are constructed
+
+made test map for testing
+
+21/07/2021
+tested game with firend found shield bug
+fixed shield bug on nover
+
+22/07/2021
+buffed boss
+lowerd chance to miss on sword guy
+making menu
+gave nover defualt asset
+
+23/07/2021
