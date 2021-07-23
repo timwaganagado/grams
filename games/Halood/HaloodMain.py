@@ -1580,7 +1580,7 @@ class main():
 
 main = main()
 
-main.current_state = 'menu'
+main.current_state = 'overmap'
 main.amountmoney = 50
 main.enemy_attck_time = 0
 main.enemycanattack = False
