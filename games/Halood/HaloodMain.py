@@ -2508,10 +2508,12 @@ affects bones
 
 
 NAMES 
-zither
+zither nothing yet
+fern plasma sword
+adine nothing yet
 '''
 L.levelmaster = O.mapmaster[1]
-for x in range(0,10):
+for x in range(0,0):
     L.create_map()
     
 M = battle()
