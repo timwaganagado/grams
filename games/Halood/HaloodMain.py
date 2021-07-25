@@ -36,11 +36,13 @@ check = 'working'
 
 pg.init()
 try:
-    screen = pg.display.set_mode((WIDTH, HEIGHT),pg.FULLSCREEN,display = 1)
+    screen = pg.display.set_mode((WIDTH, HEIGHT),pg.FULLSCREEN,display = 0)
 except:
     screen = pg.display.set_mode((WIDTH, HEIGHT),pg.FULLSCREEN,display = 0)
 clock = pg.time.Clock()
 cross = 'cross-1.png.png'
+filename = os.path.dirname(sys.argv[0])
+filename += '\Halood_images'
 
 def draw_text(text, size, color, x, y, align="topleft"):
     font = pg.font.Font("C:\Windows\Fonts\Arial.ttf",size)
@@ -49,13 +51,12 @@ def draw_text(text, size, color, x, y, align="topleft"):
     screen.blit(text_surface, text_rect)
 
 def draw_text_center(text, size, color, x, y):
-    font = pg.font.Font("C:\Windows\Fonts\Arial.ttf", size)
+    font = pg.font.Font(filename+'/scout-font-family/Scout Font Family/Scout-Bold.otf', size)
     text_surface = font.render(text, True, color)
     text_rect = text_surface.get_rect(center=(x,y))
     screen.blit(text_surface, text_rect)
 
-filename = os.path.dirname(sys.argv[0])
-filename += '\Halood_images'
+
 
 fire = 'fire'
 bleed = 'bleed'
@@ -1573,14 +1574,14 @@ class main():
             O.draw_overmap()
     def menutop(self):
         if self.current_state == 'menu':
-            pass
+            ui.buttons()
     def menubottom(self):
         if self.current_state == 'menu':
             ui.menu()
 
 main = main()
 
-main.current_state = 'overmap'
+main.current_state = 'menu'
 main.amountmoney = 50
 main.enemy_attck_time = 0
 main.enemycanattack = False
@@ -1936,25 +1937,39 @@ for x in levels:
 
 class ui():
     def __init__(self):
-        self.a = 0
         x = int(WIDTH/2)
         y = int(HEIGHT/2-100)
         self.play = pg.Rect(0, 0, 300, 80)
         self.play.center = x,y
         text = 'play'
         self.playtext = [text,50,WHITE,x, y-5]
+        x = int(WIDTH/2)
+        y = int(HEIGHT/2+100)
+        self.quit = pg.Rect(0, 0, 300, 80)
+        self.quit.center = x,y
+        text = 'quit'
+        self.quittext = [text,50,WHITE,x, y-5]
          
     def display_dialogue():
         pass
     def drawbuttons(self):
-
         pg.draw.rect(screen,BLACK,self.play)
         a = self.playtext
+        draw_text_center(a[0],a[1],a[2],a[3],a[4])
+
+        pg.draw.rect(screen,BLACK,self.quit)
+        a = self.quittext
         draw_text_center(a[0],a[1],a[2],a[3],a[4])
         
     def menu(self):
         M.draw_background()
         self.drawbuttons()
+    def buttons(self):
+        if self.play.collidepoint(mpos.x*TILESIZE,mpos.y*TILESIZE):
+            main.current_state = 'overmap'
+        if self.quit.collidepoint(mpos.x*TILESIZE,mpos.y*TILESIZE):
+            self.running = False
+            pg.quit
         
 ui = ui()
 
@@ -2513,7 +2528,7 @@ fern plasma sword
 adine nothing yet
 '''
 L.levelmaster = O.mapmaster[1]
-for x in range(0,0):
+for x in range(0,1):
     L.create_map()
     
 M = battle()
@@ -2553,8 +2568,8 @@ create = []
 lock = True
 
 L.get_connections()
-running = True
-while running:
+ui.running = True
+while ui.running:
     clock.tick(FPS)
     for event in pg.event.get(): # to find what this does #print: event
         # write important things here 
@@ -2564,7 +2579,7 @@ while running:
         if event.type == pg.MOUSEBUTTONDOWN:
 
             if event.button == 1:
-                if main.current_state == 'battle' or main.current_state == 'shop' or main.current_state == 'switch':
+                if main.current_state == 'battle' or main.current_state == 'shop' or main.current_state == 'switch' or main.current_state == 'menu':
                     mpos = vec(pg.mouse.get_pos()) // TILESIZE
                     create.append(mpos)
                 if main.current_state == 'map' or main.current_state == 'overmap':
@@ -2612,13 +2627,13 @@ while running:
             if event.key == pg.K_m:
                 print([(int(loc.x),int(loc.y))for loc in O.maps])
             if event.key == pg.K_ESCAPE:
-                running = False
+                ui.running = False
                 pg.quit
             
                     
                 
         if event.type == pg.QUIT: # allows for quit when clicking on the X 
-            running = False
+            ui.running = False
             pg.quit() 
     current_time = pg.time.get_ticks()
     pg.display.set_caption("{:.2f}".format(clock.get_fps())) # changes the name of the application
