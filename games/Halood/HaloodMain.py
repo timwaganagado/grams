@@ -1573,10 +1573,10 @@ class main():
         if self.current_state == 'overmap':
             O.draw_overmap()
     def menutop(self):
-        if self.current_state == 'menu':
+        if self.current_state == 'menu' or ui.pause:
             ui.buttons()
     def menubottom(self):
-        if self.current_state == 'menu':
+        if self.current_state == 'menu' or ui.pause:
             ui.menu()
 
 main = main()
