@@ -1949,29 +1949,49 @@ class ui():
         self.quit.center = x,y
         text = 'quit'
         self.quittext = [text,50,WHITE,x, y-5]
+        
+        x = int(WIDTH/2)
+        y = int(HEIGHT/2-100)
+        self.pausebutton = pg.Rect(0, 0, 300, 80)
+        self.pausebutton.center = x,y
+        text = 'pause'
+        self.pausetext = [text,50,WHITE,x, y-5]
          
     def display_dialogue():
         pass
     def drawbuttons(self):
-        pg.draw.rect(screen,BLACK,self.play)
-        a = self.playtext
-        draw_text_center(a[0],a[1],a[2],a[3],a[4])
+        if self.pause:
+            pg.draw.rect(screen,BLACK,self.pausebutton)
+            a = self.pausetext
+            draw_text_center(a[0],a[1],a[2],a[3],a[4])
+        else:
+            pg.draw.rect(screen,BLACK,self.play)
+            a = self.playtext
+            draw_text_center(a[0],a[1],a[2],a[3],a[4])
 
-        pg.draw.rect(screen,BLACK,self.quit)
-        a = self.quittext
-        draw_text_center(a[0],a[1],a[2],a[3],a[4])
+            pg.draw.rect(screen,BLACK,self.quit)
+            a = self.quittext
+            draw_text_center(a[0],a[1],a[2],a[3],a[4])
+        
         
     def menu(self):
         M.draw_background()
         self.drawbuttons()
     def buttons(self):
-        if self.play.collidepoint(mpos.x*TILESIZE,mpos.y*TILESIZE):
-            main.current_state = 'overmap'
-        if self.quit.collidepoint(mpos.x*TILESIZE,mpos.y*TILESIZE):
-            self.running = False
-            pg.quit
+        if self.pause:
+            if self.play.collidepoint(mpos.x*TILESIZE,mpos.y*TILESIZE):
+                self.pause = False
+        else:    
+            if self.play.collidepoint(mpos.x*TILESIZE,mpos.y*TILESIZE):
+                main.current_state = 'overmap'
+            if self.quit.collidepoint(mpos.x*TILESIZE,mpos.y*TILESIZE):
+                self.running = False
+                pg.quit
+        
         
 ui = ui()
+
+ui.pause = False
 
 class tutorial():
     def __init__(self):
@@ -2589,12 +2609,13 @@ while ui.running:
 
                 #L.crossvec =  mpos2
                 #O.maps.append(vec(mpos2))
-                main.switchtop()
-                main.battletop()
+                if ui.pause != True:
+                    main.switchtop()
+                    main.battletop()
                 
-                main.leveltop()
-                main.shoptop()
-                main.overmaptop()
+                    main.leveltop()
+                    main.shoptop()
+                    main.overmaptop()
                 main.menutop()
 
         if event.type == pg.KEYDOWN:
@@ -2627,8 +2648,7 @@ while ui.running:
             if event.key == pg.K_m:
                 print([(int(loc.x),int(loc.y))for loc in O.maps])
             if event.key == pg.K_ESCAPE:
-                ui.running = False
-                pg.quit
+                ui.pause = True
             
                     
                 
