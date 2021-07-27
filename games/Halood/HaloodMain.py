@@ -515,10 +515,11 @@ class ally():
                     else:
                         M.enemy[target][dup][4].update({bleed:x[bleed]})
                 if stun in x:
-                    if stun in M.enemy[target][dup][4]:
-                        M.enemy[target][dup][4][stun] += x[stun]
-                    else:
-                        M.enemy[target][dup][4].update({stun:x[stun]})
+                    if ally.attacks[attack][1][0][stun] > 0:    
+                        if stun in M.enemy[target][dup][4]:
+                            M.enemy[target][dup][4][stun] += x[stun]
+                        else:
+                            M.enemy[target][dup][4].update({stun:x[stun]})
     def damage(self,target,taken):
         if M.allies[target][3] > 0:
                 M.allies[target][3] -= taken[0]
@@ -1135,7 +1136,7 @@ H.exp = 0
 H.lvl = 0
 H.needtolvl = 10
 H.combat_animation = {1:heplane_combat_img,2:heplane_combat2_img,3:heplane_combat3_img}
-H.attacks = {H.attack1:[[10,15],[{fire:1}],False,1,heplane_ability1_img,[vec(18,31) + a for a in iconaura]],H.attack2:[[5,0],[{stun:1}],False,1,heplane_ability2_img,[vec(23,31) + a for a in iconaura]],H.attack3:[[0,0],[0],True,1,heplane_ability3_img,[vec(28,31)+ a for a in iconaura]],H.attack4:[[20,0],[0],True,1,heplane_ability4_img,[vec(33,31)+ a for a in iconaura]]}
+H.attacks = {H.attack1:[[10,15],[{fire:1}],False,1,heplane_ability1_img,[vec(18,31) + a for a in iconaura]],H.attack2:[[5,0],[0],False,1,heplane_ability2_img,[vec(23,31) + a for a in iconaura]],H.attack3:[[0,0],[0],True,1,heplane_ability3_img,[vec(28,31)+ a for a in iconaura]],H.attack4:[[20,0],[0],True,1,heplane_ability4_img,[vec(33,31)+ a for a in iconaura]]}
 aura = [(1, 3), (0, 3), (-1, 3), (-1, 2), (0, 2), (1, 2), (1, 1), (0, 1), (-1, 1), (-1, 0), (0, 0), (1, 0), (1, -1), (0, -1), (-1, -1), (-1, -2), (0, -2), (1, -2), (1, -3), (0, -3), (-1, -3)]
 H.clickaura = []
 for x in aura:
@@ -1494,8 +1495,9 @@ class main():
                 M.current_animation = 1
             self.anim_timer = pg.time.get_ticks()
         if self.current_state == 'battle':
-            
-
+            if ui.pause:
+                M.draw_allychar()
+                M.draw_enemychar()
             if len(M.actions) >= len(M.allies) and self.playertrunover == False:
                 M.statuseffects(False)
                 self.playertrunover = True
@@ -1535,9 +1537,23 @@ class main():
             if current_time - self.display_time > 1000:
                 
                 M.enemycanattack = False
-                M.checkifdead()
+                if not M.victory:
+                    M.checkifdead()
                 M.damage = {}
-                
+            
+            if M.victory:
+                for x in M.savelevel:
+                    if M.savelevel[x] != 0:
+                        vec = M.allies[x][0]
+                        draw_text_center('LEVEL UP',40,YELLOW,vec.x*TILESIZE,vec.y*TILESIZE+150)
+                draw_text_center('Victroy',40,YELLOW,int(WIDTH/2),int(HEIGHT/2-200))
+                if current_time - self.endscreen_timer > 10000:
+                    main.current_state = 'map'
+                    if len(L.connections) == 0:
+                        main.current_state = 'overmap'
+                        L.crossvec = vec(3,8)
+                        L.get_connections()
+                    M.victory = False
                 
     def leveltop(self):
         if self.current_state == 'map':
@@ -1589,6 +1605,7 @@ main.playertrunover = False
 main.display_time = 0
 main.k = 0
 main.little = {}
+main.endscreen_timer = 0
 
 def draw_grid():
     for x in range(0, WIDTH, TILESIZE):
@@ -1949,49 +1966,80 @@ class ui():
         self.quit.center = x,y
         text = 'quit'
         self.quittext = [text,50,WHITE,x, y-5]
+        x = int(WIDTH/2)
+        y = int(HEIGHT/2)
+        self.continuebutton = pg.Rect(0, 0, 300, 80)
+        self.continuebutton.center = x,y
+        text = 'continue'
+        self.continuetext = [text,50,WHITE,x, y-5]
+        
         
         x = int(WIDTH/2)
         y = int(HEIGHT/2-100)
         self.pausebutton = pg.Rect(0, 0, 300, 80)
         self.pausebutton.center = x,y
-        text = 'pause'
+        text = 'continue'
         self.pausetext = [text,50,WHITE,x, y-5]
-         
-    def display_dialogue():
-        pass
+        x = int(WIDTH/2)
+        y = int(HEIGHT/2)
+        self.menubutton = pg.Rect(0, 0, 300, 80)
+        self.menubutton.center = x,y
+        text = 'menu'
+        self.menutext = [text,50,WHITE,x, y-5]
+        
+    def display_dialogue(self):
+        if main.current_state == 'battle':
+            pass
     def drawbuttons(self):
         if self.pause:
             pg.draw.rect(screen,BLACK,self.pausebutton)
             a = self.pausetext
             draw_text_center(a[0],a[1],a[2],a[3],a[4])
+            pg.draw.rect(screen,BLACK,self.menubutton)
+            a = self.menutext
+            draw_text_center(a[0],a[1],a[2],a[3],a[4])
         else:
             pg.draw.rect(screen,BLACK,self.play)
             a = self.playtext
             draw_text_center(a[0],a[1],a[2],a[3],a[4])
-
-            pg.draw.rect(screen,BLACK,self.quit)
-            a = self.quittext
+            
+            pg.draw.rect(screen,BLACK,self.continuebutton)
+            a = self.continuetext
             draw_text_center(a[0],a[1],a[2],a[3],a[4])
+
+        pg.draw.rect(screen,BLACK,self.quit)
+        a = self.quittext
+        draw_text_center(a[0],a[1],a[2],a[3],a[4])
         
         
     def menu(self):
-        M.draw_background()
+        s = pg.Surface((1920,1080))  # the size of your rect
+        s.set_alpha(200)                # alpha level
+        s.fill((100,100,100 ))           # this fills the entire surface
+        screen.blit(s, (0,0)) 
         self.drawbuttons()
     def buttons(self):
         if self.pause:
-            if self.play.collidepoint(mpos.x*TILESIZE,mpos.y*TILESIZE):
+            if self.play.collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)):
+                self.pause = False
+            if self.menubutton.collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)):
+                self.save_state = main.current_state
+                main.current_state = 'menu'
                 self.pause = False
         else:    
             if self.play.collidepoint(mpos.x*TILESIZE,mpos.y*TILESIZE):
-                main.current_state = 'overmap'
-            if self.quit.collidepoint(mpos.x*TILESIZE,mpos.y*TILESIZE):
-                self.running = False
-                pg.quit
+                main.current_state = 'tutorial'
+            if self.continuebutton.collidepoint(mpos.x*TILESIZE,mpos.y*TILESIZE):
+                main.current_state = self.save_state
+        if self.quit.collidepoint(mpos.x*TILESIZE,mpos.y*TILESIZE):
+            self.running = False
+            pg.quit
         
         
 ui = ui()
 
 ui.pause = False
+ui.save_state = 'overmap'
 
 class tutorial():
     def __init__(self):
@@ -2176,8 +2224,26 @@ class battle():
     def draw_icons(self):
         for x in self.allies:
             if self.selectedchar == x:
-                x.draw_icons()
-            
+                if self.selectedattack != 0:
+                    
+                    pos = vec(18,31)
+                    for attack in self.selectedchar.attacks:    
+                        if attack in self.selectedchar.abilities:
+                            if self.selectedchar.attack3 not in self.selectedchar.unlockedabilites:
+                                if attack == self.selectedchar.attack3:
+                                    continue
+                        try:
+                            if self.selectedchar.attack4 not in self.selectedchar.unlockedabilites:
+                                if attack == self.selectedchar.attack4:
+                                    continue
+                        except:
+                            pass
+                        if attack == self.selectedattack:
+                            rect = pg.Rect(int(pos.x*TILESIZE-55), int(pos.y*TILESIZE-55),140, 160)
+                            pg.draw.rect(screen,WHITE,rect)
+                        pos += vec(5,0)
+                    
+                x.draw_icons()   
     def draw_damage(self):
         for x in self.damage:
             damage = 0
@@ -2231,7 +2297,9 @@ class battle():
             #ally2 = Cri
             if main.current_state == 'battle':
                 L.levelstatus.append(mpos2)
-            main.current_state = 'map'
+            self.savelevel = {}
+            for x in self.allies:
+                self.savelevel.update({x:x.lvl})
             self.selectedattack = 0
             self.selectedchar = 0
             self.current_animation = 1
@@ -2288,10 +2356,11 @@ class battle():
                         x.checklevel()
             self.savecost = []
             self.killhistory = []
-            if len(L.connections) == 0:
-                main.current_state = 'overmap'
-                L.crossvec = vec(3,8)
-                L.get_connections()
+            for x in self.allies:
+                self.savelevel[x] = self.savelevel[x] - x.lvl
+            print(self.savelevel)
+            self.victory = True
+            main.endscreen_timer = pg.time.get_ticks()
         if len(self.allies) <= 0:
             self.restart()
             L.crossvec = vec(3,8)
@@ -2581,6 +2650,8 @@ M.attackselect = False
 main.anim_timer = pg.time.get_ticks()
 M.enemycanattack = False
 
+M.victory = False
+
 shop.draw_shopkeeps()
 
 mpos = vec(0,0)
@@ -2597,12 +2668,18 @@ while ui.running:
         if main.current_state == 'switch':
             mpos = vec(pg.mouse.get_pos()) // TILESIZE
         if event.type == pg.MOUSEBUTTONDOWN:
-
+            if M.victory:
+                M.victory = False
+                main.current_state = 'map'
+                if len(L.connections) == 0:
+                        main.current_state = 'overmap'
+                        L.crossvec = vec(3,8)
+                        L.get_connections()
             if event.button == 1:
-                if main.current_state == 'battle' or main.current_state == 'shop' or main.current_state == 'switch' or main.current_state == 'menu':
+                if main.current_state == 'battle' or main.current_state == 'shop' or main.current_state == 'switch' or main.current_state == 'menu' or ui.pause:
                     mpos = vec(pg.mouse.get_pos()) // TILESIZE
                     create.append(mpos)
-                if main.current_state == 'map' or main.current_state == 'overmap':
+                if main.current_state == 'map' or main.current_state == 'overmap' and not ui.pause:
                     mpos2 = vec(pg.mouse.get_pos()) // (TILESIZE*2)
                     pos = pg.mouse.get_pos()
                     L.click = True
@@ -2621,9 +2698,12 @@ while ui.running:
         if event.type == pg.KEYDOWN:
 
             if event.key == pg.K_r:
-                M.enemy = {}
-                M.checkifdead()
-                M.hov = False
+                if main.current_state == 'switch':
+                    main.current_state = 'map'
+                else:
+                    M.enemy = {}
+                    M.checkifdead()
+                    M.hov = False
             if event.key == pg.K_e:
                 M.actions = [1,1,1,1]
             if event.key == pg.K_q:
@@ -2648,7 +2728,11 @@ while ui.running:
             if event.key == pg.K_m:
                 print([(int(loc.x),int(loc.y))for loc in O.maps])
             if event.key == pg.K_ESCAPE:
-                ui.pause = True
+                if main.current_state != 'menu':
+                    if ui.pause:
+                        ui.pause = False
+                    else:
+                        ui.pause = True
             
                     
                 
@@ -2670,5 +2754,7 @@ while ui.running:
     if main.current_state != 'menu': 
         main.draw_level()
         main.draw_money()
+    else:
+        M.draw_background()
     main.menubottom()
     pg.display.flip() # dose the changes goto doccumentation for other ways
