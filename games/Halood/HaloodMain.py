@@ -81,6 +81,14 @@ class testenemy():
             enemy.defaultattack(self,damage)
         def damage(self,dup,damage):
             M.enemy[self][dup][1] -= damage
+    class spswordguy():
+        def __init__(self):
+            self.vec = 0
+        def thunk(self,ll):
+            damage = enemy.decision(self)
+            enemy.defaultattack(self,damage)
+        def damage(self,dup,damage):
+            M.enemy[self][dup][1] -= damage
 
 home_img = pg.image.load(os.path.join(filename,cross)).convert_alpha()
 home_img = pg.transform.scale(home_img, (256, 256))
@@ -106,6 +114,19 @@ bleedte.clickaura = []
 for aura in auras:
     bleedte.clickaura.append(vec(aura))
 bleedte.attacks = {'constrict':[0,[{bleed:1}],False,1,1]}
+
+home_img = pg.image.load(os.path.join(filename,'swordguy_combat-1.png.png')).convert_alpha()
+home_img = pg.transform.scale(home_img, (256, 256))
+
+spsword = testenemy.spswordguy()
+spsword.vec = vec(43,20)
+spsword.health = 30
+spsword.combat_animation = {1:home_img,2:home_img,3:home_img}
+auras = [(1, 2), (0, 2), (-1, 2), (-2, 2), (-3, 2), (-3, 1), (-2, 1), (-1, 1), (0, 1), (1, 1), (1, 0), (0, 0), (-1, 0), (-2, 0), (-3, 0), (-3, -1), (-2, -1), (-1, -1), (0, -1), (1, -1), (1, -2), (0, -2), (-1, -2), (-2, -2), (-3, -2)]
+spsword.clickaura = []
+for aura in auras:
+    spsword.clickaura.append(vec(aura))
+spsword.attacks = {'miss':[0,[0],False,1,1]}
 
 class enemy():
     def decision(target):
@@ -1455,62 +1476,97 @@ class main():
             pass
     def battletop(self):
         if self.current_state == 'battle':
-            if mpos in M.getaura() and M.selectedchar != 0:
-                if M.attackselect == True and M.enemycanattack == False :
-                    if M.selectedchar.attacks[M.selectedattack][2] != False:
-                           
-                        if mpos in M.allies[M.ally1][2]:
-                                M.actions.append(M.selectedchar)
-                                M.selectedchar.support(M.ally1)
-                                M.attackselect = False
-                                M.checkifdead()
-                        
-                        try:
-                            if mpos in M.allies[M.ally2][2]:
-                                M.actions.append(M.selectedchar)
-                                M.selectedchar.support(M.ally2)
-                                M.attackselect = False
-                                M.checkifdead()
-                        except:
-                            pass
-                        try:
-                            if mpos in M.allies[M.ally3][2]:
-                                M.actions.append(M.selectedchar)
-                                M.selectedchar.support(M.ally3)                              
-                                M.attackselect = False
-                                M.checkifdead()
-                        except:
-                            pass
-                        try:
-                            if mpos in M.allies[M.ally4][2]:
-                                M.actions.append(M.selectedchar)
-                                M.selectedchar.support(M.ally4)                              
-                                M.attackselect = False
-                                M.checkifdead()
-                        except:
-                            pass
+            if M.tutorial:
+                tut.click = True
+                if tut.togo():
+                    if mpos in M.getaura() and M.selectedchar != 0 :
+                        if M.attackselect == True and M.enemycanattack == False :
+                            if M.selectedchar.attacks[M.selectedattack][2] != False:
+
+                                if mpos in M.allies[M.ally1][2]:
+                                        M.actions.append(M.selectedchar)
+                                        M.selectedchar.support(M.ally1)
+                                        M.attackselect = False
+                                        M.checkifdead()
+                            else:
+                            
+                                    der,xxer = M.selectenemy()
+                                    if der != 'pass':
+                                        M.actions.append(M.selectedchar)
+                                        M.selectedchar.attack((der,xxer),M.selectedattack)
+                                        M.attackselect = False
+
+                                        M.checkifdead()
+
+                                        M.attackselect = False         
+                        else:
+                            pass 
+                    elif mpos not in M.getaura() and mpos not in M.selectingattack():
+                        M.selectedchar = 0
                         M.attackselect = False
+                    if mpos in M.selectingchar() :#and M.attackselect == False:
+                        M.selectchar()
+                        M.attackselect = False
+                    if mpos in M.selectingattack():
+                        M.selectattack()
+                tut.click = False
+            else:
+                if mpos in M.getaura() and M.selectedchar != 0:
+                    if M.attackselect == True and M.enemycanattack == False :
+                        if M.selectedchar.attacks[M.selectedattack][2] != False:
+
+                            if mpos in M.allies[M.ally1][2]:
+                                    M.actions.append(M.selectedchar)
+                                    M.selectedchar.support(M.ally1)
+                                    M.attackselect = False
+                                    M.checkifdead()
+
+                            try:
+                                if mpos in M.allies[M.ally2][2]:
+                                    M.actions.append(M.selectedchar)
+                                    M.selectedchar.support(M.ally2)
+                                    M.attackselect = False
+                                    M.checkifdead()
+                            except:
+                                pass
+                            try:
+                                if mpos in M.allies[M.ally3][2]:
+                                    M.actions.append(M.selectedchar)
+                                    M.selectedchar.support(M.ally3)                              
+                                    M.attackselect = False
+                                    M.checkifdead()
+                            except:
+                                pass
+                            try:
+                                if mpos in M.allies[M.ally4][2]:
+                                    M.actions.append(M.selectedchar)
+                                    M.selectedchar.support(M.ally4)                              
+                                    M.attackselect = False
+                                    M.checkifdead()
+                            except:
+                                pass
+                            M.attackselect = False
+                        else:
+
+                                der,xxer = M.selectenemy()
+                                if der != 'pass':
+                                    M.actions.append(M.selectedchar)
+                                    M.selectedchar.attack((der,xxer),M.selectedattack)
+                                    M.attackselect = False
+
+                                    M.checkifdead()
+
+                                    M.attackselect = False         
                     else:
-                        
-                            der,xxer = M.selectenemy()
-                            if der != 'pass':
-                                M.actions.append(M.selectedchar)
-                                M.selectedchar.attack((der,xxer),M.selectedattack)
-                                M.attackselect = False
-
-                                M.checkifdead()
-
-                                M.attackselect = False         
-                else:
-                    pass 
-            elif mpos not in M.getaura() and mpos not in M.selectingattack():
-                M.selectedchar = 0
-                M.attackselect = False
-            if mpos in M.selectingchar() :#and M.attackselect == False:
-                M.selectchar()
-                M.attackselect = False
-            if mpos in M.selectingattack():
-                M.selectattack()
+                        pass 
+                elif mpos not in M.getaura() and mpos not in M.selectingattack():
+                    M.selectedchar = 0
+                    M.attackselect = False
+                if mpos in M.selectingchar() :#and M.attackselect == False:
+                    M.selectchar()
+                    M.attackselect = False
+                if mpos in M.selectingattack():
+                    M.selectattack()
     def battlebottom(self):
         if current_time - self.anim_timer > 1000:
             M.current_animation += 1
@@ -1518,51 +1574,58 @@ class main():
                 M.current_animation = 1
             self.anim_timer = pg.time.get_ticks()
         if self.current_state == 'battle':
-            if ui.pause:
-                M.draw_allychar()
-                M.draw_enemychar()
-            if len(M.actions) >= len(M.allies) and self.playertrunover == False:
-                M.statuseffects(False)
-                self.playertrunover = True
-                self.little = {}
-                self.k = 0
-                self.enemy_attck_time = pg.time.get_ticks()
-                for x in M.enemy:
-                    if len(M.enemy[x]) > 1:
-                        for y in range(len(M.enemy[x])):
-                            self.little.update({self.k:[x,y]})
-                            self.k += 1
-                    else:
-                        self.little.update({self.k:[x,0]})
-                        self.k += 1 
-                self.k = 0
-                self.enemycanattack = True
-                M.checkifdead()
             M.draw_background()
             M.draw_allychar()
             M.draw_enemychar()
             M.draw_icons()
             M.draw_effects()
-            if current_time - self.enemy_attck_time > 1000 and self.enemycanattack:
-                self.display_time = pg.time.get_ticks()  
-                self.enemy_attck_time = pg.time.get_ticks()
-                M.enemyattack(self.k,self.little[self.k][1])
-                self.k += 1
-                if self.k >= len(self.little):
-                    self.enemycanattack = False
-                    self.playertrunover = False
-                    M.actions = []
-                    M.statuseffects(True)
-                
-
-            M.draw_damage()
-            
-            if current_time - self.display_time > 1000:
-                
-                M.enemycanattack = False
-                if not M.victory:
+            if ui.pause:
+                M.draw_allychar()
+                M.draw_enemychar()
+            if M.tutorial:
+                tut.pause()
+                if current_time - self.display_time > 1000 and tut.done == 6:
+                    M.enemycanattack = False
+                    tut.togo()
+            else:
+                if len(M.actions) >= len(M.allies) and self.playertrunover == False:
+                    M.statuseffects(False)
+                    self.playertrunover = True
+                    self.little = {}
+                    self.k = 0
+                    self.enemy_attck_time = pg.time.get_ticks()
+                    for x in M.enemy:
+                        if len(M.enemy[x]) > 1:
+                            for y in range(len(M.enemy[x])):
+                                self.little.update({self.k:[x,y]})
+                                self.k += 1
+                        else:
+                            self.little.update({self.k:[x,0]})
+                            self.k += 1 
+                    self.k = 0
+                    self.enemycanattack = True
                     M.checkifdead()
-                M.damage = {}
+                
+                if current_time - self.enemy_attck_time > 1000 and self.enemycanattack:
+                    self.display_time = pg.time.get_ticks()  
+                    self.enemy_attck_time = pg.time.get_ticks()
+                    M.enemyattack(self.k,self.little[self.k][1])
+                    self.k += 1
+                    if self.k >= len(self.little):
+                        self.enemycanattack = False
+                        self.playertrunover = False
+                        M.actions = []
+                        M.statuseffects(True)
+
+
+                M.draw_damage()
+
+                if current_time - self.display_time > 1000:
+    
+                    M.enemycanattack = False
+                    if not M.victory:
+                        M.checkifdead()
+                    M.damage = {}
             
             if M.victory:
                 for x in M.savelevel:
@@ -1617,6 +1680,166 @@ class main():
     def menubottom(self):
         if self.current_state == 'menu' or ui.pause:
             ui.menu()
+            
+class tutorial():
+    def __init__(self):
+        self.t = 0
+    def togo(self):
+        x = False
+        if self.done == 7:
+            self.done += 1
+        if self.done == 6:
+            self.done += 1
+
+
+        if self.done == 5:
+            self.done += 1
+            if len(M.actions) >= len(M.allies) and main.playertrunover == False:
+                    M.statuseffects(False)
+                    main.playertrunover = True
+                    main.little = {}
+                    main.k = 0
+                    main.enemy_attck_time = pg.time.get_ticks()
+                    for x in M.enemy:
+                        if len(M.enemy[x]) > 1:
+                            for y in range(len(M.enemy[x])):
+                                main.little.update({main.k:[x,y]})
+                                main.k += 1
+                        else:
+                            main.little.update({main.k:[x,0]})
+                            main.k += 1 
+                    main.k = 0
+                    main.enemycanattack = True
+                    M.checkifdead()
+                
+            
+                    main.display_time = pg.time.get_ticks()  
+                    main.enemy_attck_time = pg.time.get_ticks()
+                    M.enemyattack(main.k,main.little[main.k][1])
+                    main.k += 1
+                    if main.k >= len(main.little):
+                        main.enemycanattack = False
+                        main.playertrunover = False
+                        M.actions = []
+                        M.statuseffects(True)
+        if self.done == 4:
+            if self.click:
+                self.done += 1
+        if self.done == 1:
+            if mpos in M.selectingchar():
+                self.done += 1
+                x = True
+        if self.done == 2:
+            if mpos in M.selectingattack():
+                M.selectattack()
+                if M.selectedattack == M.selectedchar.attack2:
+                    self.done += 1
+                    x = True
+        if self.done == 3:
+            der,xxer = M.selectenemy()
+            print(der,xxer)
+            if der == spsword:
+                self.done += 1
+                x = True
+        
+        return x
+    def pause(self):
+        if self.done != 6:
+            s = pg.Surface((1920,1080))  # the size of your rect
+            s.set_alpha(200)                # alpha level
+            s.fill((100,100,100 ))           # this fills the entire surface
+            screen.blit(s, (0,0))
+            size = 40
+        if self.done == 1:
+            draw_text_center('Select the character on the left here',size,WHITE,int(WIDTH/2),int(HEIGHT/2+200))
+            M.draw_allychar()
+        if self.done == 2:
+            draw_text_center('Now select the attack on the right',size,WHITE,int(WIDTH/2),int(HEIGHT/2+200))
+            M.draw_icons()
+            s = pg.Surface((130,150))  # the size of your rect
+            s.set_alpha(200)                # alpha level
+            s.fill((100,100,100 ))           # this fills the entire surface
+            screen.blit(s, (490,880))
+        if self.done == 3:
+            draw_text_center('Now select the enemy',size,WHITE,int(WIDTH/2),int(HEIGHT/2+200))
+            M.draw_icons()
+            M.draw_enemychar()
+            s = pg.Surface((130,150))  # the size of your rect
+            s.set_alpha(200)                # alpha level
+            s.fill((100,100,100 ))           # this fills the entire surface
+            screen.blit(s, (490,880))
+        if self.done == 4:
+            draw_text_center('You did 10 damage indicated by the number below the attack',size,WHITE,int(WIDTH/2),int(HEIGHT/2+200))
+            draw_text_center('click to continue',size-10,WHITE,int(WIDTH/2),int(HEIGHT/2+300))
+            M.draw_icons()
+            M.draw_enemychar()
+            s = pg.Surface((130,150))  # the size of your rect
+            s.set_alpha(200)                # alpha level
+            s.fill((100,100,100 ))           # this fills the entire surface
+            screen.blit(s, (490,880))
+        if self.done == 5:
+            draw_text_center("Now that your turn is over now it's the enemys turn ",size,WHITE,int(WIDTH/2),int(HEIGHT/2+200))
+            draw_text_center('click to continue',size-10,WHITE,int(WIDTH/2),int(HEIGHT/2+300))
+            M.draw_enemychar()
+        if self.done == 6:    
+            M.draw_damage()
+        if self.done == 7:
+            draw_text_center("Now that your turn is over now it's the enemys turn ",size,WHITE,int(WIDTH/2),int(HEIGHT/2+200))
+            draw_text_center('click to continue',size-10,WHITE,int(WIDTH/2),int(HEIGHT/2+300))
+            M.draw_damage()
+            M.draw_allychar()
+            
+            
+    def tutorial_restart(self):
+        ally1 = H
+        ally2 = nover
+        ally3 = sillid
+        ally4 = Cri
+        
+        M.selectedattack = 0
+        M.selectedchar = 0
+        M.current_animation = 1
+        M.allies = {}
+        M.enemy = {}
+        M.l = []
+        M.actions = []
+        M.ally1 = ally1
+        pos = M.ally1.vec
+        eat = M.ally1.health
+        lean = M.ally1.shield
+        M.allies.update({M.ally1:[pos,eat,M.ally1.clickaura,lean,{}]})
+        M.numberofallies()
+    def create_map(self):
+        L.levelid = {}
+        L.levelindex = {}
+        L.drawdis = {}
+        L.levelstatus = []
+        L.path = {}
+        L.pathloc = []
+        tier = {}
+        L.tierasi = {}
+        line = 0
+        L.closest = {}
+        L.levelid = {}
+        line = 0
+        tier = 'battle'
+        for x in self.levels:
+            if tier == 'battle':
+                if x.x in L.levelmaster:
+                    enemies = []
+                    cost = L.levelmaster[x.x][0]
+                    enemy = random.choices(L.levelmaster[x.x][1],L.levelmaster[x.x][2])
+                    remove = L.get_cost(enemy)
+                    cost -= remove
+                    enemies.append(enemy[0])
+                    L.make(line,enemies,tier,x)
+            else:
+                L.make(line,[],tier,x)
+            if x.x == 28:
+                L.levelid.update({line:[[cbm],'battle']})
+                L.levelindex.update({line:x})
+            line += 1               
+
 
 main = main()
 
@@ -1682,6 +1905,8 @@ O.maps = []
 maps = [(5, 6), (5, 10), (7, 8), (9, 6), (9, 10), (7, 12), (7, 4), (7, 4), (9, 2), (9, 2), (9, 14), (11, 12), (11, 8), (11, 4), (13, 2), (13, 6), (13, 10), (13, 14), (15, 4), (15, 8), (15, 12), (17, 14), (17, 10), (17, 6), (17, 2), (19, 4), (19, 8), (19, 12), (21, 14), (21, 10), (21, 6), (21, 2), (23, 4), (25, 6), (27, 8), (25, 10), (23, 12), (23, 8)]
 for x in maps:
     O.maps.append(vec(x))
+x = int(WIDTH/(TILESIZE*2)/2)
+print(x)
 O.mapmaster = {1:{0:[2,[sword,mage],[2,1]],1:[2,[sword,mage],[2,1]],2:[2,[sword,mage],[2,1]],3:[2,[sword,mage],[2,1]],4:[2,[sword,mage],[2,1]],5:[3,[sword,mage],[2,1]],6:[4,[sword,mage],[1,1]],7:[5,[sword,mage],[1,1]],8:[5,[sword,mage],[1,2]],9:[5,[sword,mage],[1,1]],10:[5,[sword,mage,lizard],[1,1,5]]
 ,11:[6,[sword,mage,lizard],[1,2,2]],12:[7,[sword,mage,lizard],[1,2,2]],13:[8,[sword,mage,lizard],[1,1,2]],14:[8,[sword,mage,lizard],[1,1,2]],15:[9,[sword,mage,lizard],[1,1,3]]
 ,16:[10,[sword,mage,lizard],[1,1,1]],17:[11,[sword,mage,C,lizard],[1,1,2,1]],18:[11,[sword,mage,C,lizard],[1,1,3,1]],19:[12,[sword,mage,C,lizard],[4,1,1,1]],20:[12,[sword,mage,C,lizard],[3,2,1,2]]
@@ -1692,7 +1917,8 @@ O.mapmaster = {1:{0:[2,[sword,mage],[2,1]],1:[2,[sword,mage],[2,1]],2:[2,[sword,
 ,13:[5,[boulderine],[1]],14:[5,[boulderine],[1]],15:[5,[boulderine],[1]],16:[5,[boulderine],[1]],17:[5,[boulderine],[1]],18:[5,[boulderine],[1]],19:[5,[boulderine],[1]],20:[5,[boulderine],[1]],21:[5,[boulderine],[1]],22:[5,[boulderine],[1]],23:[5,[boulderine],[1]],24:[5,[boulderine],[1]]
 ,25:[5,[boulderine],[1]],26:[5,[boulderine],[1]],27:[5,[boulderine],[1]],28:[5,[boulderine],[1]],29:[5,[boulderine],[1]],30:[5,[boulderine],[1]],31:[5,[boulderine],[1]],32:[5,[boulderine],[1]],33:[5,[boulderine],[1]],34:[5,[boulderine],[1]],35:[5,[boulderine],[1]],36:[5,[boulderine],[1]]
 ,37:[5,[boulderine],[1]],38:[5,[boulderine],[1]],39:[5,[boulderine],[1]],40:[5,[boulderine],[1]]},
-0:{0:[2,[stunte],[1]],4:[2,[stunte],[1]],5:[2,[bleedte],[1]],6:[2,[stunte,bleedte],[1,1]],7:[100,[mage,stunte],[1,2]],8:[5,[boulderine],[1]]}}
+0:{0:[2,[stunte],[1]],4:[2,[stunte],[1]],5:[2,[bleedte],[1]],6:[2,[stunte,bleedte],[1,1]],7:[100,[mage,stunte],[1,2]],8:[5,[boulderine],[1]]},
+-1:{14:[2,[spsword],[1]],15:[2,[mage],[1]],x:[2,[mage],[1]],17:[2,[boulderine],[1]]}}
 
 O.get_connections()
 
@@ -1925,7 +2151,8 @@ class level():
                     self.level = mpos2.x - 3
                     e,tier = self.getlevel()
                     if self.level == 1:
-                        M.restart()
+                        pass
+                        #M.restart()
                     if 'battle' == tier:
                         M.start()
                     elif 'shop' == tier:
@@ -1967,9 +2194,9 @@ L = level()
 L.level = 0
 L.crossvec = vec(3,8)
 L.connections =[]
-L.levels = []
 L.click = False
 L.levelindex = {}
+L.levels = []
 levels = [(4, 7), (4, 8), (4, 9), (5, 6), (5, 7), (5, 8), (5, 9), (5, 10), (6, 11), (6, 10), (6, 9), (6, 8), (6, 7), (6, 6), (6, 5), (7, 4), (7, 5), (7, 6), (7, 7), (7, 8), (7, 9), (7, 10), (7, 11), (7, 12), (8, 13), (8, 12), (8, 11), (8, 10), (8, 9), (8, 8), (8, 7), (8, 6), (8, 5), (8, 4), (8, 3), (9, 2), (9, 3), (9, 4), (9, 5), (9, 6), (9, 7), (9, 8), (9, 9), (9, 10), (9, 11), (9, 12), (9, 13), (9, 14), (10, 14), (10, 13), (10, 12), (10, 11), (10, 10), (10, 9), (10, 8), (10, 7), (10, 6), (10, 5), (10, 4), (10, 3), (10, 2), (11, 2), (12, 2), (13, 2), (14, 2), (15, 2), (16, 2), (17, 2), (18, 2), (19, 2), (20, 2), (21, 2), (22, 2), (27, 8), (27, 7), (27, 9), (26, 9), (26, 8), (26, 7), (26, 6), (26, 10), (25, 10), (25, 11), (25, 9), (25, 8), (25, 7), (25, 6), (25, 5), (24, 5), (24, 4), (23, 3), (23, 4), (11, 14), (12, 14), (13, 14), (14, 14), (15, 14), (24, 12), (24, 11), (23, 12), (23, 13), (22, 13), (22, 14), (21, 14), (20, 14), (18, 14), (19, 14), (17, 14), (16, 14), (16, 13), (15, 13), (13, 13), (14, 13), (12, 13), (11, 13), (11, 12), (12, 12), (13, 12), (14, 12), (15, 12), (16, 12), (17, 12), (17, 13), (18, 13), (18, 12), (19, 12), (19, 13), (20, 13), (20, 12), (21, 12), (21, 13), (22, 12), (22, 11), (23, 11), (23, 10), (24, 10), (24, 9), (23, 9), (24, 8), (23, 8), (24, 7), (23, 7), (24, 6), (23, 6), (23, 5), (22, 5), (22, 4), (22, 3), (21, 3), (21, 4), (20, 4), (20, 3), (19, 3), (18, 3), (17, 3), (16, 3), (15, 3), (14, 3), (13, 3), (12, 3), (11, 3), (11, 4), (12, 4), (13, 4), (14, 4), (15, 4), (16, 4), (17, 4), (19, 4), (18, 4), (18, 5), (17, 5), (16, 5), (15, 5), (14, 5), (13, 5), (12, 5), (11, 5), (11, 6), (12, 6), (13, 6), (14, 6), (15, 6), (16, 6), (17, 6), (18, 6), (19, 6), (19, 5), (20, 5), (20, 6), (21, 6), (21, 5), (22, 6), (22, 7), (22, 8), (22, 9), 
 (22, 10), (21, 10), (21, 11), (21, 9), (21, 8), (21, 7), (20, 7), (20, 8), (20, 9), (20, 10), (20, 11), (19, 11), (19, 10), (19, 9), (19, 8), (19, 7), (18, 7), (18, 8), (18, 9), (18, 10), (18, 11), (17, 11), (17, 10), (17, 
 9), (17, 8), (17, 7), (16, 7), (16, 8), (16, 9), (16, 10), (16, 11), (15, 11), (15, 10), (15, 9), (15, 8), (15, 7), (14, 7), (14, 8), (14, 9), (14, 10), (14, 11), (13, 11), (12, 11), (11, 11), (11, 10), (12, 10), (13, 10), 
@@ -2054,9 +2281,17 @@ class ui():
                 self.pause = False
         else:    
             if self.play.collidepoint(mpos.x*TILESIZE,mpos.y*TILESIZE):
-                main.current_state = 'tutorial'
+                main.current_state = 'map'
+                L.levelmaster = O.mapmaster[-1]
+                tut.create_map()
+                L.crossvec = vec(13,8)
+                L.get_connections()
+                tut.tutorial_restart()
+                M.tutorial = True
             if self.continuebutton.collidepoint(mpos.x*TILESIZE,mpos.y*TILESIZE):
                 main.current_state = self.save_state
+                M.restart()
+
         if self.quit.collidepoint(mpos.x*TILESIZE,mpos.y*TILESIZE):
             self.running = False
             pg.quit
@@ -2067,13 +2302,16 @@ ui = ui()
 ui.pause = False
 ui.save_state = 'overmap'
 
-class tutorial():
-    def __init__(self):
-        self.t = 0
-    def pause(self):
-        pass
-    def togo(self):
-        pass
+
+
+tut = tutorial()
+tut.done = 1
+tut.levels = []
+levels = [(4, 8),(5, 8),(6, 8),(7, 8),(8, 8),(9, 8),(10, 8),(27, 8),(26, 8),(25, 8),(24, 8), (23, 8),(22, 8),
+          (21, 8),(20, 8),(19, 8),(18, 8),(17, 8),(16, 8),(15, 8), (14, 8),(11, 8), (12, 8), (13, 8),]
+for x in levels:
+    if x not in tut.levels:
+        tut.levels.append(vec(x))
 
 class battle():
     def __init__(self):
@@ -2253,7 +2491,7 @@ class battle():
                 if self.selectedattack != 0:
                     
                     pos = vec(18,31)
-                    for attack in self.selectedchar.attacks:    
+                    for attack in self.selectedchar.attacks:  
                         if attack in self.selectedchar.abilities:
                             if self.selectedchar.attack3 not in self.selectedchar.unlockedabilites:
                                 if attack == self.selectedchar.attack3:
@@ -2424,7 +2662,10 @@ class battle():
                             self.enemy[y][0][2] = [self.enemy[y][0][0]+ x for x in self.enemy[y][0][2]]
                     taken = []              
     def numberofallies(self):
-        self.spaces = {'front row':[[vec(20,12), 99],[vec(20,22),99]],'back row':[[vec(13,12),99],[vec(13,22),99]]}
+        if len(self.allies) > 1:
+            self.spaces = {'front row':[[vec(20,12), 99],[vec(20,22),99]],'back row':[[vec(13,12),99],[vec(13,22),99]]}
+        else:
+            self.spaces = {'front row':[[vec(20,17), 99],[vec(20,22),99]],'back row':[[vec(13,12),99],[vec(13,22),99]]}
         taken = []
         self.dup = False
         for y in self.allies:
@@ -2648,7 +2889,6 @@ for x in range(0,1):
     
 M = battle()
 
-M.restart()
 
 
 M.targetedenemy = 0
@@ -2678,6 +2918,8 @@ M.enemycanattack = False
 
 M.victory = False
 
+M.tutorial = False 
+
 shop.draw_shopkeeps()
 
 mpos = vec(0,0)
@@ -2699,7 +2941,7 @@ while ui.running:
                 if main.current_state == 'battle' or main.current_state == 'shop' or main.current_state == 'switch' or main.current_state == 'menu' or ui.pause:
                     mpos = vec(pg.mouse.get_pos()) // TILESIZE
                     create.append(mpos)
-                if main.current_state == 'map' or main.current_state == 'overmap' and not ui.pause:
+                if main.current_state == 'map' or main.current_state == 'tutorial' or main.current_state == 'overmap' and not ui.pause:
                     mpos2 = vec(pg.mouse.get_pos()) // (TILESIZE*2)
                     pos = pg.mouse.get_pos()
                     L.click = True
@@ -2777,9 +3019,10 @@ while ui.running:
     main.battlebottom()
     main.shopbottom()
     main.overmapbottom()
-    if main.current_state != 'menu': 
-        main.draw_level()
-        main.draw_money()
+    if main.current_state != 'menu':
+        if M.tutorial != True: 
+            main.draw_level()
+            main.draw_money()
     else:
         M.draw_background()
     main.menubottom()
