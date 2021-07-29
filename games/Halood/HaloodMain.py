@@ -2694,13 +2694,7 @@ while ui.running:
         if main.current_state == 'switch':
             mpos = vec(pg.mouse.get_pos()) // TILESIZE
         if event.type == pg.MOUSEBUTTONDOWN:
-            if M.victory:
-                M.victory = False
-                main.current_state = 'map'
-                if len(L.connections) == 0:
-                        main.current_state = 'overmap'
-                        L.crossvec = vec(3,8)
-                        L.get_connections()
+            
             if event.button == 1:
                 if main.current_state == 'battle' or main.current_state == 'shop' or main.current_state == 'switch' or main.current_state == 'menu' or ui.pause:
                     mpos = vec(pg.mouse.get_pos()) // TILESIZE
@@ -2720,7 +2714,13 @@ while ui.running:
                     main.shoptop()
                     main.overmaptop()
                 main.menutop()
-
+            if M.victory:
+                M.victory = False
+                main.current_state = 'map'
+                if len(L.connections) == 0:
+                        main.current_state = 'overmap'
+                        L.crossvec = vec(3,8)
+                        L.get_connections()
         if event.type == pg.KEYDOWN:
 
             if event.key == pg.K_r:
