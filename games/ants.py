@@ -110,7 +110,8 @@ class Main():
     def movecam(self,direction):
         for x in self.squares:
             x += direction
-        self.ant += direction
+        for x in self.ant:
+            self.ant[x] += direction
         self.cg += direction
         for x in self.food:
             x += direction

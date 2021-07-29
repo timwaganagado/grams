@@ -243,7 +243,26 @@ class enemy():
                     M.selectedchar.damage([10])
             else:
                 M.enemy[self][dup][1] -= damage
-            
+    class hardboulderine():
+        def __init__(self):
+            self.vec = 0
+        def thunk(self,ll):
+            damage = enemy.decision(self)
+            if damage[2]:
+                self.support(damage,ll)
+            else:
+                enemy.defaultattack(self,damage)
+        def support(self,damage,ll):
+            M.enemy[self][ll][4].update({dodge:1})
+        def damage(self,dup,damage):
+            if dodge in M.enemy[self][dup][4]: 
+                if M.allies[M.selectedchar][3] > 0:
+                    M.enemy[self][dup][1] -= damage
+                    M.selectedchar.damage([10])
+                else:
+                    M.selectedchar.damage([10])
+            else:
+                M.enemy[self][dup][1] -= damage
 
 
 
@@ -311,6 +330,16 @@ boulderine.clickaura = []
 for aura in auras:
     boulderine.clickaura.append(vec(aura))
 boulderine.attacks = {'weak smoke':[5,[{weakness:1}],False,1,2],'reposte':[0,[{0}],True,0,2],'miss':[0,[0],False,1,1]}
+
+hboulderine = enemy.hardboulderine()
+hboulderine.vec = vec(43,20)
+hboulderine.health = 40
+hboulderine.combat_animation = {1:home_img,2:home_img,3:home_img}
+auras = [(1, 2), (0, 2), (-1, 2), (-2, 2), (-3, 2), (-3, 1), (-2, 1), (-1, 1), (0, 1), (1, 1), (1, 0), (0, 0), (-1, 0), (-2, 0), (-3, 0), (-3, -1), (-2, -1), (-1, -1), (0, -1), (1, -1), (1, -2), (0, -2), (-1, -2), (-2, -2), (-3, -2)]
+hboulderine.clickaura = []
+for aura in auras:
+    hboulderine.clickaura.append(vec(aura))
+hboulderine.attacks = {'hard smoke':[10,[{0}],False,1,2],'reposte':[0,[{0}],True,0,2],'miss':[0,[0],False,1,1]}
 
 '''
 0 is dmg
@@ -576,12 +605,8 @@ class ally():
         def damage(self,taken):
             ally.damage(self,taken)
         def draw_icons(self):
-
             text = str(round(int((M.allies[H][1]/self.health+1) * self.attacks[self.attack1][0][0])))
-
             text = str(round(int((M.allies[H][1]/self.health+1) * self.attacks[self.attack2][0][0])))
-            
-            
             pos = vec(18,31)
             for attack in self.attacks:
                 
@@ -609,8 +634,6 @@ class ally():
                     text = str(self.attacks[attack][0][0])
                     draw_text(text, 20, BLUE, pos.x*TILESIZE, pos.y*TILESIZE + 75)
                 pos += vec(5,0)
-
-                
         def draw_attack(self):
             pass
         def draw_skilltree(self):
@@ -1665,7 +1688,10 @@ O.mapmaster = {1:{0:[2,[sword,mage],[2,1]],1:[2,[sword,mage],[2,1]],2:[2,[sword,
 ,21:[13,[sword,mage,C,lizard],[1,1,1,1]],22:[13,[sword,mage],[1,1]],23:[14,[sword,mage,C,lizard],[1,1,1,1]],24:[14,[sword,mage,C,lizard],[1,1,1,1]],25:[14,[sword,mage,C,lizard],[1,2,2,1]]
 ,26:[15,[sword,mage,C,lizard],[1,5,3,1]],27:[15,[mage,C],[1,1]],28:[15,[mage,C],[1,1]],29:[15,[mage,C],[1,1]],30:[15,[mage,C],[1,1]],31:[15,[mage,C],[1,1]],32:[15,[mage,C],[1,1]],33:[15,[mage,C],[1,1]],34:[15,[mage,C],[1,1]]
 ,35:[15,[mage,C],[1,1]],36:[15,[mage,C,boulderine],[1,1,1]],37:[15,[mage,C,boulderine],[1,1,1]],38:[15,[mage,C,boulderine],[1,1,1]],39:[15,[mage,C,boulderine],[1,1,1]],40:[15,[mage,C,boulderine],[1,1,1]],41:[15,[mage,C,boulderine],[1,1,1]],42:[15,[mage,C,boulderine],[1,1,4]]},
-2:{4:[2,[sword,mage],[2,1]],5:[3,[sword,mage],[2,1]],6:[5,[boulderine],[1]]},
+2:{0:[2,[sword,mage],[2,1]],1:[2,[sword,mage],[2,1]],2:[2,[sword,mage],[2,1]],3:[2,[sword,mage],[2,1]],4:[2,[sword,mage],[2,1]],5:[3,[sword,mage],[2,1]],6:[5,[boulderine],[1]],7:[5,[boulderine],[1]],8:[5,[boulderine],[1]],9:[5,[boulderine],[1]],10:[5,[boulderine],[1]],11:[5,[boulderine],[1]],12:[5,[boulderine],[1]]
+,13:[5,[boulderine],[1]],14:[5,[boulderine],[1]],15:[5,[boulderine],[1]],16:[5,[boulderine],[1]],17:[5,[boulderine],[1]],18:[5,[boulderine],[1]],19:[5,[boulderine],[1]],20:[5,[boulderine],[1]],21:[5,[boulderine],[1]],22:[5,[boulderine],[1]],23:[5,[boulderine],[1]],24:[5,[boulderine],[1]]
+,25:[5,[boulderine],[1]],26:[5,[boulderine],[1]],27:[5,[boulderine],[1]],28:[5,[boulderine],[1]],29:[5,[boulderine],[1]],30:[5,[boulderine],[1]],31:[5,[boulderine],[1]],32:[5,[boulderine],[1]],33:[5,[boulderine],[1]],34:[5,[boulderine],[1]],35:[5,[boulderine],[1]],36:[5,[boulderine],[1]]
+,37:[5,[boulderine],[1]],38:[5,[boulderine],[1]],39:[5,[boulderine],[1]],40:[5,[boulderine],[1]]},
 0:{0:[2,[stunte],[1]],4:[2,[stunte],[1]],5:[2,[bleedte],[1]],6:[2,[stunte,bleedte],[1,1]],7:[100,[mage,stunte],[1,2]],8:[5,[boulderine],[1]]}}
 
 O.get_connections()
