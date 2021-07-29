@@ -1477,7 +1477,6 @@ class main():
     def battletop(self):
         if self.current_state == 'battle':
             if M.tutorial:
-                tut.click = True
                 if tut.togo():
                     if mpos in M.getaura() and M.selectedchar != 0 :
                         if M.attackselect == True and M.enemycanattack == False :
@@ -1509,7 +1508,6 @@ class main():
                         M.attackselect = False
                     if mpos in M.selectingattack():
                         M.selectattack()
-                tut.click = False
             else:
                 if mpos in M.getaura() and M.selectedchar != 0:
                     if M.attackselect == True and M.enemycanattack == False :
@@ -1587,6 +1585,12 @@ class main():
                 if current_time - self.display_time > 1000 and tut.done == 6:
                     M.enemycanattack = False
                     tut.togo()
+                if M.victory:
+                    for x in M.savelevel:
+                        if M.savelevel[x] != 0:
+                            vec = M.allies[x][0]
+                            draw_text_center('LEVEL UP',40,YELLOW,vec.x*TILESIZE,vec.y*TILESIZE+150)
+                    draw_text_center('Victroy',40,YELLOW,int(WIDTH/2),int(HEIGHT/2-200))
             else:
                 if len(M.actions) >= len(M.allies) and self.playertrunover == False:
                     M.statuseffects(False)
@@ -1627,29 +1631,36 @@ class main():
                         M.checkifdead()
                     M.damage = {}
             
-            if M.victory:
-                for x in M.savelevel:
-                    if M.savelevel[x] != 0:
-                        vec = M.allies[x][0]
-                        draw_text_center('LEVEL UP',40,YELLOW,vec.x*TILESIZE,vec.y*TILESIZE+150)
-                draw_text_center('Victroy',40,YELLOW,int(WIDTH/2),int(HEIGHT/2-200))
-                if current_time - self.endscreen_timer > 10000:
-                    main.current_state = 'map'
-                    if len(L.connections) == 0:
-                        main.current_state = 'overmap'
-                        L.crossvec = vec(3,8)
-                        L.get_connections()
-                    M.victory = False
+                if M.victory:
+                    for x in M.savelevel:
+                        if M.savelevel[x] != 0:
+                            vec = M.allies[x][0]
+                            draw_text_center('LEVEL UP',40,YELLOW,vec.x*TILESIZE,vec.y*TILESIZE+150)
+                    draw_text_center('Victroy',40,YELLOW,int(WIDTH/2),int(HEIGHT/2-200))
+                    if current_time - self.endscreen_timer > 10000:
+                        main.current_state = 'map'
+                        if len(L.connections) == 0:
+                            main.current_state = 'overmap'
+                            L.crossvec = vec(3,8)
+                            L.get_connections()
+                        M.victory = False
                 
     def leveltop(self):
         if self.current_state == 'map':
-            L.nextlevel()
-            L.clickmenu()
+            if M.tutorial:
+                if tut.togo():
+                    L.nextlevel()
+                    L.clickmenu()
+            else:
+                L.nextlevel()
+                L.clickmenu()
     def levelbottom(self):
         if self.current_state == 'map':
             L.draw_currentposition()
             L.draw_linestoconnections()
             L.draw_icons()
+            if M.tutorial:
+                tut.pause()
     def shoptop(self):
         if self.current_state == 'shop':
             M.selectchar()
@@ -1662,12 +1673,19 @@ class main():
             M.draw_allychar()
     def switchtop(self):
         if self.current_state == 'switch':
-            M.selectchar()
-            M.switch()
+            if M.tutorial:
+                if tut.togo():
+                    M.selectchar()
+                    M.switch()
+            else:
+                M.selectchar()
+                M.switch()
     def switchbottom(self):
         if self.current_state == 'switch':
             M.draw_allychar()
             M.draw_switchbuttons()
+            if M.tutorial:
+                tut.pause()
     def overmaptop(self):
         if self.current_state == 'overmap':
             O.selectmap()
@@ -1686,6 +1704,37 @@ class tutorial():
         self.t = 0
     def togo(self):
         x = False
+        if self.done == 12:
+            if M.selectedchar != 0:
+                for k in M.selectedchar.abilities:
+                    if M.selectedchar.abilities[k][0].collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)) and M.selectedchar.abilities[k][2]:
+                        if M.selectedability != 0 and k == M.selectedability and M.selectedchar.lvl > 0:
+                            x = True
+                            self.done += 1
+                        else:
+                            x = True
+        if self.done == 11:
+            if mpos in M.selectingchar():
+                self.done += 1
+                x = True
+        if self.done == 10:
+            if L.switchbutton.collidepoint(pos):
+                self.done += 1
+                x = True
+        if self.done == 9:
+            main.current_state = 'map'
+            self.done += 1
+        if self.done == 8:
+            if mpos in M.selectingchar():
+                x = True
+            if mpos in M.selectingattack():
+                M.selectattack()
+                if M.selectedattack == M.selectedchar.attack1:
+                    x = True
+            der,xxer = M.selectenemy()
+            if der == spsword:
+                self.done += 1
+                x = True
         if self.done == 7:
             self.done += 1
         if self.done == 6:
@@ -1723,8 +1772,7 @@ class tutorial():
                         M.actions = []
                         M.statuseffects(True)
         if self.done == 4:
-            if self.click:
-                self.done += 1
+            self.done += 1
         if self.done == 1:
             if mpos in M.selectingchar():
                 self.done += 1
@@ -1737,9 +1785,12 @@ class tutorial():
                     x = True
         if self.done == 3:
             der,xxer = M.selectenemy()
-            print(der,xxer)
             if der == spsword:
                 self.done += 1
+                x = True
+        if self.done == 0:
+            if mpos2 == vec(14,8):
+                self.done += 1 
                 x = True
         
         return x
@@ -1750,6 +1801,9 @@ class tutorial():
             s.fill((100,100,100 ))           # this fills the entire surface
             screen.blit(s, (0,0))
             size = 40
+        if self.done == 0:
+            draw_text_center('This is the map click the dot right of the cross',size,WHITE,int(WIDTH/2),int(HEIGHT/2+200))
+            L.draw_currentposition()
         if self.done == 1:
             draw_text_center('Select the character on the left here',size,WHITE,int(WIDTH/2),int(HEIGHT/2+200))
             M.draw_allychar()
@@ -1784,12 +1838,28 @@ class tutorial():
         if self.done == 6:    
             M.draw_damage()
         if self.done == 7:
-            draw_text_center("Now that your turn is over now it's the enemys turn ",size,WHITE,int(WIDTH/2),int(HEIGHT/2+200))
+            draw_text_center("He missed doing 0 damage",size,WHITE,int(WIDTH/2),int(HEIGHT/2+200))
             draw_text_center('click to continue',size-10,WHITE,int(WIDTH/2),int(HEIGHT/2+300))
             M.draw_damage()
             M.draw_allychar()
-            
-            
+        if self.done == 8:
+            draw_text_center('Now finish it off with the other attack',size,WHITE,int(WIDTH/2),int(HEIGHT/2+200))
+            M.draw_allychar()
+            M.draw_icons()
+            M.draw_enemychar()
+        if self.done == 9:
+            draw_text_center("You got him and looks like you've leveled up",size,WHITE,int(WIDTH/2),int(HEIGHT/2+200))
+            draw_text_center('click to continue',size-10,WHITE,int(WIDTH/2),int(HEIGHT/2+300))
+            M.draw_allychar()
+        if self.done == 10:
+            draw_text_center("Click on party",size,WHITE,int(WIDTH/2),int(HEIGHT/2+200))
+            L.draw_icons()
+        if self.done == 11:
+            draw_text_center("Click on the character",size,WHITE,int(WIDTH/2),int(HEIGHT/2+200))
+            M.draw_allychar()
+        if self.done == 12:
+            draw_text_center("Click on an abilitiy/green squares see what to unlock and click again to unlock it",size,WHITE,int(WIDTH/2),int(HEIGHT/2+200))
+            M.draw_switchbuttons()
     def tutorial_restart(self):
         ally1 = H
         ally2 = nover
@@ -1809,6 +1879,8 @@ class tutorial():
         lean = M.ally1.shield
         M.allies.update({M.ally1:[pos,eat,M.ally1.clickaura,lean,{}]})
         M.numberofallies()
+        for x in M.allies:
+            x.draw_skilltree()
     def create_map(self):
         L.levelid = {}
         L.levelindex = {}
@@ -1840,6 +1912,14 @@ class tutorial():
                 L.levelindex.update({line:x})
             line += 1               
 
+tut = tutorial()
+tut.done = 0
+tut.levels = []
+levels = [(4, 8),(5, 8),(6, 8),(7, 8),(8, 8),(9, 8),(10, 8),(27, 8),(26, 8),(25, 8),(24, 8), (23, 8),(22, 8),
+          (21, 8),(20, 8),(19, 8),(18, 8),(17, 8),(16, 8),(15, 8), (14, 8),(11, 8), (12, 8), (13, 8),]
+for x in levels:
+    if x not in tut.levels:
+        tut.levels.append(vec(x))
 
 main = main()
 
@@ -2139,6 +2219,8 @@ class level():
             cost += 3
         if boulderine in target:
             cost += 5
+        if spsword in target:
+            cost += 2
         return cost
     def make(self,line,enemies,tier,x):
         self.levelid.update({line:[enemies,tier]})
@@ -2287,6 +2369,7 @@ class ui():
                 L.crossvec = vec(13,8)
                 L.get_connections()
                 tut.tutorial_restart()
+                H.exp = 9
                 M.tutorial = True
             if self.continuebutton.collidepoint(mpos.x*TILESIZE,mpos.y*TILESIZE):
                 main.current_state = self.save_state
@@ -2301,17 +2384,6 @@ ui = ui()
 
 ui.pause = False
 ui.save_state = 'overmap'
-
-
-
-tut = tutorial()
-tut.done = 1
-tut.levels = []
-levels = [(4, 8),(5, 8),(6, 8),(7, 8),(8, 8),(9, 8),(10, 8),(27, 8),(26, 8),(25, 8),(24, 8), (23, 8),(22, 8),
-          (21, 8),(20, 8),(19, 8),(18, 8),(17, 8),(16, 8),(15, 8), (14, 8),(11, 8), (12, 8), (13, 8),]
-for x in levels:
-    if x not in tut.levels:
-        tut.levels.append(vec(x))
 
 class battle():
     def __init__(self):
@@ -2957,12 +3029,13 @@ while ui.running:
                     main.overmaptop()
                 main.menutop()
             if M.victory:
-                M.victory = False
-                main.current_state = 'map'
-                if len(L.connections) == 0:
-                        main.current_state = 'overmap'
-                        L.crossvec = vec(3,8)
-                        L.get_connections()
+                if not M.tutorial:
+                    M.victory = False
+                    main.current_state = 'map'
+                    if len(L.connections) == 0:
+                            main.current_state = 'overmap'
+                            L.crossvec = vec(3,8)
+                            L.get_connections()
         if event.type == pg.KEYDOWN:
 
             if event.key == pg.K_r:
