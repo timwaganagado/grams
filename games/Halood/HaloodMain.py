@@ -2373,7 +2373,6 @@ class ui():
                 M.tutorial = True
             if self.continuebutton.collidepoint(mpos.x*TILESIZE,mpos.y*TILESIZE):
                 main.current_state = self.save_state
-                M.restart()
 
         if self.quit.collidepoint(mpos.x*TILESIZE,mpos.y*TILESIZE):
             self.running = False
@@ -2952,8 +2951,10 @@ affects bones
 
 NAMES 
 zither nothing yet
-fern plasma sword
-adine nothing yet
+
+adine psycic
+heneric gas guy
+fern fan laby
 '''
 L.levelmaster = O.mapmaster[1]
 for x in range(0,1):
@@ -2991,6 +2992,8 @@ M.enemycanattack = False
 M.victory = False
 
 M.tutorial = False 
+
+M.restart()
 
 shop.draw_shopkeeps()
 
