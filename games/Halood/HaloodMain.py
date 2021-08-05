@@ -208,7 +208,6 @@ class enemy():
         def support(self,damage):
             lowest = 10000000
             if damage[3] == 0:
-                print('eeeee')
                 for x in M.enemy:
                     if len(M.enemy[x]) > 1:
                         lel = 0
@@ -298,7 +297,7 @@ conrift_combat3_img = pg.transform.scale(conrift_combat3_img, (256, 256))
 
 C = enemy.conrift()
 C.vec = vec(43,20)
-C.health = 50
+C.health = 40
 C.combat_animation = {1:conrift_combat_img,2:conrift_combat2_img,3:conrift_combat3_img}
 C.clickaura = [vec(-1,0),vec(-1,1),vec(-1,2),vec(-1,3),vec(-1,-1),vec(-1,-2),vec(-1,-3),vec(0,0),vec(0,1),vec(0,2),vec(0,3),vec(0,-1),vec(0,-2),vec(0,-3),vec(1,0),vec(1,1),vec(1,2),vec(1,3),vec(1,-1),vec(1,-2),vec(1,-3)]
 C.attacks = {'darkness':[5,[0],False,1,5],'conduction':[20,[{fire:1,stun:1}],False,1,1]}
@@ -314,7 +313,7 @@ auras = [(0, 3), (1, 3), (2, 3), (2, 2), (1, 2), (0, 2), (0, 1), (1, 1), (2, 1),
 mage.clickaura = []
 for aura in auras:
     mage.clickaura.append(vec(aura))
-mage.attacks = {'fire ball':[10,[{fire:1}],False,1,4],'lightning':[15,[{stun:1}],False,1,1],'ice shards':[5,[{bleed:1}],False,1,4],'heal':[15,[0],True,0,2],'miss':[0,[0],False,1,2]}
+mage.attacks = {'fire ball':[10,[{fire:1}],False,1,4],'lightning':[15,[{stun:1}],False,1,1],'ice shards':[5,[{bleed:1}],False,1,4],'heal':[5,[0],True,0,2],'miss':[0,[0],False,1,2]}
 
 home_img = pg.image.load(os.path.join(filename,'swordguy_combat-1.png.png')).convert_alpha()
 home_img = pg.transform.scale(home_img, (256, 256))
@@ -327,14 +326,14 @@ auras = [(1, 2), (0, 2), (-1, 2), (-2, 2), (-3, 2), (-3, 1), (-2, 1), (-1, 1), (
 sword.clickaura = []
 for aura in auras:
     sword.clickaura.append(vec(aura))
-sword.attacks = {'slash':[4,[{bleed:1}],False,2,4],'miss':[0,[0],False,1,1]}
+sword.attacks = {'slash':[3,[{bleed:1}],False,2,4],'miss':[0,[0],False,1,1]}
 
 home_img = pg.image.load(os.path.join(filename,cross)).convert_alpha()
 home_img = pg.transform.scale(home_img, (256, 256))
 
 lizard = enemy.lizard()
 lizard.vec = vec(43,20)
-lizard.health = 25
+lizard.health = 20
 lizard.combat_animation = {1:home_img,2:home_img,3:home_img}
 auras = [(1, 2), (0, 2), (-1, 2), (-2, 2), (-3, 2), (-3, 1), (-2, 1), (-1, 1), (0, 1), (1, 1), (1, 0), (0, 0), (-1, 0), (-2, 0), (-3, 0), (-3, -1), (-2, -1), (-1, -1), (0, -1), (1, -1), (1, -2), (0, -2), (-1, -2), (-2, -2), (-3, -2)]
 lizard.clickaura = []
@@ -765,6 +764,23 @@ class ally():
                     self.abilities[z][0] = pg.draw.rect(screen,GREEN,rect)
                 else:
                     self.abilities[z][0] = pg.draw.rect(screen,BLACK,rect)
+        def quest(self,when):
+            if when != 0:    
+                M.addchar(self)
+            typeoq = 'battle'
+            enemies = [sword]
+            return typeoq,enemies
+        def quest_dialouge(self,when):
+            x = int(WIDTH/2)
+            y = int(HEIGHT/2+100)
+            rect = pg.Rect(0, 0, 300, 80)
+            rect.center = x,y
+            pg.draw.rect(screen,BLACK,rect)
+            if ui.done == 0:
+                draw_text_center('self',50,WHITE,x,y)
+            if ui.done == 1:
+                ui.done = 0
+                Q.findquest(1)
         def skill(self,cur):
             if cur == 'stun':
                 self.abilities[cur][2] = False
@@ -854,6 +870,35 @@ class ally():
                     self.abilities[z][0] = pg.draw.rect(screen,GREEN,rect)
                 else:
                     self.abilities[z][0] = pg.draw.rect(screen,BLACK,rect)
+        def quest(self,when):
+            if when != 0:    
+                M.addchar(self)
+            typeoq = 'hunt'
+            enemies = [sword]
+            return typeoq,enemies
+        def quest_dialouge(self,when):
+            if when == 0:
+                x = int(WIDTH/2)
+                y = int(HEIGHT/2+100)
+                rect = pg.Rect(0, 0, 300, 80)
+                rect.center = x,y
+                pg.draw.rect(screen,BLACK,rect)
+                if ui.done == 0:
+                    draw_text_center('self',50,WHITE,x,y)
+                if ui.done == 1:
+                    ui.done = 0
+                    Q.findquest(1)
+            else:
+                x = int(WIDTH/2)
+                y = int(HEIGHT/2+100)
+                rect = pg.Rect(0, 0, 300, 80)
+                rect.center = x,y
+                pg.draw.rect(screen,BLACK,rect)
+                if ui.done == 0:
+                    draw_text_center('self',50,WHITE,x,y)
+                if ui.done == 1:
+                    ui.done = 0
+                    Q.findquest(1)
         def skill(self,cur):
             if cur == 'acceleration':
                 self.abilities[cur][2] = False
@@ -1138,7 +1183,7 @@ nover.transformed = False
 nover.block = False
 nover.saveblock = 0
 nover.inc = 0
-nover.abilities = {'self heal':[0,vec(47,17),True,'heal for half the damage dealt on enemies'],'increase':[0,vec(47,20),True,'Increases damage by 0.1'],'static blood':[0,vec(47,23),True,'allows heplane to trade health for shields']}
+nover.abilities = {'self heal':[0,vec(47,17),'heal for half the damage dealt on enemies'],'increase':[0,vec(47,20),'Increases damage by 0.1'],'static blood':[0,vec(47,23),'allows heplane to trade health for shields']}
 nover.unlockedabilites = []
 nover.exp = 0
 nover.lvl = 0
@@ -1174,7 +1219,7 @@ H.health = 50
 H.shield = 0
 H.healdam = []
 H.inc = 0
-H.abilities = {H.attack3:[0,vec(47,17),True,'heal for half the damage dealt on enemies'],'increase':[0,vec(47,20),True,'Increases damage by 0.1'],H.attack4:[0,vec(47,23),True,'allows heplane to trade health for shields']}
+H.abilities = {H.attack3:[0,vec(47,17),'heal for half the damage dealt on enemies'],'increase':[0,vec(47,20),'Increases damage by 0.1'],H.attack4:[0,vec(47,23),'allows heplane to trade health for shields']}
 H.unlockedabilites = []
 H.exp = 0
 H.lvl = 0
@@ -1290,6 +1335,14 @@ sillid.clickaura = []
 for x in aura:
     sillid.clickaura.append(vec(x))
 
+class dialouge_master():
+    class cri():
+        pass
+    class haptic():
+        pass
+
+D = dialouge_master()
+haptic = D.haptic
 class shopkeeper():
     def __init__(self):
         self.selectedshop = 0
@@ -1338,24 +1391,13 @@ class shopkeeper():
                 main.amountmoney -= 40
             
             if self.resone.collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)) and main.amountmoney >= 100:
-                if M.ally1 not in M.allies:
-                    pos = M.ally1.vec
-                    eat = M.ally1.health
-                    lean = M.ally1.shield
-                    M.allies.update({M.ally1:[pos,eat,M.ally1.clickaura,lean,[]]})
-                    main.amountmoney -= 100
-                if M.ally2 not in M.allies:
-                    pos = M.ally2.vec
-                    eat = M.ally2.health
-                    lean = M.ally2.shield
-                    M.allies.update({M.ally2:[pos,eat,M.ally2.clickaura,lean,[]]})
-                    main.amountmoney -= 100
-                if M.ally3 not in M.allies:
-                    pos = M.ally3.vec
-                    eat = M.ally3.health
-                    lean = M.ally3.shield
-                    M.allies.update({M.ally3:[pos,eat,M.ally3.clickaura,lean,[]]})
-                    main.amountmoney -= 100
+                for x in M.alliessave:
+                    if x not in M.allies:
+                        pos = x.vec
+                        eat = x.health
+                        lean = x.shield
+                        M.allies.update({x:[pos,eat,x.clickaura,lean,[]]})
+                        main.amountmoney -= 100
                 
                 M.numberofallies()
         def draw_actions(self):
@@ -1456,7 +1498,7 @@ shop.cleric_img = pg.transform.scale(shop.cleric_img, (256, 256))
 skarmorer = shopkeeper.armorer()
 skarmorer.shield = False
 skarmorer.shieldh = False
-shop.armorervec = vec(43,17)
+shop.armorervec = vec(43,10)
 shop.armorer_img = pg.image.load(os.path.join(filename,'cleric-1.png.png')).convert_alpha()
 shop.armorer_img = pg.transform.scale(shop.armorer_img, (256, 256))
 
@@ -1512,37 +1554,12 @@ class main():
                 if mpos in M.getaura() and M.selectedchar != 0:
                     if M.attackselect == True and M.enemycanattack == False :
                         if M.selectedchar.attacks[M.selectedattack][2] != False:
-
-                            if mpos in M.allies[M.ally1][2]:
+                            for x in M.allies:
+                                if mpos in M.allies[x][2]:
                                     M.actions.append(M.selectedchar)
-                                    M.selectedchar.support(M.ally1)
+                                    M.selectedchar.support(x)
                                     M.attackselect = False
                                     M.checkifdead()
-
-                            try:
-                                if mpos in M.allies[M.ally2][2]:
-                                    M.actions.append(M.selectedchar)
-                                    M.selectedchar.support(M.ally2)
-                                    M.attackselect = False
-                                    M.checkifdead()
-                            except:
-                                pass
-                            try:
-                                if mpos in M.allies[M.ally3][2]:
-                                    M.actions.append(M.selectedchar)
-                                    M.selectedchar.support(M.ally3)                              
-                                    M.attackselect = False
-                                    M.checkifdead()
-                            except:
-                                pass
-                            try:
-                                if mpos in M.allies[M.ally4][2]:
-                                    M.actions.append(M.selectedchar)
-                                    M.selectedchar.support(M.ally4)                              
-                                    M.attackselect = False
-                                    M.checkifdead()
-                            except:
-                                pass
                             M.attackselect = False
                         else:
 
@@ -1590,7 +1607,8 @@ class main():
                         if M.savelevel[x] != 0:
                             vec = M.allies[x][0]
                             draw_text_center('LEVEL UP',40,YELLOW,vec.x*TILESIZE,vec.y*TILESIZE+150)
-                    draw_text_center('Victroy',40,YELLOW,int(WIDTH/2),int(HEIGHT/2-200))
+                    draw_text_center('Victory',40,YELLOW,int(WIDTH/2),int(HEIGHT/2-200))
+                    
             else:
                 if len(M.actions) >= len(M.allies) and self.playertrunover == False:
                     M.statuseffects(False)
@@ -1636,7 +1654,7 @@ class main():
                         if M.savelevel[x] != 0:
                             vec = M.allies[x][0]
                             draw_text_center('LEVEL UP',40,YELLOW,vec.x*TILESIZE,vec.y*TILESIZE+150)
-                    draw_text_center('Victroy',40,YELLOW,int(WIDTH/2),int(HEIGHT/2-200))
+                    draw_text_center('Victory',40,YELLOW,int(WIDTH/2),int(HEIGHT/2-200))
                     if current_time - self.endscreen_timer > 10000:
                         main.current_state = 'map'
                         if len(L.connections) == 0:
@@ -1698,12 +1716,24 @@ class main():
     def menubottom(self):
         if self.current_state == 'menu' or ui.pause:
             ui.menu()
+    def questtop(self):
+        if self.current_state == 'quest' or self.current_state == 'hunt':
+            ui.dialouge()
+    def questbottom(self):
+        if self.current_state == 'quest' or self.current_state == 'hunt':
+            ui.display_dialouge()
             
 class tutorial():
     def __init__(self):
         self.t = 0
     def togo(self):
         x = False
+        if self.done == 13:
+            main.current_state = 'overmap'
+            M.restart()
+            L.crossvec = vec(3,8)
+            L.get_connections()
+            M.tutorial = False
         if self.done == 12:
             if M.selectedchar != 0:
                 for k in M.selectedchar.abilities:
@@ -1723,6 +1753,7 @@ class tutorial():
                 x = True
         if self.done == 9:
             main.current_state = 'map'
+            M.victory = False
             self.done += 1
         if self.done == 8:
             if mpos in M.selectingchar():
@@ -1731,10 +1762,13 @@ class tutorial():
                 M.selectattack()
                 if M.selectedattack == M.selectedchar.attack1:
                     x = True
-            der,xxer = M.selectenemy()
-            if der == spsword:
-                self.done += 1
-                x = True
+            der,xxer = M.selectenemy()  
+            try:
+                if der == spsword and M.selectedattack == M.selectedchar.attack1:
+                    self.done += 1
+                    x = True
+            except:
+                pass
         if self.done == 7:
             self.done += 1
         if self.done == 6:
@@ -1860,6 +1894,9 @@ class tutorial():
         if self.done == 12:
             draw_text_center("Click on an abilitiy/green squares see what to unlock and click again to unlock it",size,WHITE,int(WIDTH/2),int(HEIGHT/2+200))
             M.draw_switchbuttons()
+        if self.done == 13:
+            draw_text_center("Good Job you've completed the tutorial now to the main game",size,WHITE,int(WIDTH/2),int(HEIGHT/2+200))
+            draw_text_center('click to continue',size-10,WHITE,int(WIDTH/2),int(HEIGHT/2+300))
     def tutorial_restart(self):
         ally1 = H
         ally2 = nover
@@ -1873,11 +1910,11 @@ class tutorial():
         M.enemy = {}
         M.l = []
         M.actions = []
-        M.ally1 = ally1
-        pos = M.ally1.vec
-        eat = M.ally1.health
-        lean = M.ally1.shield
-        M.allies.update({M.ally1:[pos,eat,M.ally1.clickaura,lean,{}]})
+        ally1 = ally1
+        pos = ally1.vec
+        eat = ally1.health
+        lean = ally1.shield
+        M.allies.update({ally1:[pos,eat,ally1.clickaura,lean,{}]})
         M.numberofallies()
         for x in M.allies:
             x.draw_skilltree()
@@ -2049,13 +2086,17 @@ class level():
     def clickmenu(self):
         if self.switchbutton.collidepoint(pos):
             main.current_state = 'switch'
-    def draw_icons(self):
+    def create_icons(self):
         pos = vec(20,30)
         x = int(pos.x*TILESIZE-230)
         y = int(pos.y*TILESIZE-35)
         rect = pg.Rect(x, y, 135, 30)
         self.switchbutton = pg.draw.rect(screen,BLACK,rect)
-        draw_text('Party',20,WHITE,x+5, y)
+        self.switchtext = ['Party',20,WHITE,x+5, y]
+    def draw_icons(self):
+        pg.draw.rect(screen,BLACK,self.switchbutton)
+        a = self.switchtext
+        draw_text(a[0],a[1],a[2],a[3], a[4])
     def draw_currentposition(self):
         vec = self.crossvec
         goal_center = (int(vec.x * TILESIZE*2 + TILESIZE*2 / 2), int(vec.y * TILESIZE*2 + TILESIZE*2 / 2))
@@ -2063,6 +2104,8 @@ class level():
         for x in self.levelindex:
             if self.levelid[x][1] == 'shop':
                 pg.draw.circle(screen,BLUE,(int(self.levelindex[x].x*TILESIZE*2+TILESIZE*2/2),int(self.levelindex[x].y*TILESIZE*2+TILESIZE*2/2)),5)
+            elif self.levelindex[x] == self.tierasiquest or self.levelindex[x] == self.tiersecq and Q.active == True:
+                pg.draw.circle(screen,YELLOW,(int(self.levelindex[x].x*TILESIZE*2+TILESIZE*2/2),int(self.levelindex[x].y*TILESIZE*2+TILESIZE*2/2)),5)
             else:
                 pg.draw.circle(screen,BLACK,(int(self.levelindex[x].x*TILESIZE*2+TILESIZE*2/2),int(self.levelindex[x].y*TILESIZE*2+TILESIZE*2/2)),5)
     def draw_linestoconnections(self):
@@ -2108,16 +2151,33 @@ class level():
         self.tierasi = {}
         line = 0
         self.closest = {}
+        self.tierasiquest = 0
+        tierquest = []
+        self.tiersecq = []
+        
+        Q.choosequest()
+        typeoq,enemies = Q.l.quest(0)
+        
         for x in self.levels:
             if x.x % 4 == 1:
                 if x.x not in tier:
                     tier.update({x.x:[x.y]})
                 else:
                     tier[x.x].append(x.y)
-        
+            elif 7 < x.x < 12:
+                tierquest.append(x)
+            if typeoq == 'hunt':
+                if x.x > 15:
+                    self.tiersecq.append(x)
         for x in tier:
             l = random.choice(tier[x])
             self.tierasi.update({x:l})
+        
+        l = random.choice(tierquest)
+        self.tierasiquest = l
+        if typeoq == 'hunt':
+            self.tiersecq = random.choice(self.tiersecq)
+        
         for x in self.tierasi:
             if x != 25:
                 x2 = x + 4
@@ -2160,6 +2220,11 @@ class level():
             if x.x in self.tierasi:
                 if x.y == self.tierasi[x.x]:
                     tier = 'shop'
+            if x == self.tierasiquest:
+                tier = 'quest'
+            if typeoq == 'hunt':
+                if x == self.tiersecq:
+                    tier = 'hunt'
             if tier == 'battle':
                 if x.x in self.levelmaster:
                     level,b = self.finddis(x)
@@ -2181,6 +2246,14 @@ class level():
                         cost -= remove
                         enemies.append(enemy[0])
                     self.make(line,enemies,tier,x)
+            elif tier == 'quest':
+                self.make(line,[],tier,x)
+                self.savequest = line
+                self.savex = x
+            elif tier == 'hunt':
+                self.make(line,[],tier,x)
+                self.savequesth = line
+                self.savexh = x
             else:
                 self.make(line,[],tier,x)
             if x.x == 28:
@@ -2239,8 +2312,11 @@ class level():
                         M.start()
                     elif 'shop' == tier:
                         shop.shopstart()
+                    print(tier)
                     L.get_connections()
                     main.current_state = tier
+                    if 'quest' == tier or 'hunt' == tier:
+                        Q.findquest(0)
                     self.click = False
         else:
             if self.click == True:
@@ -2253,8 +2329,12 @@ class level():
                     M.start()
                 else:
                     shop.shopstart()
+                print(tier)
                 L.get_connections()
                 main.current_state = tier
+                if 'quest' == tier or 'hunt' == tier:
+                        Q.findquest(0)
+                print(main.current_state)
                 self.click = False
     def getlevel(self):
         if mpos2 in self.levelstatus:
@@ -2286,6 +2366,8 @@ levels = [(4, 7), (4, 8), (4, 9), (5, 6), (5, 7), (5, 8), (5, 9), (5, 10), (6, 1
 for x in levels:
     if x not in L.levels:
         L.levels.append(vec(x))
+
+L.create_icons()
 
 class ui():
     def __init__(self):
@@ -2322,9 +2404,13 @@ class ui():
         text = 'menu'
         self.menutext = [text,50,WHITE,x, y-5]
         
-    def display_dialogue(self):
-        if main.current_state == 'battle':
-            pass
+    def display_dialouge(self):
+        if main.current_state == 'quest':
+            D.l.quest_dialouge(0)
+        if main.current_state == 'hunt':
+            Q.l.display_dialouge(1)
+    def dialouge(self):
+        self.done += 1
     def drawbuttons(self):
         if self.pause:
             pg.draw.rect(screen,BLACK,self.pausebutton)
@@ -2378,11 +2464,41 @@ class ui():
             self.running = False
             pg.quit
         
-        
+    
 ui = ui()
 
 ui.pause = False
 ui.save_state = 'overmap'
+ui.done = 0
+class quest():
+    def __init__(self):
+        self.vec = 0
+    def choosequest(self):
+        self.l = random.choice(self.chars)
+        D.l = self.l
+    def findquest(self,when):
+        self.typeoq,enemies = self.l.quest(1)
+        if when == 1:
+            if self.typeoq == 'battle':
+                main.current_state = 'battle'
+                L.levelid.update({L.savequest:[enemies,'battle']})
+                L.levelindex.update({L.savequest:L.savex})
+                M.start()
+            if self.typeoq == 'hunt':
+                if L.crossvec == L.tierasiquest:
+                    main.current_state = 'map'
+                    self.active = True
+                else:
+                    main.current_state = 'battle'
+                    L.levelid.update({L.savequesth:[enemies,'battle']})
+                    L.levelindex.update({L.savequesth:L.savexh})
+                    M.start()
+                
+                    
+Q = quest()
+
+Q.chars = [Hap,Cri]
+Q.active = False
 
 class battle():
     def __init__(self):
@@ -2405,7 +2521,7 @@ class battle():
         if self.selectedchar != 0:
             self.selectedchar.draw_skilltree()
             if self.selectedability != 0:
-                draw_text(self.selectedchar.abilities[self.selectedability][3],20,BLACK,(self.selectedchar.abilities[self.selectedability][1].x-5)*TILESIZE,self.selectedchar.abilities[self.selectedability][1].y*TILESIZE)
+                draw_text(self.selectedchar.abilities[self.selectedability][2],20,BLACK,(self.selectedchar.abilities[self.selectedability][1].x-5)*TILESIZE,self.selectedchar.abilities[self.selectedability][1].y*TILESIZE)
     def switch(self):
         if self.selectedchar != 0:
             for k in self.selectedchar.abilities:
@@ -2449,9 +2565,6 @@ class battle():
 
     def restart(self):
         ally1 = H
-        ally2 = nover
-        ally3 = sillid
-        ally4 = Cri
         
         self.selectedattack = 0
         self.selectedchar = 0
@@ -2460,30 +2573,30 @@ class battle():
         self.enemy = {}
         self.l = []
         self.actions = []
-        self.ally1 = ally1
-        pos = self.ally1.vec
-        eat = self.ally1.health
-        lean = self.ally1.shield
-        self.allies.update({self.ally1:[pos,eat,self.ally1.clickaura,lean,{}]})
-        self.ally2 = ally2
-        pos = self.ally2.vec
-        eat = self.ally2.health
-        lean = self.ally2.shield
-        self.allies.update({self.ally2:[pos,eat,self.ally2.clickaura,lean,{}]})
-        self.ally3 = ally3
-        pos = self.ally3.vec
-        eat = self.ally3.health
-        lean = self.ally3.shield
-        self.allies.update({self.ally3:[pos,eat,self.ally3.clickaura,lean,{}]})
-        self.ally4 = ally4
-        pos = self.ally4.vec
-        eat = self.ally4.health
-        lean = self.ally4.shield
-        self.allies.update({self.ally4:[pos,eat,self.ally4.clickaura,lean,{}]})
+        self.alliessave = []
+        
+        pos = ally1.vec
+        eat = ally1.health
+        lean = ally1.shield
+        self.allies.update({ally1:[pos,eat,ally1.clickaura,lean,{}]})
+        self.alliessave.append(ally1)
         self.numberofallies()
         #for x in range(1,3):#range(1,random.randint(2,3))
         for x in self.allies:
             x.draw_skilltree()
+    def addchar(self,new):
+        
+        pos = new.vec
+        eat = new.health
+        lean = new.shield
+        self.allies.update({new:[pos,eat,new.clickaura,lean,{}]})
+        self.alliessave.append(new)
+        self.numberofallies()
+        for x in self.allies:
+            x.draw_skilltree()
+        s = pg.Surface((1920,1080))  # the size of your rect
+        s.fill((255,255,255 ))           # this fills the entire surface
+        screen.blit(s, (0,0))
     def start(self):
         enemy,tier = L.getlevel()
         self.savecost = enemy
@@ -2697,10 +2810,30 @@ class battle():
             self.victory = True
             main.endscreen_timer = pg.time.get_ticks()
         if len(self.allies) <= 0:
+            for x in self.alliessave:
+                x.unlockedabilites = []
+                x.exp = 0
+                x.lvl = 0
+                x.needtolvl = 10
             self.restart()
+            main.current_state = 'overmap'
+            O.crossvec = vec(3,8)
+            O.get_connections()
             L.crossvec = vec(3,8)
             L.create_map()
             L.get_connections()
+            self.enemy = {}
+            main.little = {}
+            main.enemy_attck_time = 0
+            main.current_state = 'menu'
+            main.amountmoney = 50
+            main.enemy_attck_time = 0
+            main.enemycanattack = False
+            main.playertrunover = False
+            main.display_time = 0
+            main.k = 0
+            main.little = {}
+            main.endscreen_timer = 0
     def numberofenemy(self):
         spaces = {'space1':[vec(37,20),99],'space2':[vec(43,25),99],'space3':[vec(43,15),99],'space4':[vec(47,18),99],'space5':[vec(47,22),99]}
         taken = []
@@ -2819,7 +2952,6 @@ class battle():
         x = main.little[cur][0]
         ll = int(spec)
         if x != cbm:
-            print(self.enemy[x][ll][4])
             if stun in self.enemy[x][ll][4]:
                 if self.enemy[x][ll][4][stun] > 1:
                     self.enemy[x][ll][4][stun] -= 1
@@ -3013,6 +3145,14 @@ while ui.running:
         if event.type == pg.MOUSEBUTTONDOWN:
             
             if event.button == 1:
+                if M.victory:
+                    if not M.tutorial:
+                        M.victory = False
+                        main.current_state = 'map'
+                        if len(L.connections) == 0:
+                            main.current_state = 'overmap'
+                            L.crossvec = vec(3,8)
+                            L.get_connections()
                 if main.current_state == 'battle' or main.current_state == 'shop' or main.current_state == 'switch' or main.current_state == 'menu' or ui.pause:
                     mpos = vec(pg.mouse.get_pos()) // TILESIZE
                     create.append(mpos)
@@ -3024,21 +3164,16 @@ while ui.running:
                 #L.crossvec =  mpos2
                 #O.maps.append(vec(mpos2))
                 if ui.pause != True:
+                    main.questtop()
+                    main.overmaptop()
                     main.switchtop()
                     main.battletop()
                 
                     main.leveltop()
                     main.shoptop()
-                    main.overmaptop()
+                    
                 main.menutop()
-            if M.victory:
-                if not M.tutorial:
-                    M.victory = False
-                    main.current_state = 'map'
-                    if len(L.connections) == 0:
-                            main.current_state = 'overmap'
-                            L.crossvec = vec(3,8)
-                            L.get_connections()
+            
         if event.type == pg.KEYDOWN:
 
             if event.key == pg.K_r:
@@ -3095,6 +3230,7 @@ while ui.running:
     main.battlebottom()
     main.shopbottom()
     main.overmapbottom()
+    main.questbottom()
     if main.current_state != 'menu':
         if M.tutorial != True: 
             main.draw_level()
