@@ -663,7 +663,7 @@ class ally():
                 x = int(pos.x*TILESIZE-230)
                 y = int(pos.y*TILESIZE-35)
                 rect = pg.Rect(x, y, 50, 50)
-                if self.abilities[z][2] == True:
+                if z not in self.unlockedabilites:
                     self.abilities[z][0] = pg.draw.rect(screen,GREEN,rect)
                 else:
                     self.abilities[z][0] = pg.draw.rect(screen,BLACK,rect)
@@ -760,7 +760,7 @@ class ally():
                 x = int(pos.x*TILESIZE-230)
                 y = int(pos.y*TILESIZE-35)
                 rect = pg.Rect(x, y, 50, 50)
-                if self.abilities[z][2] == True:
+                if z not in self.unlockedabilites:
                     self.abilities[z][0] = pg.draw.rect(screen,GREEN,rect)
                 else:
                     self.abilities[z][0] = pg.draw.rect(screen,BLACK,rect)
@@ -866,7 +866,7 @@ class ally():
                 x = int(pos.x*TILESIZE-230)
                 y = int(pos.y*TILESIZE-35)
                 rect = pg.Rect(x, y, 50, 50)
-                if self.abilities[z][2] == True:
+                if z not in self.unlockedabilites:
                     self.abilities[z][0] = pg.draw.rect(screen,GREEN,rect)
                 else:
                     self.abilities[z][0] = pg.draw.rect(screen,BLACK,rect)
@@ -985,7 +985,7 @@ class ally():
                 x = int(pos.x*TILESIZE-230)
                 y = int(pos.y*TILESIZE-35)
                 rect = pg.Rect(x, y, 50, 50)
-                if self.abilities[z][2] == True:
+                if z not in self.unlockedabilites:
                     self.abilities[z][0] = pg.draw.rect(screen,GREEN,rect)
                 else:
                     self.abilities[z][0] = pg.draw.rect(screen,BLACK,rect)
@@ -1124,7 +1124,7 @@ class ally():
                 x = int(pos.x*TILESIZE-230)
                 y = int(pos.y*TILESIZE-35)
                 rect = pg.Rect(x, y, 50, 50)
-                if self.abilities[z][2] == True:
+                if z not in self.unlockedabilites:
                     self.abilities[z][0] = pg.draw.rect(screen,GREEN,rect)
                 else:
                     self.abilities[z][0] = pg.draw.rect(screen,BLACK,rect)
@@ -2525,7 +2525,7 @@ class battle():
     def switch(self):
         if self.selectedchar != 0:
             for k in self.selectedchar.abilities:
-                if self.selectedchar.abilities[k][0].collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)) and self.selectedchar.abilities[k][2]:
+                if self.selectedchar.abilities[k][0].collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)) and k not in self.selectedchar.unlockedabilites:
                     if self.selectedability != 0 and k == self.selectedability and self.selectedchar.lvl > 0:
                         self.selectedchar.skill(k)
                         self.selectedchar.lvl -= 1
