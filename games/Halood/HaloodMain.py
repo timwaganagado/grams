@@ -289,11 +289,11 @@ class enemy():
 
 
 
-conrift_combat_img = pg.image.load(os.path.join(filename,'Layer 1_conrift_combat1.png')).convert_alpha()
+conrift_combat_img = pg.image.load(os.path.join(filename,'conrift_combat0.png')).convert_alpha()
 conrift_combat_img = pg.transform.scale(conrift_combat_img, (256, 256))
-conrift_combat2_img = pg.image.load(os.path.join(filename,'Layer 1_conrift_combat2.png')).convert_alpha()
+conrift_combat2_img = pg.image.load(os.path.join(filename,'conrift_combat1.png')).convert_alpha()
 conrift_combat2_img = pg.transform.scale(conrift_combat2_img, (256, 256))
-conrift_combat3_img = pg.image.load(os.path.join(filename,'Layer 1_conrift_combat3.png')).convert_alpha()
+conrift_combat3_img = pg.image.load(os.path.join(filename,'conrift_combat2.png')).convert_alpha()
 conrift_combat3_img = pg.transform.scale(conrift_combat3_img, (256, 256))
 
 C = enemy.conrift()
@@ -316,13 +316,17 @@ for aura in auras:
     mage.clickaura.append(vec(aura))
 mage.attacks = {'fire ball':[10,[{fire:1}],False,1,4],'lightning':[15,[{stun:1}],False,1,1],'ice shards':[5,[{bleed:1}],False,1,4],'heal':[5,[0],True,0,2],'miss':[0,[0],False,1,2]}
 
-home_img = pg.image.load(os.path.join(filename,'swordguy_combat-1.png.png')).convert_alpha()
-home_img = pg.transform.scale(home_img, (256, 256))
+swordguy_img = pg.image.load(os.path.join(filename,'Layer 1_swordguy_combat1.png')).convert_alpha()
+swordguy_img = pg.transform.scale(swordguy_img, (256, 256))
+swordguy2_img = pg.image.load(os.path.join(filename,'Layer 1_swordguy_combat2.png')).convert_alpha()
+swordguy2_img = pg.transform.scale(swordguy2_img, (256, 256))
+swordguy3_img = pg.image.load(os.path.join(filename,'Layer 1_swordguy_combat3.png')).convert_alpha()
+swordguy3_img = pg.transform.scale(swordguy3_img, (256, 256))
 
 sword = enemy.swordguy()
 sword.vec = vec(43,20)
 sword.health = 30
-sword.combat_animation = {1:home_img,2:home_img,3:home_img}
+sword.combat_animation = {1:swordguy_img,2:swordguy2_img,3:swordguy3_img}
 auras = [(1, 2), (0, 2), (-1, 2), (-2, 2), (-3, 2), (-3, 1), (-2, 1), (-1, 1), (0, 1), (1, 1), (1, 0), (0, 0), (-1, 0), (-2, 0), (-3, 0), (-3, -1), (-2, -1), (-1, -1), (0, -1), (1, -1), (1, -2), (0, -2), (-1, -2), (-2, -2), (-3, -2)]
 sword.clickaura = []
 for aura in auras:
@@ -1603,7 +1607,7 @@ class main():
                         M.selectattack()
             else:
                 if mpos in M.getaura() and M.selectedchar != 0:
-                    if M.attackselect == True and M.enemycanattack == False :
+                    if M.attackselect == True and len(M.actions) != len(M.allies) and M.selectedchar not in M.actions:
                         if M.selectedchar.attacks[M.selectedattack][2] != False:
                             for x in M.allies:
                                 if mpos in M.allies[x][2]:
@@ -1675,17 +1679,17 @@ class main():
                         else:
                             self.little.update({self.k:[x,0]})
                             self.k += 1 
-                    self.k = 0
+                    self.attacks = 0
                     self.enemycanattack = True
                     M.checkifdead()
                 
                 if current_time - self.enemy_attck_time > 1000 and self.enemycanattack and len(M.allies) > 0:
                     self.display_time = pg.time.get_ticks()  
                     self.enemy_attck_time = pg.time.get_ticks()
-                    M.enemyattack(self.k,self.little[self.k][1])
-                    self.k += 1
+                    M.enemyattack(self.attacks,self.little[self.attacks][1])
+                    self.attacks += 1
                     M.checkifdead()
-                    if self.k >= len(self.little):
+                    if self.k == self.attacks:
                         self.enemycanattack = False
                         self.playertrunover = False
                         M.actions = []
@@ -1695,10 +1699,9 @@ class main():
                     M.draw_damage()
 
                 if current_time - self.display_time > 1000:
-    
-                    M.enemycanattack = False
                     if not M.victory:
-                        M.checkifdead()
+                        if not M.loss:
+                            M.checkifdead()
                     M.damage = {}
             
                 if M.victory:
@@ -1724,9 +1727,9 @@ class main():
                     main.display_time = 0
                     main.k = 0
                     main.little = {}
-                    main.endscreen_timer = 0
                     draw_text_center('You died',40,YELLOW,int(WIDTH/2),int(HEIGHT/2-200))
-                    if current_time - self.endscreen_timer > 10000:
+                    print(current_time,self.endscreen_timer)
+                    if current_time - self.endscreen_timer > 1000:
                         for x in M.alliessave:
                             x.unlockedabilites = []
                             x.exp = 0
@@ -1741,6 +1744,7 @@ class main():
                         M.enemy = {}
                         main.current_state = 'menu'
                         M.loss = False
+                        main.endscreen_timer = 0
                 
     def leveltop(self):
         if self.current_state == 'map':
@@ -1800,6 +1804,7 @@ class main():
             ui.dialouge()
     def questbottom(self):
         if self.current_state == 'quest' or self.current_state == 'hunt':
+            M.draw_background()
             ui.display_dialouge()
             
 class tutorial():
@@ -2451,6 +2456,13 @@ L.create_icons()
 class ui():
     def __init__(self):
         x = int(WIDTH/2)
+        y = int(HEIGHT/2-300)
+        text = 'HALOOD'
+        self.gamenametext = [text,80,RED,x, y-5]
+        
+        
+        
+        x = int(WIDTH/2)
         y = int(HEIGHT/2-100)
         self.play = pg.Rect(0, 0, 300, 80)
         self.play.center = x,y
@@ -2517,6 +2529,8 @@ class ui():
         s.set_alpha(200)                # alpha level
         s.fill((100,100,100 ))           # this fills the entire surface
         screen.blit(s, (0,0)) 
+        a = self.gamenametext
+        draw_text_center(a[0],a[1],a[2],a[3],a[4])
         self.drawbuttons()
     def buttons(self):
         if self.pause:
@@ -2648,7 +2662,9 @@ class battle():
 
 
     def restart(self):
-        ally1 = sillid
+        ally1 = H
+        ally2 = nover
+        ally3 = Cri
         
         self.selectedattack = 0
         self.selectedchar = 0
@@ -2664,6 +2680,15 @@ class battle():
         lean = ally1.shield
         self.allies.update({ally1:[pos,eat,ally1.clickaura,lean,{}]})
         self.alliessave.append(ally1)
+        
+        pos = ally2.vec
+        eat = ally2.health
+        lean = ally2.shield
+        self.allies.update({ally2:[pos,eat,ally1.clickaura,lean,{}]})
+        self.alliessave.append(ally2)
+        
+        self.addchar(Cri)
+        
         self.numberofallies()
         #for x in range(1,3):#range(1,random.randint(2,3))
         for x in self.allies:
@@ -2824,7 +2849,12 @@ class battle():
                     for a in self.spaces[w]:
                         if a[1] == x:
                             a[1] = 99
-        if len(self.enemy) <= 0:
+        if len(self.allies) <= 0:
+            self.loss = True
+            print('yourmom')
+            main.endscreen_timer = pg.time.get_ticks()
+            main.enemy_attck_time = 0
+        elif len(self.enemy) <= 0:
             #ally1 = H
             #ally2 = Cri
             if main.current_state == 'battle':
@@ -2893,10 +2923,6 @@ class battle():
             print(self.savelevel)
             self.victory = True
             main.endscreen_timer = pg.time.get_ticks()
-        if len(self.allies) <= 0:
-            self.loss = True
-            main.endscreen_timer = pg.time.get_ticks()
-            main.enemy_attck_time = 0
     def numberofenemy(self):
         spaces = {'space1':[vec(37,20),99],'space2':[vec(43,25),99],'space3':[vec(43,15),99],'space4':[vec(47,18),99],'space5':[vec(47,22),99]}
         taken = []
@@ -3199,14 +3225,6 @@ while ui.running:
             mpos = vec(pg.mouse.get_pos()) // TILESIZE
         if event.type == pg.MOUSEBUTTONDOWN:
             if event.button == 1:
-                if M.victory:
-                    if not M.tutorial:
-                        M.victory = False
-                        main.current_state = 'map'
-                        if len(L.connections) == 0:
-                            main.current_state = 'overmap'
-                            L.crossvec = vec(3,8)
-                            L.get_connections()
                 if main.current_state == 'battle' or main.current_state == 'shop' or main.current_state == 'switch' or main.current_state == 'menu' or ui.pause:
                     mpos = vec(pg.mouse.get_pos()) // TILESIZE
                     create.append(mpos)
@@ -3218,12 +3236,20 @@ while ui.running:
                 #O.maps.append(vec(mpos2))
                 if ui.pause != True:
                     main.questtop()
+                    main.battletop()
                     main.leveltop()
                     main.overmaptop()
                     main.switchtop()
-                    main.battletop()
                     main.shoptop()
                 main.menutop()
+                if M.victory:
+                    if not M.tutorial:
+                        M.victory = False
+                        main.current_state = 'map'
+                        if len(L.connections) == 0:
+                            main.current_state = 'overmap'
+                            L.crossvec = vec(3,8)
+                            L.get_connections()
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_r:
                 if main.current_state == 'switch':
