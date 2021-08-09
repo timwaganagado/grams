@@ -152,9 +152,13 @@ class enemy():
                         dead.append(l[1])
             if x == 'back row' and len(dead) == 2:
                 for j in M.spaces[x]:
-                    possible.append(j[1])
-                        
+                    if j[1] != 99:
+                        possible.append(j[1])
+                    else:
+                        dead.append(j[1])
+        print(possible)
         target = random.choice(possible)
+        print(target)
         for x in range(0,damage[3]):
             target.damage(damage)
             for x in damage[1]:
@@ -1287,11 +1291,11 @@ for x in aura:
     H.clickaura.append(vec(x))
 
 Cri = ally.cri()
-cri_combat_img = pg.image.load(os.path.join(filename,'Layer 1_cri_combat1.png')).convert_alpha()
+cri_combat_img = pg.image.load(os.path.join(filename,'cri_combat0.png')).convert_alpha()
 cri_combat_img = pg.transform.scale(cri_combat_img, (256, 256))
-cri_combat2_img = pg.image.load(os.path.join(filename,'Layer 1_cri_combat2.png')).convert_alpha()
+cri_combat2_img = pg.image.load(os.path.join(filename,'cri_combat1.png')).convert_alpha()
 cri_combat2_img = pg.transform.scale(cri_combat2_img, (256, 256))
-cri_combat3_img = pg.image.load(os.path.join(filename,'Layer 1_cri_combat3.png')).convert_alpha()
+cri_combat3_img = pg.image.load(os.path.join(filename,'cri_combat2.png')).convert_alpha()
 cri_combat3_img = pg.transform.scale(cri_combat3_img, (256, 256))
 cri_ability1_img = pg.image.load(os.path.join(filename,'crystal_icons-2.png.png'))
 cri_ability1_img = pg.transform.scale(cri_ability1_img, (128, 128))
@@ -1665,7 +1669,7 @@ class main():
                     draw_text_center('Victory',40,YELLOW,int(WIDTH/2),int(HEIGHT/2-200))
                     
             else:
-                if len(M.actions) >= len(M.allies) and self.playertrunover == False:
+                if len(M.actions) >= len(M.allies) and self.playertrunover == False and len(M.allies) > 0:
                     M.statuseffects(False)
                     self.playertrunover = True
                     self.little = {}
@@ -1724,7 +1728,6 @@ class main():
                     main.enemy_attck_time = 0
                     main.enemycanattack = False
                     main.playertrunover = False
-                    main.display_time = 0
                     main.k = 0
                     main.little = {}
                     draw_text_center('You died',40,YELLOW,int(WIDTH/2),int(HEIGHT/2-200))
@@ -2511,6 +2514,8 @@ class ui():
             a = self.menutext
             draw_text_center(a[0],a[1],a[2],a[3],a[4])
         else:
+            a = self.gamenametext
+            draw_text_center(a[0],a[1],a[2],a[3],a[4])
             pg.draw.rect(screen,BLACK,self.play)
             a = self.playtext
             draw_text_center(a[0],a[1],a[2],a[3],a[4])
@@ -2529,8 +2534,6 @@ class ui():
         s.set_alpha(200)                # alpha level
         s.fill((100,100,100 ))           # this fills the entire surface
         screen.blit(s, (0,0)) 
-        a = self.gamenametext
-        draw_text_center(a[0],a[1],a[2],a[3],a[4])
         self.drawbuttons()
     def buttons(self):
         if self.pause:
@@ -2864,7 +2867,6 @@ class battle():
                 self.savelevel.update({x:x.lvl})
             self.selectedattack = 0
             self.selectedchar = 0
-            self.current_animation = 1
             #self.allies = {}
             self.enemy = {}
             self.l = []
@@ -3235,13 +3237,7 @@ while ui.running:
                 #L.crossvec =  mpos2
                 #O.maps.append(vec(mpos2))
                 if ui.pause != True:
-                    main.questtop()
-                    main.battletop()
                     main.leveltop()
-                    main.overmaptop()
-                    main.switchtop()
-                    main.shoptop()
-                main.menutop()
                 if M.victory:
                     if not M.tutorial:
                         M.victory = False
@@ -3250,6 +3246,14 @@ while ui.running:
                             main.current_state = 'overmap'
                             L.crossvec = vec(3,8)
                             L.get_connections()
+                if ui.pause != True:
+                    main.questtop()
+                    main.overmaptop()
+                    main.switchtop()
+                    main.battletop()
+                    main.shoptop()
+                main.menutop()
+                
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_r:
                 if main.current_state == 'switch':
