@@ -156,7 +156,6 @@ class enemy():
                         
         target = random.choice(possible)
         for x in range(0,damage[3]):
-            target.damage(damage)
             for x in damage[1]:
                 if x == 0:
                     break
@@ -185,6 +184,7 @@ class enemy():
                 M.damage[target].append(int(damage[0]))
             else:
                 M.damage.update({target:[damage[0]]})
+            target.damage(damage)
         pass
     class conrift():
         def __init__(self):
@@ -1724,7 +1724,6 @@ class main():
                     main.enemy_attck_time = 0
                     main.enemycanattack = False
                     main.playertrunover = False
-                    main.display_time = 0
                     main.k = 0
                     main.little = {}
                     draw_text_center('You died',40,YELLOW,int(WIDTH/2),int(HEIGHT/2-200))
