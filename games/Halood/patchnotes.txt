@@ -96,3 +96,8 @@ making menu
 gave nover defualt asset
 
 23/07/2021
+
+29/07/2021
+made tutorial 
+need to make a map button when in party menu
+added a pause menu bug with going to menu and back enemies dead full health
