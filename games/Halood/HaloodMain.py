@@ -32,6 +32,7 @@ DARKBLUE = (0,0,139)
 MOMENTUMCOLOR = (166, 138, 178)
 PURPLE = (149, 53, 83)
 VIOLET = (127,0,255)
+ORANGE = (255, 165, 0)
 check = 'working'
 
 pg.init()
@@ -193,16 +194,38 @@ class enemy():
                 if pierce in x:
                     ll = random.choices([1,2],[80,20])[0]
                     if ll == 2:
-                        damage = list(damage)
-                        damage[0] *= ll
                         M.allies[target][4].update({pierce:1})
+                        if M.allies[target][3] == 0:
+                            if bleed in M.allies[target][4]:
+                                M.allies[target][4][bleed] += x[bleed]
+                            else:
+                                M.allies[target][4].update({bleed:x[bleed]})
                 print(damage)
                 target.damage(damage)
             if target in M.damage:
                 M.damage[target].append(int(damage[0]))
             else:
                 M.damage.update({target:[damage[0]]})
-        pass
+    def damage(target,dup,damage):
+        M.enemy[target][dup][1] -= damage
+        M.enemy[target][dup][5].append(damage)
+        total = 0
+        amount = 0
+        done = True
+        for ll in M.enemy[target][dup][5]:
+            if ll == 'done':
+                done = False
+            total += ll
+            if ll >= 5:
+                amount += 1
+        print(amount,total)
+        if done:
+            if total >= target.stagger and amount >= 2:
+                M.enemy[target][dup][5].append('done')
+                if stun in M.enemy[target][dup][4]:
+                    M.enemy[target][dup][4][stun] += 1
+                else:
+                    M.enemy[target][dup][4].update({stun:1})
     class conrift():
         def __init__(self):
             self.vec = 0
@@ -210,7 +233,7 @@ class enemy():
             damage = enemy.decision(self)
             enemy.defaultattack(self,damage)
         def damage(self,dup,damage):
-            M.enemy[self][dup][1] -= damage
+            enemy.damage(self,dup,damage)
     class magee():
         def __init__(self):
             self.vec = 0
@@ -244,7 +267,7 @@ class enemy():
                 if M.enemy[healb][heals][1] > healb.health:
                     M.enemy[healb][heals][1] = healb.health
         def damage(self,dup,damage):
-            M.enemy[self][dup][1] -= damage
+            enemy.damage(self,dup,damage)
     class swordguy():
         def __init__(self):
             self.vec = 0
@@ -252,7 +275,7 @@ class enemy():
             damage = enemy.decision(self)
             enemy.defaultattack(self,damage)
         def damage(self,dup,damage):
-            M.enemy[self][dup][1] -= damage
+            enemy.damage(self,dup,damage)
     class archer():
         def __init__(self):
             self.vec = 0 
@@ -260,7 +283,7 @@ class enemy():
             damage = enemy.decision(self)
             enemy.defaultattack(self,damage)
         def damage(self,dup,damage):
-            M.enemy[self][dup][1] -= damage
+            enemy.damage(self,dup,damage)
     class boulderine():
         def __init__(self):
             self.vec = 0
@@ -275,12 +298,12 @@ class enemy():
         def damage(self,dup,damage):
             if dodge in M.enemy[self][dup][4]: 
                 if M.allies[M.selectedchar][3] > 0:
-                    M.enemy[self][dup][1] -= damage
+                    enemy.damage(self,dup,damage)
                     M.selectedchar.damage([10])
                 else:
                     M.selectedchar.damage([10])
             else:
-                M.enemy[self][dup][1] -= damage
+                enemy.damage(self,dup,damage)
     class hardboulderine():
         def __init__(self):
             self.vec = 0
@@ -295,12 +318,12 @@ class enemy():
         def damage(self,dup,damage):
             if dodge in M.enemy[self][dup][4]: 
                 if M.allies[M.selectedchar][3] > 0:
-                    M.enemy[self][dup][1] -= damage
+                    enemy.damage(self,dup,damage)
                     M.selectedchar.damage([10])
                 else:
                     M.selectedchar.damage([10])
             else:
-                M.enemy[self][dup][1] -= damage
+                enemy.damage(self,dup,damage)
     class fatman():
         def __init__(self):
             self.vec = 0 
@@ -318,7 +341,7 @@ class enemy():
             else:
                 M.enemy[self][ll][4].update({charge:1})
         def damage(self,dup,damage):
-            M.enemy[self][dup][1] -= damage
+            enemy.damage(self,dup,damage)
     class grosehound():
         def __init__(self):
             self.vec = 0
@@ -326,7 +349,7 @@ class enemy():
             damage = enemy.decision(self)
             enemy.defaultattack(self,damage)
         def damage(self,dup,damage):
-            M.enemy[self][dup][1] -= damage
+            enemy.damage(self,dup,damage)
 
 
 
@@ -349,6 +372,7 @@ conrift.health = 40
 conrift.combat_animation = {1:conrift_combat_img,2:conrift_combat2_img,3:conrift_combat3_img}
 conrift.clickaura = [vec(-1,0),vec(-1,1),vec(-1,2),vec(-1,3),vec(-1,-1),vec(-1,-2),vec(-1,-3),vec(0,0),vec(0,1),vec(0,2),vec(0,3),vec(0,-1),vec(0,-2),vec(0,-3),vec(1,0),vec(1,1),vec(1,2),vec(1,3),vec(1,-1),vec(1,-2),vec(1,-3)]
 conrift.attacks = {'darkness':[5,[0],False,1,5],'conduction':[20,[{fire:1,stun:1}],False,1,1]}
+conrift.stagger = 15
 
 home_img = pg.image.load(os.path.join(filename,'magee_combat.png')).convert_alpha()
 home_img = pg.transform.scale(home_img, (256, 256))
@@ -363,6 +387,7 @@ magee.clickaura = []
 for aura in auras:
     magee.clickaura.append(vec(aura))
 magee.attacks = {'fire ball':[10,[{fire:1}],False,1,4],'lightning':[15,[{stun:1}],False,1,1],'ice shards':[5,[{pierce:1}],False,1,4],'heal':[5,[0],True,0,2],'miss':[0,[0],False,1,2]}
+magee.stagger = 15
 
 swordguy_img = pg.image.load(os.path.join(filename,'Layer 1_swordguy_combat1.png')).convert_alpha()
 swordguy_img = pg.transform.scale(swordguy_img, (256, 256))
@@ -381,6 +406,7 @@ swordguy.clickaura = []
 for aura in auras:
     swordguy.clickaura.append(vec(aura))
 swordguy.attacks = {'blunt slash':[3,[{}],False,2,4],'slash':[3,[{pierce:1}],False,2,1],'miss':[0,[0],False,1,1]}
+swordguy.stagger = 10
 
 home_img = pg.image.load(os.path.join(filename,cross)).convert_alpha()
 home_img = pg.transform.scale(home_img, (256, 256))
@@ -395,6 +421,7 @@ archer.clickaura = []
 for aura in auras:
     archer.clickaura.append(vec(aura))
 archer.attacks = {'piercing arrow':[5,[{pierce:1}],False,1,5],'blunt arrow':[5,[{}],False,1,1],'miss':[0,[0],False,1,2]}
+archer.stagger = 10
 
 boulderine = enemy.boulderine()
 enemy.list.append(boulderine)
@@ -406,6 +433,7 @@ boulderine.clickaura = []
 for aura in auras:
     boulderine.clickaura.append(vec(aura))
 boulderine.attacks = {'weak smoke':[5,[{weakness:1}],False,1,2],'reposte':[0,[{0}],True,0,2],'miss':[0,[0],False,1,1]}
+boulderine.stagger = 15
 
 hardboulderine = enemy.hardboulderine()
 enemy.list.append(hardboulderine)
@@ -417,6 +445,7 @@ hardboulderine.clickaura = []
 for aura in auras:
     hardboulderine.clickaura.append(vec(aura))
 hardboulderine.attacks = {'hard smoke':[10,[{0}],False,1,2],'reposte':[0,[{0}],True,0,2],'miss':[0,[0],False,1,1]}
+boulderine.stagger = 20
 
 home_img = pg.image.load(os.path.join(filename,"fatman_combat.png")).convert_alpha()
 home_img = pg.transform.scale(home_img, (256, 256))
@@ -431,6 +460,7 @@ fatman.clickaura = []
 for aura in auras:
     fatman.clickaura.append(vec(aura))
 fatman.attacks = {'jump':[2,[{charge:1}],True,1,2],'smack':[5,[{}],False,1,4],'miss':[0,[0],False,1,2]}
+fatman.stagger = 13
 
 home_img = pg.image.load(os.path.join(filename,"grosehund_combat.png")).convert_alpha()
 home_img = pg.transform.scale(home_img, (256, 256))
@@ -445,6 +475,7 @@ grosehound.clickaura = []
 for aura in auras:
     grosehound.clickaura.append(vec(aura))
 grosehound.attacks = {'scracth':[3,[{}],False,1,4],'deep bite':[3,[{bleed:1}],False,1,1],'miss':[0,[0],False,1,1]}
+grosehound.stagger = 5
 
 '''
 0 is dmg
@@ -657,15 +688,14 @@ class ally():
     def damage(self,target,taken):
         if M.allies[target][3] > 0:
             M.allies[target][3] -= taken[0]
+            if pierce in M.allies[target][4]:
+                M.allies[target][3] -= taken[0]
             if M.allies[target][3] < 0:
                 M.allies[target][3] = 0
         else:
             M.allies[target][1] -= taken[0]
             if pierce in M.allies[target][4]:
-                if bleed in M.allies[target][4]:
-                    M.allies[target][4][bleed] += 1
-                else:
-                    M.allies[target][4].update({bleed:1})
+                M.allies[target][1] -= taken[0]
     def fixclick(self,target):
         pos = vec(18,31)
         for attack in target.attacks:
@@ -1251,9 +1281,111 @@ class ally():
                 self.lvl += 1
                 self.exp -= self.needtolvl
                 self.needtolvl *= 2
+    class fairum():
+        def __int__(self):
+            self.attack1 = 0
+        def attack(self,target,attack):
+            target,dup = target
+            damage = 0
+            target.damage(dup,damage)
+            
+        def support(self,target):
+            if self.acts != 0:
+                pass
+            else:
+                M.actions.remove(self)
+        def passive(self,used):
+            self.plates += 2
+        def passive_endturn(self):
+            self.plates += 10
+            
+        def damage(self,taken):
+            ally.damage(self,taken)
+        def draw_icons(self):
+            pos = vec(18,31)
+            for attack in self.attacks:
+                if self.attack4 not in self.unlockedabilites:
+                    if attack == self.attack4:
+                        continue
+                icon = self.attacks[attack][4]
+                rect = pg.Rect(int(pos.x*TILESIZE-49), int(pos.y*TILESIZE-50), 128, 150)
+                pg.draw.rect(screen,BLACK,rect)
+                goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))
+                screen.blit(icon, icon.get_rect(center=goal_center))
+                text = str(self.attacks[attack][0][0]+self.inc)
+                if attack != self.attack3:
+                    draw_text(text, 20, RED, pos.x*TILESIZE, pos.y*TILESIZE + 75)
+                    text = str(self.attacks[attack][0][1])
+                    draw_text(text, 50, VIOLET, pos.x*TILESIZE + 40, pos.y*TILESIZE - 50)
+                else:
+                    text = str(self.acts)
+                    draw_text(text, 50, VIOLET, pos.x*TILESIZE + 40, pos.y*TILESIZE - 50)
+
+                pos += vec(5,0)
+                
+        def draw_attack(self):
+            pass
+        def skill(self,cur):
+            if cur == self.attack4:
+                self.abilities[cur][2] = False
+                self.unlockedabilites.append(cur)
+            if cur == 'increase':
+                self.abilities[cur][2] = False
+                self.unlockedabilites.append(cur)
+                self.inc = 1
+            if cur == 'critical':
+                self.abilities[cur][2] = False
+                self.unlockedabilites.append(cur)
+                self.chance = 20
+        def checklevel(self):
+            if self.exp >= self.needtolvl:
+                self.lvl += 1
+                self.exp -= self.needtolvl
+                self.needtolvl *= 2
+                
+                
+                
+                
+                
 ally = ally()
                     
 iconaura = [(2, 2), (2, 1), (2, 0), (2, -1), (2, -2), (1, -2), (1, -1), (1, 0), (1, 1), (1, 2), (0, 2), (0, 1), (0, 0), (0, -1), (0, -2), (-1, -2), (-1, -1), (-1, 0), (-1, 1), (-1, 2), (-2, 2), (-2, 1), (-2, 0), (-2, -1), (-2, -2)]            
+
+fairum = ally.fairum()
+fairum_combat_img = pg.image.load(os.path.join(filename,cross)).convert_alpha()
+fairum_combat_img = pg.transform.scale(fairum_combat_img, (256, 256))
+fairum_combat2_img = pg.image.load(os.path.join(filename,cross)).convert_alpha()
+fairum_combat2_img = pg.transform.scale(fairum_combat2_img, (256, 256))
+fairum_combat3_img = pg.image.load(os.path.join(filename,cross)).convert_alpha()
+fairum_combat3_img = pg.transform.scale(fairum_combat3_img, (256, 256))
+fairum_ability1_img = pg.image.load(os.path.join(filename,'cross-1.png.png'))
+fairum_ability1_img = pg.transform.scale(fairum_ability1_img, (128, 128))
+fairum_ability2_img = pg.image.load(os.path.join(filename,'cross-1.png.png'))
+fairum_ability2_img = pg.transform.scale(fairum_ability2_img, (128, 128))
+fairum_ability3_img = pg.image.load(os.path.join(filename,'cross-1.png.png'))
+fairum_ability3_img = pg.transform.scale(fairum_ability3_img, (128, 128))
+fairum_ability4_img = pg.image.load(os.path.join(filename,'cross-1.png.png'))
+fairum_ability4_img = pg.transform.scale(fairum_ability4_img, (128, 128))
+fairum.attack1 = 'plate push'
+fairum.attack2 = 'construct'
+fairum.attack3 = 'project'
+fairum.attack4 = 'steel rain'
+fairum.vec = vec(20,15)
+fairum.health = 35
+fairum.shield = 0
+fairum.plates = 10
+fairum.plateslimit = 10
+fairum.abilities = {fairum.attack4:[0,vec(47,17),'Use plates to deal AOE damage'],'increase':[0,vec(47,20),'Increase plate limit up to 15'],fairum.attack3:[0,vec(47,23),'crits bud']}
+fairum.unlockedabilites = []
+fairum.exp = 0
+fairum.lvl = 0
+fairum.needtolvl = 10
+fairum.combat_animation = {1:fairum_combat_img,2:fairum_combat2_img,3:fairum_combat3_img}
+fairum.attacks = {fairum.attack1:[[5,2],[{bleed:1}],False,1,fairum_ability1_img,[vec(18,31) + a for a in iconaura]],fairum.attack2:[[0,0],[0],False,1,fairum_ability2_img,[vec(23,31) + a for a in iconaura]],fairum.attack3:[[0,0],[0],True,1,fairum_ability3_img,[vec(28,31)+a for a in iconaura]],fairum.attack4:[[5,2],[{fire:1,stun:1}],False,1,fairum_ability4_img,[vec(33,31) + a for a in iconaura]]}
+fairum.clickaura = []
+for x in aura:
+    fairum.clickaura.append(vec(x))
+
 
 nover = ally.noverence()
 nover_combat_img = pg.image.load(os.path.join(filename,'Layer 1_nover_combat1.png')).convert_alpha()
@@ -2276,7 +2408,7 @@ maps = [(5, 6), (5, 10), (7, 8), (9, 6), (9, 10), (7, 12), (7, 4), (7, 4), (9, 2
 for x in maps:
     O.maps.append(vec(x))
 O.mapmaster = {1:{0: [2,[swordguy,grosehound],[2, 1]],1: [2,[swordguy,grosehound],[2, 2]],2: [2,[swordguy,grosehound,magee],[2, 2, 1]],3: [2,[swordguy,grosehound,magee],[2, 2, 1]],4: [2,[swordguy,magee,archer,grosehound],[2, 1, 1, 1]],5: [3,[swordguy,magee,grosehound,archer],[2, 1, 1, 1]],6: [3,[magee,fatman,archer],[1, 1, 1]],7: [3,[magee,archer,fatman],[1, 1, 1]],8: [3,[archer,fatman],[1, 1]],9: [3,[grosehound,fatman,archer],[1, 2, 1]],10: [5,[magee,archer,fatman,grosehound],[1, 2, 1, 2]],11: [5,[magee,archer,fatman],[1, 2, 1]],12: [5,[grosehound,fatman,swordguy],[1, 1, 1]],13: [5,[swordguy,magee,archer,grosehound],[1, 1, 
-2, 1]],14: [5,[swordguy,magee,fatman],[1, 2, 1]],15: [7,[swordguy,magee,archer,grosehound],[1, 2, 1, 1]],16: [7,[magee,archer,grosehound],[1, 1, 1]],17: [7,[magee,conrift,archer],[1, 1, 1]],18: [7,[magee,conrift,archer],[1, 1, 1]],19: [7,[magee,conrift,archer,grosehound],[1, 1, 1, 1]],20: [9,[swordguy,magee,conrift,archer,fatman],[3, 2, 1, 2, 1]],21: [9,[swordguy,magee,conrift,archer],[1, 1, 1, 1]],22: [9,[swordguy,magee,grosehound,fatman,archer],[1, 1, 1, 1, 1]],23: [9,[swordguy,magee,conrift,archer],[1, 1, 1, 1]],24: [9,[swordguy,magee,conrift,archer],[1, 1, 1, 1]],25: [11,[magee,conrift],[1, 1]],26: [12,[magee,conrift,archer],[5, 3, 1]],27: [12,[magee,conrift,archer,fatman],[1, 1, 1, 1]],28: [13,[magee,conrift,grosehound],[1, 1, 2]],29: [14,[magee,conrift,grosehound],[1, 1, 2]],30: [15,[magee,conrift,grosehound],[1, 1, 2]]},0:{4: [1,[archer],[1]]},-1:{14: [2,[spsword],[1]],15: [2,[magee],[1]],16: [2,[magee],[1]],17: [2,[boulderine],[1]],18: [1,[archer],[1]]}}
+2, 1]],14: [5,[swordguy,magee,fatman],[1, 2, 1]],15: [7,[swordguy,magee,archer,grosehound],[1, 2, 1, 1]],16: [7,[magee,archer,grosehound],[1, 1, 1]],17: [7,[magee,conrift,archer],[1, 1, 1]],18: [7,[magee,conrift,archer],[1, 1, 1]],19: [7,[magee,conrift,archer,grosehound],[1, 1, 1, 1]],20: [9,[swordguy,magee,conrift,archer,fatman],[3, 2, 1, 2, 1]],21: [9,[swordguy,magee,conrift,archer],[1, 1, 1, 1]],22: [9,[swordguy,magee,grosehound,fatman,archer],[1, 1, 1, 1, 1]],23: [9,[swordguy,magee,conrift,archer],[1, 1, 1, 1]],24: [9,[swordguy,magee,conrift,archer],[1, 1, 1, 1]],25: [11,[magee,conrift],[1, 1]],26: [12,[magee,conrift,archer],[5, 3, 1]],27: [12,[magee,conrift,archer,fatman],[1, 1, 1, 1]],28: [13,[magee,conrift,grosehound],[1, 1, 2]],29: [14,[magee,conrift,grosehound],[1, 1, 2]],30: [15,[magee,conrift,grosehound],[1, 1, 2]]},0:{4: [2,[archer,spsword],[1, 2]]},-1:{14: [2,[spsword],[1]],15: [2,[magee],[1]],16: [2,[magee],[1]],17: [2,[boulderine],[1]],18: [1,[archer],[1]]}}
 
 O.get_connections()
 
@@ -2845,8 +2977,8 @@ class battle():
         
         self.addchar(ally1)
         
-        #self.addchar(ally2)
-        #
+        self.addchar(ally2)
+        
         #self.addchar(Cri)
         
         self.numberofallies()
@@ -2856,7 +2988,7 @@ class battle():
         pos = new.vec
         eat = new.health
         lean = new.shield
-        self.allies.update({new:[pos,eat,new.clickaura,lean,{}]})
+        self.allies.update({new:[pos,eat,new.clickaura,lean,{},[]]})
         self.alliessave.append(new)
         self.numberofallies()
         ally.init_skilltree(new)
@@ -2871,12 +3003,12 @@ class battle():
                 tout = x.vec
                 eat = x.health
                 attack = x.attacks
-                self.enemy[x].append([tout,eat,x.clickaura,attack,{},0])
+                self.enemy[x].append([tout,eat,x.clickaura,attack,{},[]])
             else: 
                 tout = x.vec
                 eat = x.health
                 attack = x.attacks
-                self.enemy.update({x:[[tout,eat,x.clickaura,attack,{},0]]})
+                self.enemy.update({x:[[tout,eat,x.clickaura,attack,{},[]]]})
         self.numberofenemy()
 
     def draw_allychar(self):
@@ -2976,11 +3108,23 @@ class battle():
     def draw_effects(self):
         for x in self.allies:
             if bleed in self.allies[x][4]:
-                draw_text('bleed',10, RED, self.allies[x][0].x*TILESIZE + 25, self.allies[x][0].y*TILESIZE,align="bottomright")
+                draw_text('bleed',10, RED, self.allies[x][0].x*TILESIZE + 25, self.allies[x][0].y*TILESIZE-10,align="bottomright")
             if fire in self.allies[x][4]:
                 draw_text('fire',10, YELLOW, self.allies[x][0].x*TILESIZE + 25, self.allies[x][0].y*TILESIZE,align="bottomright")
             if stun in self.allies[x][4]:
-                draw_text('stun',10, YELLOW, self.allies[x][0].x*TILESIZE + 25, self.allies[x][0].y*TILESIZE,align="bottomright")
+                draw_text('stun',10, YELLOW, self.allies[x][0].x*TILESIZE + 25, self.allies[x][0].y*TILESIZE+10,align="bottomright")
+            if pierce in self.allies[x][4]:
+                draw_text('pierce',10, ORANGE, self.allies[x][0].x*TILESIZE + 25, self.allies[x][0].y*TILESIZE+20,align="bottomright")
+        for x in self.enemy:
+            lel = 0
+            for ll in self.enemy[x]:
+                if bleed in self.enemy[x][lel][4]:
+                    draw_text('bleed',10, RED, self.enemy[x][lel][0].x*TILESIZE + 25, self.enemy[x][lel][0].y*TILESIZE-10,align="bottomright")
+                if stun in self.enemy[x][lel][4]:
+                    draw_text('stun',10, YELLOW, self.enemy[x][lel][0].x*TILESIZE + 25, self.enemy[x][lel][0].y*TILESIZE-10,align="bottomright")
+                if pierce in self.enemy[x][lel][4]:
+                    draw_text('pierce',10, ORANGE, self.enemy[x][lel][0].x*TILESIZE + 25, self.enemy[x][lel][0].y*TILESIZE-10,align="bottomright")
+                lel += 1
     def checkifdead(self):
         test = dict(self.enemy)
         for x in test:
