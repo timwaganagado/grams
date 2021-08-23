@@ -8,8 +8,8 @@ vec = pg.math.Vector2
 TILESIZE = 30
 GRIDWIDTH = 9
 GRIDHEIGHT = 9
-WIDTH = TILESIZE * GRIDWIDTH
-HEIGHT = TILESIZE * GRIDHEIGHT
+WIDTH = 255
+HEIGHT = 255
 FPS = 30
 BROWN = (165,42,42)
 WHITE = (255, 255, 255)
@@ -35,6 +35,7 @@ def draw_text(text, size, color, x, y, align="topleft"):
 pg.init()
 screen = pg.display.set_mode((WIDTH, HEIGHT))
 clock = pg.time.Clock()
+
 
 running = True
 while running:

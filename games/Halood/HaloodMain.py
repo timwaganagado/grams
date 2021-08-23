@@ -166,7 +166,6 @@ class enemy():
         target = random.choice(possible)
         print(target)
         for x in range(0,damage[3]):
-            
             for x in damage[1]:
                 if x == 0:
                     break
@@ -984,7 +983,7 @@ class ally():
             if when != 0:    
                 M.addchar(self)
             typeoq = 'hunt'
-            enemies = [sword]
+            enemies = [swordguy]
             return typeoq,enemies
         def quest_dialouge(self,when):
             if when == 0:
