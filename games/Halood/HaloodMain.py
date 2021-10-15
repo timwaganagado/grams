@@ -181,44 +181,8 @@ class enemy():
                         dead.append(j[1])
         target = random.choices(possible,agros)[0]
         for x in range(0,damage[3]):
-            for x in damage[1]:
-                if x == 0:
-                    break
-                if fire in x:
-                    if fire in M.allies[target][4]:
-                        M.allies[target][4][fire] += x[fire]
-                    else:
-                        M.allies[target][4].update({fire:x[fire]})
-                if bleed in x:
-                    if M.allies[target][3] == 0:
-                        if bleed in M.allies[target][4]:
-                            M.allies[target][4][bleed] += x[bleed]
-                        else:
-                            M.allies[target][4].update({bleed:x[bleed]})
-                if stun in x:
-                    if stun in M.allies[target][4]:
-                        M.allies[target][4][stun] += x[stun]
-                    else:
-                        M.allies[target][4].update({stun:x[stun]})
-                if weakness in x:
-                    if weakness in M.allies[target][4]:
-                        M.allies[target][4][weakness] += x[weakness]
-                    else:
-                        M.allies[target][4].update({weakness:x[weakness]})
-                if pierce in x:
-                    ll = random.choices([1,2],[80,20])[0]
-                    if ll == 2:
-                        M.allies[target][4].update({pierce:1})
-                        if M.allies[target][3] == 0:
-                            if bleed in M.allies[target][4]:
-                                M.allies[target][4][bleed] += x[bleed]
-                            else:
-                                M.allies[target][4].update({bleed:1})
-                target.damage(damage,initiated,dup)
-            if target in M.damage:
-                M.damage[target].append(int(damage[0]))
-            else:
-                M.damage.update({target:[damage[0]]})
+            target.damage(damage,initiated,dup)
+            
     def damage(target,dup,damage):
         if needle in M.enemy[target][dup][4]:
             stacks = M.enemy[target][dup][4][needle][0]
@@ -771,17 +735,61 @@ class ally():
                     M.enemy[target][dup][4][needle][1] = 2
                 else:
                     M.enemy[target][dup][4].update({needle:[x[needle],2]})
-    def damage(self,target,taken):
-        if M.allies[target][3] > 0:
-            M.allies[target][3] -= taken[0]
-            if pierce in M.allies[target][4]:
-                M.allies[target][3] -= taken[0]
-            if M.allies[target][3] < 0:
-                M.allies[target][3] = 0
+    def damage(self,target,taken,initiated,ll):
+        if taken == 'dodged':
+            if target in M.damage:
+                M.damage[target].append('dodged')
+            else:
+                M.damage.update({target:['dodged']})
         else:
-            M.allies[target][1] -= taken[0]
-            if pierce in M.allies[target][4]:
-                M.allies[target][1] -= taken[0]
+            if "deflect" in M.allies[target][4]:
+                target = M.allies[target][4]["deflect"]
+                target.damage(taken,initiated,ll)
+            else:
+                x = taken[1]
+                if M.allies[target][3] > 0:
+                    M.allies[target][3] -= taken[0]
+                    if pierce in M.allies[target][4]:
+                        M.allies[target][3] -= taken[0]
+                    if M.allies[target][3] < 0:
+                        M.allies[target][3] = 0
+                else:
+                    M.allies[target][1] -= taken[0]
+                    if pierce in M.allies[target][4]:
+                        M.allies[target][1] -= taken[0]
+                    if bleed in x:
+                        if bleed in M.allies[target][4]:
+                            M.allies[target][4][bleed] += x[bleed]
+                        else:
+                            M.allies[target][4].update({bleed:x[bleed]})
+                if fire in x:
+                    if fire in M.allies[target][4]:
+                        M.allies[target][4][fire] += x[fire]
+                    else:
+                        M.allies[target][4].update({fire:x[fire]})
+                if stun in x:
+                    if stun in M.allies[target][4]:
+                        M.allies[target][4][stun] += x[stun]
+                    else:
+                        M.allies[target][4].update({stun:x[stun]})
+                if weakness in x:
+                    if weakness in M.allies[target][4]:
+                        M.allies[target][4][weakness] += x[weakness]
+                    else:
+                        M.allies[target][4].update({weakness:x[weakness]})
+                if pierce in x:
+                    ll = random.choices([1,2],[80,20])[0]
+                    if ll == 2:
+                        M.allies[target][4].update({pierce:1})
+                        if M.allies[target][3] == 0:
+                            if bleed in M.allies[target][4]:
+                                M.allies[target][4][bleed] += x[bleed]
+                            else:
+                                M.allies[target][4].update({bleed:1})
+                if target in M.damage:
+                    M.damage[target].append(int(taken[0]))
+                else:
+                    M.damage.update({target:[taken[0]]})
     def fixclick(self,target):
         pos = vec(18,31)
         for attack in target.attacks:
@@ -851,7 +859,7 @@ class ally():
             if M.allies[self][1] > 50:
                 M.allies[self][1] = 50
         def damage(self,taken,initiated,ll):
-            ally.damage(self,taken)
+            ally.damage(self,taken,initiated,ll)
         def draw_icons(self):
             pos = vec(18,31)
             for attack in self.attacks:
@@ -939,7 +947,7 @@ class ally():
         def passive_endturn(self):
             pass
         def damage(self,taken,initiated,ll):
-            ally.damage(self,taken)
+            ally.damage(self,taken,initiated,ll)
         def draw_icons(self):
             cur = cri_stunicon_img
             goal_center = (int(M.allies[self][0].x * TILESIZE + TILESIZE / 2 + 80), int(M.allies[self][0].y * TILESIZE + TILESIZE / 2 - 50))
@@ -1042,7 +1050,9 @@ class ally():
             self.passive(0)
             hit = random.choices([True,False],[4,self.momentum*self.dodgec])[0]
             if hit:
-                ally.damage(self,taken)
+                ally.damage(self,taken,initiated,ll)
+            else:
+                ally.damage(self,"dodged",initiated,ll)
         def draw_icons(self):
             rect = pg.Rect(int(M.allies[self][0].x*TILESIZE+80), int(M.allies[self][0].y*TILESIZE-50), 20, 135)
             pg.draw.rect(screen,MOMENTUMCOLOR,rect)
@@ -1158,7 +1168,7 @@ class ally():
                 self.attacks[cur][0][1] += 1
             self.acts = 0
         def damage(self,taken,initiated,ll):
-            ally.damage(self,taken)
+            ally.damage(self,taken,initiated,ll)
         def draw_icons(self):
             pos = vec(18,31)
             for attack in self.attacks:
@@ -1298,7 +1308,7 @@ class ally():
             if self.block:
                 taken[0] = int(taken[0]/2)
                 self.saveblock -= taken[0]
-            ally.damage(self,taken)
+            ally.damage(self,taken,initiated,ll)
         def draw_icons(self):
             if self.mimicing:
                 if self.allymimic:
@@ -1391,9 +1401,9 @@ class ally():
             if M.selectedattack == self.attack2:
                 self.plates += 6
                 self.passive(self.attack2)
-            if self.plates != 0:
+            if self.plates != 0 and target != self:
                 if M.selectedattack == self.attack3:
-                    M.allies[self][4].update({'deflect':self})
+                    M.allies[target][4].update({'deflect':self})
                     self.passive(self.attack3)
             else:
                 M.actions.remove(self)
@@ -1411,7 +1421,7 @@ class ally():
             if taken[0] <= 0:
                 taken[0] = 0
             self.plates -= 2
-            ally.damage(self,taken)
+            ally.damage(self,taken,initiated,ll)
         def draw_icons(self):
             xdif = 0
             ydif = 0
@@ -1497,7 +1507,6 @@ class ally():
         def passive_endturn(self):
             pass
         def damage(self,taken,initiated,ll):
-            print(initiated,ll)
             if needle in M.enemy[initiated][ll][4]:
                 stacks = M.enemy[initiated][ll][4][needle][0]
                 chance = 100/stacks
@@ -1508,7 +1517,9 @@ class ally():
                 otherchance = 100-chance
                 hit = random.choices([True,False],[otherchance,chance])[0]
             if hit:
-                ally.damage(self,taken)
+                ally.damage(self,taken,initiated,ll)
+            else:
+                ally.damage(self,"dodged",initiated,ll)
         def draw_icons(self):
             pos = vec(18,31)
             for attack in self.attacks:
@@ -1560,11 +1571,11 @@ ally = ally()
 iconaura = [(2, 2), (2, 1), (2, 0), (2, -1), (2, -2), (1, -2), (1, -1), (1, 0), (1, 1), (1, 2), (0, 2), (0, 1), (0, 0), (0, -1), (0, -2), (-1, -2), (-1, -1), (-1, 0), (-1, 1), (-1, 2), (-2, 2), (-2, 1), (-2, 0), (-2, -1), (-2, -2)]            
 
 zither = ally.zither()
-zither_combat_img = pg.image.load(os.path.join(filename,'cross-1.png.png')).convert_alpha()
+zither_combat_img = pg.image.load(os.path.join(filename,'zither_combat0.png')).convert_alpha()
 zither_combat_img = pg.transform.scale(zither_combat_img, (256, 256))
-zither_combat2_img = pg.image.load(os.path.join(filename,'cross-1.png.png')).convert_alpha()
+zither_combat2_img = pg.image.load(os.path.join(filename,'zither_combat1.png')).convert_alpha()
 zither_combat2_img = pg.transform.scale(zither_combat2_img, (256, 256))
-zither_combat3_img = pg.image.load(os.path.join(filename,'cross-1.png.png')).convert_alpha()
+zither_combat3_img = pg.image.load(os.path.join(filename,'zither_combat2.png')).convert_alpha()
 zither_combat3_img = pg.transform.scale(zither_combat3_img, (256, 256))
 zither_ability1_img = pg.image.load(os.path.join(filename,'cross-1.png.png'))
 zither_ability1_img = pg.transform.scale(zither_ability1_img, (128, 128))
@@ -1596,19 +1607,19 @@ for x in aura:
     zither.clickaura.append(vec(x))
 
 fairum = ally.fairum()
-fairum_combat_img = pg.image.load(os.path.join(filename,"fairum_combat.png")).convert_alpha()
+fairum_combat_img = pg.image.load(os.path.join(filename,"fairum_combat0.png")).convert_alpha()
 fairum_combat_img = pg.transform.scale(fairum_combat_img, (256, 256))
-fairum_combat2_img = pg.image.load(os.path.join(filename,"fairum_combat.png")).convert_alpha()
+fairum_combat2_img = pg.image.load(os.path.join(filename,"fairum_combat1.png")).convert_alpha()
 fairum_combat2_img = pg.transform.scale(fairum_combat2_img, (256, 256))
-fairum_combat3_img = pg.image.load(os.path.join(filename,"fairum_combat.png")).convert_alpha()
+fairum_combat3_img = pg.image.load(os.path.join(filename,"fairum_combat2.png")).convert_alpha()
 fairum_combat3_img = pg.transform.scale(fairum_combat3_img, (256, 256))
-fairum_ability1_img = pg.image.load(os.path.join(filename,'cross-1.png.png'))
+fairum_ability1_img = pg.image.load(os.path.join(filename,'fairum_abilites0.png'))
 fairum_ability1_img = pg.transform.scale(fairum_ability1_img, (128, 128))
-fairum_ability2_img = pg.image.load(os.path.join(filename,'cross-1.png.png'))
+fairum_ability2_img = pg.image.load(os.path.join(filename,'fairum_abilites1.png'))
 fairum_ability2_img = pg.transform.scale(fairum_ability2_img, (128, 128))
-fairum_ability3_img = pg.image.load(os.path.join(filename,'cross-1.png.png'))
+fairum_ability3_img = pg.image.load(os.path.join(filename,'fairum_abilites2.png'))
 fairum_ability3_img = pg.transform.scale(fairum_ability3_img, (128, 128))
-fairum_ability4_img = pg.image.load(os.path.join(filename,'cross-1.png.png'))
+fairum_ability4_img = pg.image.load(os.path.join(filename,'fairum_abilites3.png'))
 fairum_ability4_img = pg.transform.scale(fairum_ability4_img, (128, 128))
 fairum.attack1 = 'plate push'
 fairum.attack2 = 'construct'
@@ -1835,7 +1846,7 @@ sillid.clickaura = []
 for x in aura:
     sillid.clickaura.append(vec(x))
 
-playing = nover
+playing = fairum
 
 class dialouge_master():
     class cri():
@@ -3317,7 +3328,7 @@ class battle():
         
         self.addchar(playing)
         
-        #self.addchar(zither)
+        self.addchar(zither)
         
         #self.addchar(Cri)
         
@@ -3431,9 +3442,12 @@ class battle():
         for x in self.damage:
             damage = 0
             for y in self.damage[x]:
-                if y == 0:
-                    draw_text('miss',30,RED,self.allies[x][0].x*TILESIZE, self.allies[x][0].y*TILESIZE-170,align="bottomright")  
-                damage += y
+                if y == 'dodged':
+                    draw_text('dodged',30,RED,self.allies[x][0].x*TILESIZE, self.allies[x][0].y*TILESIZE-130,align="bottomright") 
+                else:
+                    if y == 0:
+                        draw_text('miss',30,RED,self.allies[x][0].x*TILESIZE, self.allies[x][0].y*TILESIZE-170,align="bottomright")  
+                    damage += y
             if x in self.allies:
                 draw_text(str(damage),30,RED,self.allies[x][0].x*TILESIZE, self.allies[x][0].y*TILESIZE-150,align="bottomright")    
     def draw_background(self):
@@ -3807,7 +3821,7 @@ bonnied
 evolution of a halood
 affects bones
 
-
+primopsed va
 
 NAMES 
 lunal nothing yet
@@ -3820,7 +3834,7 @@ tullate nothing yet
 
 Coulion electric canon guy
 
-zither xanth user comes from macrodoen
+zither xanth user comes from macrodoen, dancing assasins called the comerance, special dress called a nintine
 
 adine psycic
 heneric gas guy
