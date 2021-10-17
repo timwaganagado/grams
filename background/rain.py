@@ -55,7 +55,7 @@ class raining():
             #up = random.choices([True,False])[0]
             up = True
             if up:
-                self.drops.update({o:[((random.choice(direction)*random.random()*10),(random.choice(direction)+random.random())*0),(random.randint(0,255),random.randint(0,255),random.randint(0,255))]})
+                self.drops.update({o:[((random.choice(direction)*random.random()*10),(0)),(random.randint(0,255),random.randint(0,255),random.randint(0,255))]})
             else:
                 self.drops.update({o:[(0*10,random.choice(direction)*10),(random.randint(0,255),random.randint(0,255),random.randint(0,255))]})
     def fall(self):
@@ -82,7 +82,7 @@ class raining():
             old = vec(x)
             new += change
             newchange = vec(change)
-            newchange *= 0.999
+            newchange *= 1
             #drop = pg.Rect(new.x,new.y, 1, 1)
             #pg.draw.rect(screen,WHITE,drop)
             (255, 0, 0)
@@ -90,7 +90,7 @@ class raining():
             #show = random.choices([True,False],[50,50])[0]
             #if show:
             
-            pg.gfxdraw.line(screen,int(new.x),int(new.y),int(old.y),int(new.x), colour)
+            pg.gfxdraw.line(screen,int(new.x),int(new.y),int(old.x),int(old.y), colour)
             if (0 <= new.x < WIDTH and 0 <= new.y < HEIGHT) and not ( -0.09 < newchange.x < 0.09 and -0.09 < newchange.y < 0.09):
                 self.drops.update({(new.x,new.y):[(newchange.x,newchange.y),colour]})
                 
@@ -126,6 +126,6 @@ while running:
         anim_timer = pg.time.get_ticks()
     R.fall()
     pg.gfxdraw.filled_circle(screen, int(WIDTH/2), int(HEIGHT/2), 50, BLACK)
-    pg.gfxdraw.aacircle(screen, int(WIDTH/2), int(HEIGHT/2), 50, BLACK)
+    pg.gfxdraw.aacircle(screen, int(WIDTH/2), int(HEIGHT/2), 50, WHITE)
     # anything down here will be displayed ontop of anything above
     pg.display.flip() # dose the changes goto doccumentation for other ways
