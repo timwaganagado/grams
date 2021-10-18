@@ -191,6 +191,8 @@ class enemy():
             target.damage(damage,initiated,dup)
             
     def damage(target,dup,damage):
+        if pierce in M.enemy[target][dup][4]:
+            damage *= 1.5
         M.enemy[target][dup][1] -= damage 
         M.enemy[target][dup][5].append(damage)
         total = 0
@@ -201,7 +203,6 @@ class enemy():
                 done = False
             else:    
                 total += ll
-            print(ll)
             if ll != 'done':
                 if ll >= 5:
                     amount += 1
@@ -524,7 +525,7 @@ auras = [(1, 2), (0, 2), (-1, 2), (-2, 2), (-3, 2), (-3, 1), (-2, 1), (-1, 1), (
 rentoron.clickaura = []
 for aura in auras:
     rentoron.clickaura.append(vec(aura))
-rentoron.attacks = {'jump':[2,{charge:1},True,1,2],'smack':[5,{},True,1,4],'miss':[0,{},False,1,0]}
+rentoron.attacks = {'jump':[2,{charge:1},True,1,2],'smack':[5,{},False,1,4],'miss':[0,{},False,1,0]}
 rentoron.stagger = 13
 
 grosehund_combat_img = pg.image.load(os.path.join(filename,'grosehund_combat0.png')).convert_alpha()
@@ -796,17 +797,18 @@ class ally():
                 target.damage(taken,initiated,ll)
             else:
                 x = taken[1]
-                print(taken)
+                damage = int(taken[0])
+                damage = ally.checkblessing('defending',target,damage,initiated,ll)
                 if M.allies[target][3] > 0:
-                    M.allies[target][3] -= taken[0]
+                    M.allies[target][3] -= damage
                     if pierce in M.allies[target][4]:
-                        M.allies[target][3] -= taken[0]
+                        M.allies[target][3] -= damage
                     if M.allies[target][3] < 0:
                         M.allies[target][3] = 0
                 else:
-                    M.allies[target][1] -= taken[0]
+                    M.allies[target][1] -= damage
                     if pierce in M.allies[target][4]:
-                        M.allies[target][1] -= taken[0]
+                        M.allies[target][1] -= damage
                     if bleed in x:
                         if bleed in M.allies[target][4]:
                             M.allies[target][4][bleed] += x[bleed]
@@ -824,9 +826,6 @@ class ally():
                                     M.allies[target][4].update({bleed:1})
                     else:
                         if bleed != y:
-                            print(target)
-                            print(M.allies[target])
-                            print(y)
                             if y in M.allies[target][4]:
                                 M.allies[target][4][y] += x[y]
                             else:
@@ -834,9 +833,9 @@ class ally():
                 
                 
                 if target in M.damage:
-                    M.damage[target].append(int(taken[0]))
+                    M.damage[target].append(damage)
                 else:
-                    M.damage.update({target:[taken[0]]})
+                    M.damage.update({target:[damage]})
     def fixclick(self,target):
         pos = vec(18,31)
         for attack in target.attacks:
@@ -870,42 +869,55 @@ class ally():
             y = int(pos.y*TILESIZE-35)
             rect = pg.Rect(x, y, 50, 50)
             target.abilities[z][0] = rect
+    def checkblessing(self,when,target,damage,aimed,dup):
+        if target.blessing != -1:
+            damage = B.checkblessing(B.inventory[target.blessing][1],when,damage,target,aimed,dup)
+        return damage
     class heplane():
         def __init__(self):
             self.attack1 = 0
         def attack(self,target,attack):
             target,dup = target
-            blooddamage = int(M.allies[H][1])/int(self.health)+1+self.inc
+            blooddamage = int(M.allies[self][1])/int(self.health)+1+self.inc
             if attack == self.attack1:
                 M.allies[self][1] -= 10
             if self.attack3 in self.unlockedabilites:
                 self.healdam += int((blooddamage * self.attacks[attack][0])/2)
             damage = blooddamage * self.attacks[attack][0]
             damage = ally.checkattack(damage,self)
+            damage = ally.checkblessing('attacking',self,damage,target,dup)
+            self.passive()
             target.damage(dup,damage)
             ally.applyeffects(target,dup,attack,self)
+            
         def support(self,target):
             if M.selectedattack == self.attack3:
                 if self.attack3 in self.unlockedabilites:
+                    self.passive()
                     M.allies[self][1] += self.healdam
                     self.healdam = 0
                     if M.allies[self][1] > 50:
                         M.allies[self][1] = 50
                 else:
-                    M.actions.remove(H)
+                    M.actions.remove(self)
             if M.selectedattack == self.attack4:
                 if self.attack4 in self.unlockedabilites:
+                    self.passive()
                     M.allies[self][3] += self.attacks[self.attack4][0]
                     M.allies[self][1] -= 10
                     if M.allies[self][3] > 50:
                         M.allies[self][3] = 50
                 else:
-                    M.actions.remove(H)
+                    M.actions.remove(self)
+        def passive(self):
+            damage = ally.checkblessing('passive',self,0,0,0)
         def passive_endturn(self):
+            damage = ally.checkblessing('endpassive',self,0,0,0)
             M.allies[self][1] += 10
             if M.allies[self][1] > 50:
                 M.allies[self][1] = 50
         def damage(self,taken,initiated,ll):
+            
             ally.damage(self,taken,initiated,ll)
         def draw_icons(self):
             pos = vec(18,31)
@@ -923,7 +935,7 @@ class ally():
                 goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))
                 screen.blit(icon, icon.get_rect(center=goal_center))
                 if attack == self.attack1 or attack == self.attack2:
-                    text = str(round(int((M.allies[H][1]/self.health+1) * self.attacks[attack][0])))
+                    text = str(round(int((M.allies[self][1]/self.health+1) * self.attacks[attack][0])))
                     draw_text(text, 20, RED, pos.x*TILESIZE, pos.y*TILESIZE + 75)
                 if attack == self.attack3:
                     text = str(self.healdam)
@@ -1650,6 +1662,7 @@ zither.agro = 1
 zither.immunities = []
 zither.abilities = {zither.attack3:[0,vec(47,17),'Intemidate the enemies making it more likely to attack zither'],zither.attack4:[0,vec(47,20),'zither will retract her needles and convert them to shield'],'annihilation':[0,vec(47,23),'Annihilate will deal more damage'],'light feet':[0,vec(47,26),"Zither can dodge attacks even when enemies don't have needles"]}
 zither.unlockedabilites = []
+zither.blessing = -1
 zither.dodgeskill = 0
 zither.exp = 0
 zither.lvl = 0
@@ -1689,6 +1702,7 @@ fairum.plates = 1
 fairum.plateslimit = 10
 fairum.abilities = {fairum.attack4:[0,vec(47,17),'Use plates to deal AOE damage'],'increase':[0,vec(47,20),'Increase plate limit up to 15'],fairum.attack3:[0,vec(47,23),'Project plates to protect allies']}
 fairum.unlockedabilites = []
+fairum.blessing = -1
 fairum.exp = 0
 fairum.lvl = 0
 fairum.needtolvl = 10
@@ -1747,6 +1761,7 @@ nover.saveblock = 0
 nover.inc = 0
 nover.abilities = {nover.attack4:[0,vec(47,17),'mimic allies actions'],'increase':[0,vec(47,20),'Increases damage by 0.1'],'static blood':[0,vec(47,23),'allows heplane to trade health for shields']}
 nover.unlockedabilites = []
+nover.blessing = -1
 nover.exp = 0
 nover.lvl = 0
 nover.needtolvl = 10
@@ -1787,6 +1802,7 @@ H.healdam = 0
 H.inc = 0
 H.abilities = {H.attack3:[0,vec(47,17),'heal for half the damage dealt on enemies'],'increase':[0,vec(47,20),'Increases damage by 0.1'],H.attack4:[0,vec(47,23),'allows heplane to trade health for shields']}
 H.unlockedabilites = []
+H.blessing = -1
 H.exp = 0
 H.lvl = 0
 H.needtolvl = 10
@@ -1824,6 +1840,7 @@ Cri.stuncap = 7
 Cri.inc = 0
 Cri.abilities = {'stun':[0,vec(47,17),'decreases the damage needed to stun from 7 to 6'],'increase':[0,vec(47,20),'increases the value that abilites increase to 2 rather then 1']}
 Cri.unlockedabilites = []
+Cri.blessing = -1
 Cri.exp = 0
 Cri.lvl = 0
 Cri.needtolvl = 10
@@ -1860,6 +1877,7 @@ Hap.dodgec = 0
 Hap.attacktwice = False
 Hap.abilities = {Hap.attack3:[0,vec(47,17),'An ability which when activated the next turns attack will happen twice'],'increase':[0,vec(47,20),'Increase all attacks by 1'],'dodge':[0,vec(47,23),'allows haptic to dodge attacks']}
 Hap.unlockedabilites = []
+Hap.blessing = -1
 Hap.exp = 0
 Hap.lvl = 0
 Hap.needtolvl = 10
@@ -1898,6 +1916,7 @@ sillid.inc = 0
 sillid.chance = 0
 sillid.abilities = {sillid.attack4:[0,vec(47,17),'access to uranium arrows appears sometimes when restocking'],'increase':[0,vec(47,20),'Increase all attacks by 1'],'critical':[0,vec(47,23),'crits bud']}
 sillid.unlockedabilites = []
+sillid.blessing = -1
 sillid.exp = 0
 sillid.lvl = 0
 sillid.needtolvl = 10
@@ -1907,7 +1926,7 @@ sillid.clickaura = []
 for x in aura:
     sillid.clickaura.append(vec(x))
 
-playing = fairum
+playing = H
 '''
 NAMES 
 
@@ -2209,7 +2228,7 @@ class main():
             M.draw_allychar()
             M.draw_enemychar()
             M.draw_icons()
-            M.draw_effects()
+            
             if ui.pause:
                 M.draw_allychar()
                 M.draw_enemychar()
@@ -2248,7 +2267,6 @@ class main():
                     self.display_time_start = pg.time.get_ticks()  
                     self.enemy_damage = pg.time.get_ticks()
                     self.display_time = pg.time.get_ticks()
-                    print(M.enemy[self.little[self.attacks][0]][self.little[self.attacks][1]][4])
                     if stun not in M.enemy[self.little[self.attacks][0]][self.little[self.attacks][1]][4]:
                         M.enemy[self.little[self.attacks][0]][self.little[self.attacks][1]][6] = True
                     self.flop = True
@@ -2324,7 +2342,7 @@ class main():
                         main.current_state = 'menu'
                         M.loss = False
                         main.endscreen_timer = 0
-                
+            M.draw_effects()   
     def leveltop(self):
         if self.current_state == 'map':
             if M.tutorial:
@@ -2351,6 +2369,12 @@ class main():
             shop.draw_shopkeeps()   
             shop.draw_shopinventory()
             M.draw_allychar()
+    def eventtop(self):
+        if self.current_state == 'event':
+            re.click()
+    def eventbottom(self):
+        if self.current_state == 'event':
+            re.draw_event()
     def switchtop(self):
         if self.current_state == 'switch':
             if M.tutorial:
@@ -3006,8 +3030,9 @@ class level():
                 if x == self.tiersecq:
                     tier = 'hunt'
             if tier == 'event':
-                print(random.choice(re.eventmaster))
-            if tier == 'battle':
+                enemies = random.choices(re.events,re.eventchance)[0]
+                self.make(line,enemies,tier,x)
+            elif tier == 'battle':
                 if x.x in self.levelmaster:
                     level,b = self.finddis(x)
                     enemies = []
@@ -3113,6 +3138,8 @@ class level():
                         M.start()
                     elif 'shop' == tier:
                         shop.shopstart()
+                    elif 'event' == tier:
+                        re.eventstart()
                     L.get_connections()
                     main.current_state = tier
                     if 'quest' == tier or 'hunt' == tier:
@@ -3286,13 +3313,304 @@ ui.done = 0
 class randomevent():
     def __init__(self):
         self.vec = 0
-    def addevent(self,name,dialouge,typeoe,reward):
+    def addevent(self,name,dialouge,typeoe,reward,chance):
         self.eventmaster.update({name:{'type':typeoe,'dialouge':dialouge,'reward':reward}})
-
+        self.events.append(name)
+        self.eventchance.append(chance)
+    def click(self):
+        if self.savedone == -1:
+            self.done += 1
+        else: 
+            self.done += 1
+            self.savedone  = -1
+        if self.done >= len(self.eventmaster[self.currentevent]['dialouge']):
+            main.current_state = 'map'
+            self.done = 0
+            if self.eventmaster[self.currentevent]['type'] == 'gold':
+                main.amountmoney += self.eventmaster[self.currentevent]['reward']
+            if self.eventmaster[self.currentevent]['type'] == 'blessing':
+                B.addinventory(self.eventmaster[self.currentevent]['reward'])
+            if self.eventmaster[self.currentevent]['type'] == 'xp':
+                for x in M.allies:
+                    x.exp += 10
+                    x.checklevel()
+    def draw_event(self):
+        x = int(WIDTH/2)
+        y = int(HEIGHT/2+100)
+        rect = pg.Rect(0, 0, 1400, 400)
+        rect.center = x,y
+        pg.draw.rect(screen,BLACK,rect)
+        if type(self.eventmaster[self.currentevent]['dialouge'][self.done]) is not list:
+            txt = self.eventmaster[self.currentevent]['dialouge'][self.done]
+        else:
+            if self.savedone != -1:
+                txt = self.savedone
+            else:    
+                self.savedone = random.choice(self.eventmaster[self.currentevent]['dialouge'][self.done])
+                txt = self.savedone
+                print(txt)
+        if txt != 0:
+            draw_text_center(txt,50,WHITE,x,y)
+        else:
+            self.click()
+    def eventstart(self):
+        self.currentevent,e = L.getlevel()
 re = randomevent()
 re.eventmaster = {}
-re.addevent('unimportant hill',['You found a small hill nothing important'],'empty',0)
-re.addevent('imprtant hill',['You found a small hill seems like a battle happend','you found 10 gold'],'gold',20)
+re.events = []
+re.eventchance = []
+re.done = 0
+re.savedone = -1
+re.addevent('unimportant hill',['You found a small hill nothing important',['The earth is stained with what looks like a fight that happend eons ago',0,'It seems that the hill is man made']],'empty',0,100)
+re.addevent('improtant hill',['You found a small hill seems like a battle happend','you found 20 gold'],'gold',20,40)
+re.addevent('broken ultar',['You found a hidden ultar','as you aproach, the ultar glows','then crumbles'],'blessing',0,5)
+re.addevent('functioning ultar',['You found a hidden ultar','as you aproach, the ultar glows','then burns'],'blessing',1,5)
+re.addevent('unispiring plains',['You come across some plains','The reeds whistle in the wind','You find nothing important'],'empty',0,60)
+re.addevent('ispiring plains',['You come across some plains','The reeds whistle in the wind','You find that some how, you learnt something'],'xp',10,30)
+
+class blessings():
+    def __init__(self):
+        self.vec = 0
+    def draw_blessingi(self):
+        pass
+    def checkblessing(self,version,when,amount,target,aimed,dup):
+        if when == 'attacking':
+            amount = version.attack(amount,target,aimed,dup)
+        if when == 'passive':
+            amount = version.passive(amount,target)
+        if when == 'endpassive':
+            amount = version.endpassive(amount,target)
+        if when == 'defending':
+            amount = version.defend(amount,target,aimed,dup)
+        return amount
+    def init_inventory(self):
+        for z in self.inventory:
+            pos = self.inventory[z][1]
+            x = int(pos.x*TILESIZE-230)
+            y = int(pos.y*TILESIZE-35)
+            rect = pg.Rect(x, y, 50, 50)
+            self.inventory[z][0] = rect
+    def addblessing(self,thing,less,norm,great,ultra,chan):
+        self.master.update({thing:[less,norm,great,ultra]})
+        self.masterrand.append(thing)
+        self.masterchance.append(chan)
+    def addinventory(self,amount):
+        for x in range(0,amount):
+            gen = random.choices(self.masterrand,self.masterchance)[0]
+            spec = random.choices(self.master[gen],[60,30,10,1])[0]
+            i = 0
+            for y in self.inventory:
+                i +=1
+            self.inventory.update({i:[gen,spec]})
+            self.test.append(spec)
+    class halood():
+        def __init__(self):
+            self.vec = 0
+        class lesser():
+            def __init__(self):
+                self.vec = 0
+            def attack(self,amount,target,aimed,dup):
+                M.allies[target][1] -= 5
+                return amount
+            def passive(self,amount,target):
+                return amount
+            def endpassive(self,amount,target):
+                M.allies[target][1] += 10
+                return amount
+            def defend(self,amount,target,aimed,dup):
+                return amount
+        class normal():
+            def __init__(self):
+                self.vec = 0
+            def attack(self,amount,target,aimed,dup):
+                amount += 10
+                hit = random.choice([True,False])
+                if hit:
+                    M.allies[target][1] -= 5
+                return amount
+            def passive(self,amount,target):
+                return amount
+            def endpassive(self,amount,target):
+                M.allies[target][1] += 10
+                return amount
+            def defend(self,amount,target,aimed,dup):
+                return amount
+        class greater():
+            def __init__(self):
+                self.vec = 0
+            def attack(self,amount,target,aimed,dup):
+                amount += 10
+                hit = random.choices([True,False],[30,70])[0]
+                if hit:
+                    M.allies[target][1] -= 5
+                return amount
+            def passive(self,amount,target):
+                M.allies[target][1] += 5
+                return amount
+            def endpassive(self,amount,target):
+                return amount
+            def defend(self,amount,target,aimed,dup):
+                return amount
+        class ultrated():
+            def __init__(self):
+                self.vec = 0
+            def attack(self,amount,target,aimed,dup):
+                amount += 10
+                return amount
+            def passive(self,amount,target):
+                M.allies[target][1] += 5
+                return amount
+            def endpassive(self,amount,target):
+                M.allies[target][1] += 5
+                return amount
+            def defend(self,amount,target,aimed,dup):
+                return amount
+    class tulem():
+        def __init__(self):
+            self.vec = 0
+        class lesser():
+            def __init__(self):
+                self.vec = 0
+            def attack(self,amount,target,aimed,dup):
+                amount += 10
+                return amount
+            def passive(self,amount,target):
+                return amount
+            def endpassive(self,amount,target):
+                return amount
+            def defend(self,amount,target,aimed,dup):
+                return amount
+        class normal():
+            def __init__(self):
+                self.vec = 0
+            def attack(self,amount,target,aimed,dup):
+                print(M.enemy[aimed][dup][4])
+                if bleed in M.enemy[aimed][dup][4]:
+                    M.enemy[aimed][dup][4][bleed] += 1
+                else:
+                    M.enemy[aimed][dup][4].update({bleed:1})
+                amount += 10
+                return amount
+            def passive(self,amount,target):
+                return amount
+            def endpassive(self,amount,target):
+                return amount
+            def defend(self,amount,target,aimed,dup):
+                return amount
+        class greater():
+            def __init__(self):
+                self.vec = 0
+            def attack(self,amount,target,aimed,dup):
+                amount += 10
+                if bleed in M.enemy[aimed][dup][4]:
+                    M.enemy[aimed][dup][4][bleed] += 1
+                else:
+                    M.enemy[aimed][dup][4].update({bleed:1})
+                hit = random.choices([True,False],[30,70])[0]
+                if hit:
+                    if pierce in M.enemy[aimed][dup][4]:
+                        M.enemy[aimed][dup][4][pierce] += 1
+                    else:
+                        M.enemy[aimed][dup][4].update({pierce:1})
+                return amount
+            def passive(self,amount,target):
+                return amount
+            def endpassive(self,amount,target):
+                return amount
+            def defend(self,amount,target,aimed,dup):
+                return amount
+        class ultrated():
+            def __init__(self):
+                self.vec = 0
+            def attack(self,amount,target,aimed,dup):
+                amount += 10
+                if bleed in M.enemy[aimed][dup][4]:
+                    M.enemy[aimed][dup][4][bleed] += 1
+                else:
+                    M.enemy[aimed][dup][4].update({bleed:1})
+                if pierce in M.enemy[aimed][dup][4]:
+                    M.enemy[aimed][dup][4][pierce] += 1
+                else:
+                    M.enemy[aimed][dup][4].update({pierce:1})
+                return amount
+            def passive(self,amount,target):
+                return amount
+            def endpassive(self,amount,target):
+                return amount
+            def defend(self,amount,target,aimed,dup):
+                hit = random.choices([True,False],[30,70])
+                if hit:
+                    amount /= 2
+                return amount
+
+B = blessings()
+B.inventory = {}
+B.master = {}
+B.masterrand = []
+B.masterchance = []
+B.test = []
+
+haloodblessing = B.halood()
+
+hblesser = haloodblessing.lesser()
+hblesser.text = 'Halood Lesser'
+hblesser.txt = 'Attacks will remove 5 health, also at the end of combat 10 health will be restored.'
+hb_lesser_img = pg.image.load(os.path.join(filename,'cross-1.png.png')).convert_alpha()
+hblesser.img = pg.transform.scale(hb_lesser_img, (64, 64))
+hbnormal = haloodblessing.normal()
+hbnormal.text = 'Halood Normal'
+hbnormal.txt = 'Attacks will deal more damage and randomly remove 10 health, also at the end of combat 10 health will be restored.'
+hb_normal_img = pg.image.load(os.path.join(filename,'cross-1.png.png')).convert_alpha()
+hbnormal.img = pg.transform.scale(hb_normal_img, (64, 64))
+hbgreater = haloodblessing.greater()
+hbgreater.text = 'Halood Greater'
+hbgreater.txt = 'Attacks will deal more damage and rarely remove 10 health, also at the end of each turn 5 health will be restored.'
+hb_greater_img = pg.image.load(os.path.join(filename,'cross-1.png.png')).convert_alpha()
+hbgreater.img = pg.transform.scale(hb_greater_img, (64, 64))
+hbultrated = haloodblessing.ultrated()
+hbultrated.text = 'Halood Ultrated'
+hbultrated.txt = 'Attacks will deal more damage will never remove health, also at the end of each turn and combat 5 health will be restored.'
+hb_ultra_img = pg.image.load(os.path.join(filename,'cross-1.png.png')).convert_alpha()
+hbultrated.img = pg.transform.scale(hb_ultra_img, (64, 64))
+chance = 60
+B.addblessing(haloodblessing,hblesser,hbnormal,hbgreater,hbultrated,chance)
+
+tulemblessing = B.tulem()
+
+tblesser = tulemblessing.lesser()
+tblesser.text = 'Tulem Lesser'
+tblesser.txt = 'Attacks will deal more damage.'
+lesser_img = pg.image.load(os.path.join(filename,'cross-1.png.png')).convert_alpha()
+tblesser.img = pg.transform.scale(lesser_img, (64, 64))
+tbnormal = tulemblessing.normal()
+tbnormal.text = 'Tulem Normal'
+tbnormal.txt = 'Attacks will deal more damage and apply bleed.'
+normal_img = pg.image.load(os.path.join(filename,'cross-1.png.png')).convert_alpha()
+tbnormal.img = pg.transform.scale(normal_img, (64, 64))
+tbgreater = tulemblessing.greater()
+tbgreater.text = 'Tulem Greater'
+tbgreater.txt = 'Attacks will deal more damage and apply bleed with the chance of piercing.'
+greater_img = pg.image.load(os.path.join(filename,'cross-1.png.png')).convert_alpha()
+tbgreater.img = pg.transform.scale(greater_img, (64, 64))
+tbultrated = tulemblessing.ultrated()
+tbultrated.text = 'Tulem Ultrated'
+tbultrated.txt = 'Attacks will deal more damage and apply bleed and piercing, also chance to reduce damage by half.'
+tb_ultra_img = pg.image.load(os.path.join(filename,'cross-1.png.png')).convert_alpha()
+tbultrated.img = pg.transform.scale(tb_ultra_img, (64, 64))
+chance = 60
+B.addblessing(tulemblessing,tblesser,tbnormal,tbgreater,tbultrated,chance)
+
+o = 1
+while tbultrated not in B.test:
+    B.addinventory(1)
+    o+=1
+    if o % 20 == 0:
+        print(o)
+        B.inventory = {}
+print(len(B.test))
+
+#B.inventory = {}
+#B.addinventory(5)
 
 class quest():
     def __init__(self):
@@ -3342,54 +3660,160 @@ class battle():
         self.enemy = 0
         self.display = 0
         self.damage = 0
+        
+        pos = vec(25,30)
+        x = int(pos.x*TILESIZE-230)
+        y = int(pos.y*TILESIZE-35)
+        self.swapbutton = pg.Rect(x, y, 135, 30)
+        pg.draw.rect(screen,BLACK,self.swapbutton)
+        self.swaptext = [0,20,WHITE,x+5, y]
+        
         pos = vec(20,30)
         x = int(pos.x*TILESIZE-230)
         y = int(pos.y*TILESIZE-35)
-        rect = pg.Rect(x, y, 135, 30)
-        self.swapbutton = pg.draw.rect(screen,BLACK,rect)
-        pos = vec(20,10)
+        self.exitbutton = pg.Rect(x, y, 135, 30)
+        pg.draw.rect(screen,BLACK,self.exitbutton)
+        text = 'map'
+        self.exittext = [text,20,WHITE,x+5, y]
+        
+        pos = vec(30,30)
         x = int(pos.x*TILESIZE-230)
         y = int(pos.y*TILESIZE-35)
-        rect = pg.Rect(x, y, 135, 30)
-        self.exitbutton = pg.draw.rect(screen,BLACK,rect)
+        self.blessingbutton = pg.Rect(x, y, 135, 30)
+        pg.draw.rect(screen,BLACK,self.blessingbutton)
+        self.blessingtext = [0,20,WHITE,x+5, y]
         
     def draw_switchbuttons(self):
+        
         pg.draw.rect(screen,BLACK,self.swapbutton)
-        pos = vec(20,30)
-        x = int(pos.x*TILESIZE-230)
-        y = int(pos.y*TILESIZE-35)
+        a = self.swaptext
         text = 'done'
         if self.swap == False:
             text = 'change order'
-        draw_text(text,20,WHITE,x+5, y)
+        draw_text(text,a[1],a[2],a[3],a[4])
         
         pg.draw.rect(screen,BLACK,self.exitbutton)
-        pos = vec(20,10)
-        x = int(pos.x*TILESIZE-230)
-        y = int(pos.y*TILESIZE-35)
-        text = 'map'
-        draw_text(text,20,WHITE,x+5, y)
+        a = self.exittext
+        draw_text(a[0],a[1],a[2],a[3],a[4])
+        
+        pg.draw.rect(screen,BLACK,self.blessingbutton)
+        a = self.blessingtext
+        text = 'skills'
+        if self.skills == False:
+            text = 'blessings'
+        draw_text(text,a[1],a[2],a[3],a[4])
 
-        if self.selectedchar != 0:
-            ally.draw_skilltree(self.selectedchar)
-            if self.selectedability != 0:
-                draw_text(self.selectedchar.abilities[self.selectedability][2],20,BLACK,(self.selectedchar.abilities[self.selectedability][1].x-5)*TILESIZE,self.selectedchar.abilities[self.selectedability][1].y*TILESIZE)
-    def switch(self):
-        if self.selectedchar != 0:
-            for k in self.selectedchar.abilities:
-                if self.selectedchar.abilities[k][0].collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)) and k not in self.selectedchar.unlockedabilites:
-                    if self.selectedability != 0 and k == self.selectedability and self.selectedchar.lvl > 0:
-                        self.selectedchar.skill(k)
-                        self.selectedchar.lvl -= 1
-                        self.selectedability = 0
+        if self.skills == False:
+            if self.selectedchar != 0:
+                ally.draw_skilltree(self.selectedchar)
+                if self.selectedability != 0:
+                    draw_text(self.selectedchar.abilities[self.selectedability][2],20,BLACK,(self.selectedchar.abilities[self.selectedability][1].x-5)*TILESIZE,self.selectedchar.abilities[self.selectedability][1].y*TILESIZE)
+        else:
+            pos = vec(18,4)
+            for k in B.inventory:
+                cur = B.inventory[k][1].img.copy()
+                
+                goal_center = (int(pos.x * TILESIZE*2 + TILESIZE*2 / 2), int(pos.y * TILESIZE*2 + TILESIZE*2 / 2))
+                
+                for x in M.allies:
+                    if x.blessing == k:
+                        cur.fill((105, 105, 105, 255),special_flags=pg.BLEND_RGB_MULT) 
+                screen.blit(cur, cur.get_rect(center=goal_center))
+                pos += (2,0)
+                if pos.x > 26:
+                    pos.x = 18
+                    pos += (0,2)
+            pos = vec(18,4)
+            for k in B.inventory:
+                if k == self.selectedblessing:  
+                    if pos.x < 24:
+                        rect = pg.Rect(pos.x* TILESIZE*2 + TILESIZE*2 / 2+40,pos.y* TILESIZE*2 + TILESIZE*2 / 2 - 80, 500, 200)
+                        pg.draw.rect(screen,BLACK,rect)
+                        draw_text(B.inventory[k][1].text,30,WHITE,pos.x* TILESIZE*2 + TILESIZE*2 / 2+45,pos.y* TILESIZE*2 + TILESIZE*2 / 2 - 80)
+                        olim = 0
+                        lim = 50
+                        amo = 0
+                        while len(B.inventory[k][1].txt) > lim:
+                            lic = int(lim)
+                            lim = lic + 50
+                            while B.inventory[k][1].txt[lic] != ' ':
+                                lic -= 1
+                            lic += 1
+                            draw_text(B.inventory[k][1].txt[olim:lic],20,WHITE,pos.x* TILESIZE*2 + TILESIZE*2 / 2+45,pos.y* TILESIZE*2 + TILESIZE*2 / 2 - 40+20*amo)
+                            olim = lic
+                            amo += 1
+
+                        draw_text(B.inventory[k][1].txt[olim:],20,WHITE,pos.x* TILESIZE*2 + TILESIZE*2 / 2+45,pos.y* TILESIZE*2 + TILESIZE*2 / 2 - 40+20*amo)
                     else:
-                        self.selectedability = k
+                        locate = 580
+                        rect = pg.Rect(pos.x* TILESIZE*2 + TILESIZE*2 / 2+40-locate,pos.y* TILESIZE*2 + TILESIZE*2 / 2 - 80, 500, 200)
+                        pg.draw.rect(screen,BLACK,rect)
+                        draw_text(B.inventory[k][1].text,30,WHITE,pos.x* TILESIZE*2 + TILESIZE*2 / 2+45-locate,pos.y* TILESIZE*2 + TILESIZE*2 / 2 - 80)
+                        olim = 0
+                        lim = 50
+                        amo = 0
+                        while len(B.inventory[k][1].txt) > lim:
+                            lic = int(lim)
+                            lim = lic + 50
+                            while B.inventory[k][1].txt[lic] != ' ':
+                                lic -= 1
+                            lic += 1
+                            draw_text(B.inventory[k][1].txt[olim:lic],20,WHITE,pos.x* TILESIZE*2 + TILESIZE*2 / 2+45-locate,pos.y* TILESIZE*2 + TILESIZE*2 / 2 - 40+20*amo)
+                            olim = lic
+                            amo += 1
 
+                        draw_text(B.inventory[k][1].txt[olim:],20,WHITE,pos.x* TILESIZE*2 + TILESIZE*2 / 2+45-locate,pos.y* TILESIZE*2 + TILESIZE*2 / 2 - 40+20*amo)
+                pos += (2,0)
+                if pos.x > 26:
+                    pos.x = 18
+                    pos += (0,2)
+    def switch(self):
+        if self.skills == False:
+            if self.selectedchar != 0:
+                for k in self.selectedchar.abilities:
+                    if self.selectedchar.abilities[k][0].collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)) and k not in self.selectedchar.unlockedabilites:
+                        if self.selectedability != 0 and k == self.selectedability and self.selectedchar.lvl > 0:
+                            self.selectedchar.skill(k)
+                            self.selectedchar.lvl -= 1
+                            self.selectedability = 0
+                        else:
+                            self.selectedability = k
+        else:
+            ble = False
+            ple = False
+            pos = vec(18,4)
+            for k in B.inventory:
+                if pos == (int(mpos.x/2),int(mpos.y/2)):
+                    self.selectedblessing = k
+                    ble = True
+                pos += (2,0)
+                if pos.x > 26:
+                    pos.x = 18
+                    pos += (0,2)
+            if mpos in self.selectingchar():
+                ple = True
+            if ble == False and ple == False:
+                self.selectedblessing = -2
+                self.selectedchar = 0
+            if self.selectedblessing != -2 and self.selectedchar != 0:
+                self.selectedchar.blessing = self.selectedblessing
+                print(self.selectedblessing,B.inventory[self.selectedblessing])
+                self.selectedblessing = -2
+        
+            
+                    
         if self.swapbutton.collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)):
             if self.swap == False:
                 self.swap = True
             elif self.swap == True:
                 self.swap = False
+        
+        if self.blessingbutton.collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)):
+            self.selectedchar = 0
+            if self.skills == False:
+                self.skills = True
+            elif self.skills == True:
+                self.skills = False
         
         if self.exitbutton.collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)):
             main.current_state = 'map'
@@ -3436,9 +3860,9 @@ class battle():
         
         self.addchar(playing)
         
-        self.addchar(zither)
-        
-        #self.addchar(Cri)
+        #self.addchar(zither)
+        #
+        #self.addchar(fairum)
         
         self.numberofallies()
         #for x in range(1,3):#range(1,random.randint(2,3))
@@ -3989,6 +4413,9 @@ M.attacking = False
 M.cur = -1
 M.spec = -1
 
+M.skills = False
+M.selectedblessing = -2
+
 shop.draw_shopkeeps()
 
 mpos = vec(0,0)
@@ -4026,11 +4453,12 @@ while ui.running:
                             L.crossvec = vec(3,8)
                             L.get_connections()
                 if ui.pause != True:
+                    main.eventtop()
                     main.questtop()
                     main.leveltop()
                     main.overmaptop()
-                    main.switchtop()
                     main.battletop()
+                    main.switchtop()
                     main.shoptop()
                 main.menutop()
                 main.creatortop()
@@ -4086,6 +4514,7 @@ while ui.running:
     main.shopbottom()
     main.overmapbottom()
     main.questbottom()
+    main.eventbottom()
     if main.current_state != 'menu':
         if main.current_state != 'creator':
             if M.tutorial != True: 
@@ -4125,5 +4554,3 @@ listt = ''
 for x in list2:
     listt += x
 listt += '}'
-
-
