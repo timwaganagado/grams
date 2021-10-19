@@ -2131,6 +2131,7 @@ class main():
                 if tut.togo():
                     if mpos in M.getaura() and M.selectedchar != 0 :
                         if M.attackselect == True and M.enemycanattack == False :
+                            M.damage = {}
                             if M.selectedchar.attacks[M.selectedattack][2] != False:
                                 if mpos in M.allies[M.ally1][2]:
                                         M.actions.append(M.selectedchar)
@@ -2208,7 +2209,7 @@ class main():
             M.draw_allychar()
             M.draw_enemychar()
             M.draw_icons()
-            
+            M.draw_effects()
             if ui.pause:
                 M.draw_allychar()
                 M.draw_enemychar()
@@ -2322,7 +2323,7 @@ class main():
                         main.current_state = 'menu'
                         M.loss = False
                         main.endscreen_timer = 0
-            M.draw_effects()   
+
     def leveltop(self):
         if self.current_state == 'map':
             if M.tutorial:
@@ -3314,6 +3315,8 @@ class randomevent():
                 for x in M.allies:
                     x.exp += 10
                     x.checklevel()
+            if self.eventmaster[self.currentevent]['type'] == 'better blessing':
+                B.addbetterinventory(self.eventmaster[self.currentevent]['reward'])
     def draw_event(self):
         x = int(WIDTH/2)
         y = int(HEIGHT/2+100)
@@ -3341,10 +3344,11 @@ re.events = []
 re.eventchance = []
 re.done = 0
 re.savedone = -1
-re.addevent('unimportant hill',['You found a small hill nothing important',['The earth is stained with what looks like a fight that happend eons ago',0,'It seems that the hill is man made']],'empty',0,100)
-re.addevent('improtant hill',['You found a small hill seems like a battle happend','you found 20 gold'],'gold',20,40)
-re.addevent('broken ultar',['You found a hidden ultar','as you aproach, the ultar glows','then crumbles'],'blessing',0,5)
-re.addevent('functioning ultar',['You found a hidden ultar','as you aproach, the ultar glows','then burns'],'blessing',1,5)
+re.addevent('unimportant hill',['You found a small hill nothing important',['The earth is stained with what looks like a fight that happend eons ago',0,'It seems that the hill is man made']],'empty',0,60)
+re.addevent('improtant hill',['You found a small hill seems like a battle happend','You found 20 gold'],'gold',20,40)
+re.addevent('broken ultar',['You found a hidden ultar','As you aproach, the ultar glows','then crumbles'],'blessing',0,10)
+re.addevent('functioning ultar',['You found a hidden ultar','As you aproach, the ultar glows','Then burns'],'blessing',1,10)
+re.addevent('devine ultar',['You found a hidden ultar','As you aproach, the ultar glows','Light fills the air'],'better blessing',1,5)
 re.addevent('unispiring plains',['You come across some plains','The reeds whistle in the wind','You find nothing important'],'empty',0,60)
 re.addevent('ispiring plains',['You come across some plains','The reeds whistle in the wind','You find that some how, you learnt something'],'xp',10,30)
 
@@ -3378,6 +3382,15 @@ class blessings():
         for x in range(0,amount):
             gen = random.choices(self.masterrand,self.masterchance)[0]
             spec = random.choices(self.master[gen],[60,30,10,1])[0]
+            i = 0
+            for y in self.inventory:
+                i +=1
+            self.inventory.update({i:[gen,spec]})
+            self.test.append(spec)
+    def addbetterinventory(self,amount):
+        for x in range(0,amount):
+            gen = random.choices(self.masterrand,self.masterchance)[0]
+            spec = random.choices(self.master[gen],[30,40,30,10])[0]
             i = 0
             for y in self.inventory:
                 i +=1
@@ -3995,7 +4008,7 @@ class battle():
                 if bleed in self.enemy[x][lel][4]:
                     draw_text('bleed',10, RED, self.enemy[x][lel][0].x*TILESIZE + 25, self.enemy[x][lel][0].y*TILESIZE-10,align="bottomright")
                 if fire in self.enemy[x][lel][4]:
-                    draw_text('fire',10, YELLOW, self.allies[x][0].x*TILESIZE + 25, self.allies[x][0].y*TILESIZE,align="bottomright")
+                    draw_text('fire',10, YELLOW, self.enemy[x][lel][0].x*TILESIZE + 25, self.enemy[x][lel][0].y*TILESIZE,align="bottomright")
                 if stun in self.enemy[x][lel][4]:
                     draw_text('stun',10, YELLOW, self.enemy[x][lel][0].x*TILESIZE + 25, self.enemy[x][lel][0].y*TILESIZE-10,align="bottomright")
                 if pierce in self.enemy[x][lel][4]:
