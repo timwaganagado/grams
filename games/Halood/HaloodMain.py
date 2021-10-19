@@ -602,20 +602,27 @@ class boss():
     class courptbattlemage():
         def __init__(self):
             self.vec = 0
-        def attack(self):
+        def decision(self,ll):
+            attack = self.attacks
+            chance = []
+            attacks = []
+            for y in attack:
+                chance.append(attack[y][4])
+                attacks.append(y)
+            return attacks,chance
+        def thunk(self,ll):
             if self.turncounter%3 == 0:
                 for x in M.allies:
                     M.allies[x][1] - 5
                 self.support([0])
-            possible = []
-            dead = []
-            chance = []
-            attacks = []
-            for y in self.attacks:
-                chance.append(self.attacks[y][2])
-                attacks.append(y)
-            for seesee in range(0,2):
+            attacks,chance = self.decision(ll)
+            self.attack(ll,attacks,chance)
+        def damage(self,dup,damage):
+            M.enemy[self][dup][1] -= damage
+        def attack(self,ll,attacks,chance):
+            for attackingtwice in range(0,2):
                 dead = []
+                possible = []
                 attacking = random.choices(attacks,chance)
                 damage = self.attacks[attacking[0]]
                 if damage[5]:
@@ -638,40 +645,12 @@ class boss():
                                 possible.append(j[1])
                 target = random.choice(possible)
                 for x in range(0,damage[3]):
-                    target.damage(self.attacks[attacking[0]])
-                    for x in range(0,damage[3]):
+                    target.damage(damage,self,ll)
                         
-                        for x in damage[1]:
-                            if x == 0:
-                                break
-                            if fire in x:
-                                if fire in M.allies[target][4]:
-                                    M.allies[target][4][fire] += x[fire]
-                                else:
-                                    M.allies[target][4].update({fire:x[fire]})
-                            if bleed in x:
-                                if bleed in M.allies[target][4]:
-                                    M.allies[target][4][bleed] += x[bleed]
-                                else:
-                                    M.allies[target][4].update({bleed:x[bleed]})
-                            if stun in x:
-                                if stun in M.allies[target][4]:
-                                    M.allies[target][4][stun] += x[stun]
-                                else:
-                                    M.allies[target][4].update({stun:x[stun]})
-                            if weakness in x:
-                                if weakness in M.allies[target][4]:
-                                    M.allies[target][4][weakness] += x[weakness]
-                                else:
-                                    M.allies[target][4].update({weakness:x[weakness]})
-                        if target in M.damage:
-                            M.damage[target].append(int(damage[0]))
-                        else:
-                            M.damage.update({target:[damage[0]]})
             self.turncounter += 1
         def support(self,target):
             if target[0] == 0:
-                M.enemy[cbm][0][1] += M.enemy[cbm][0][1]*4/10
+                M.enemy[self][0][1] += M.enemy[self][0][1]*4/10
         def damage(self,dup,damage):
             M.enemy[self][dup][1] -= damage
     class selloquie():
@@ -688,6 +667,7 @@ class boss():
             for seesee in range(0,2):
                 dead = []
                 attacking = random.choices(attacks,chance)
+                M.enemy[self][ll][3] = attacking
                 damage = self.attacks[attacking[0]]
                 if damage[5]:
                     for x in M.spaces:
@@ -3287,7 +3267,7 @@ class ui():
                 main.current_state = 'menu'
                 self.pause = False
         else:    
-            if self.play.collidepoint(mpos.x*TILESIZE,mpos.y*TILESIZE):
+            if self.play.collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)):
                 main.current_state = 'map'
                 L.levelmaster = O.mapmaster[-1]
                 tut.create_map()
@@ -3296,10 +3276,10 @@ class ui():
                 tut.tutorial_restart()
                 H.exp = 9
                 M.tutorial = True
-            if self.continuebutton.collidepoint(mpos.x*TILESIZE,mpos.y*TILESIZE):
+            if self.continuebutton.collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)):
                 main.current_state = self.save_state
 
-        if self.quit.collidepoint(mpos.x*TILESIZE,mpos.y*TILESIZE):
+        if self.quit.collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)):
             self.running = False
             pg.quit
         
@@ -4231,18 +4211,14 @@ class battle():
         self.attacking = True
         x = main.little[cur][0]
         ll = int(spec)
-        if x != cbm:
-            if stun in self.enemy[x][ll][4]:
-                if self.enemy[x][ll][4][stun] > 1:
-                    self.enemy[x][ll][4][stun] -= 1
-                else:
-                    del self.enemy[x][ll][4][stun]
-            else: 
-                
-                x.thunk(ll)
-        else:
-            x.attack()
-        
+        if stun in self.enemy[x][ll][4]:
+            if self.enemy[x][ll][4][stun] > 1:
+                self.enemy[x][ll][4][stun] -= 1
+            else:
+                del self.enemy[x][ll][4][stun]
+        else: 
+            
+            x.thunk(ll)
     def workingattack(self,attack,effect):
         pass
     def statuseffects(self,when):
