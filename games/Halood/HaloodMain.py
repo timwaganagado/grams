@@ -2162,6 +2162,7 @@ class main():
             else:
                 if mpos in M.getaura() and M.selectedchar != 0:
                     if M.attackselect == True and len(M.actions) != len(M.allies) and M.selectedchar not in M.actions:
+                        M.damage = {}
                         if M.selectedchar.attacks[M.selectedattack][2] != False:
                             for x in M.allies:
                                 if mpos in M.allies[x][2]:
@@ -2171,16 +2172,13 @@ class main():
                                     M.checkifdead()
                             M.attackselect = False
                         else:
-
-                                der,xxer = M.selectenemy()
-                                if der != 'pass':
-                                    M.actions.append(M.selectedchar)
-                                    M.selectedchar.attack((der,xxer),M.selectedattack)
-                                    M.attackselect = False
-
-                                    M.checkifdead()
-
-                                    M.attackselect = False         
+                            der,xxer = M.selectenemy()
+                            if der != 'pass':
+                                M.actions.append(M.selectedchar)
+                                M.selectedchar.attack((der,xxer),M.selectedattack)
+                                M.attackselect = False
+                                M.checkifdead()
+                                M.attackselect = False         
                     else:
                         pass 
                 elif mpos not in M.getaura() and mpos not in M.selectingattack():
@@ -2270,7 +2268,7 @@ class main():
                                 y[5] = []
                 if 2000 < current_time - self.display_time_start:
                     M.draw_damage()
-                    M.draw_txt_attack()
+                M.draw_txt_attack()
                 if current_time - self.display_time_stop > 3000 and self.playertrunover == False:
                     M.damage = {}
                     for x in M.enemy:
@@ -3381,7 +3379,7 @@ class blessings():
     def addinventory(self,amount):
         for x in range(0,amount):
             gen = random.choices(self.masterrand,self.masterchance)[0]
-            spec = random.choices(self.master[gen],[60,30,10,1])[0]
+            spec = random.choices(self.master[gen],[60,30,20,10])[0]
             i = 0
             for y in self.inventory:
                 i +=1
@@ -3390,7 +3388,7 @@ class blessings():
     def addbetterinventory(self,amount):
         for x in range(0,amount):
             gen = random.choices(self.masterrand,self.masterchance)[0]
-            spec = random.choices(self.master[gen],[30,40,30,10])[0]
+            spec = random.choices(self.master[gen],[30,40,30,20])[0]
             i = 0
             for y in self.inventory:
                 i +=1
@@ -3592,15 +3590,22 @@ tb_ultra_img = pg.image.load(os.path.join(filename,'cross-1.png.png')).convert_a
 tbultrated.img = pg.transform.scale(tb_ultra_img, (64, 64))
 chance = 60
 B.addblessing(tulemblessing,tblesser,tbnormal,tbgreater,tbultrated,chance)
-
+'''
+insen
+'''
+tt = 0
 o = 1
-while tbultrated not in B.test:
-    B.addinventory(1)
-    o+=1
-    if o % 20 == 0:
-        print(o)
-        B.inventory = {}
-print(len(B.test))
+for x in range(0,100):
+    o = 1
+    while tbultrated not in B.test:
+        B.addbetterinventory(1)
+        o+=1
+        if o % 20 == 0:
+            print(o)
+            B.inventory = {}
+    tt += len(B.test)
+    B.test = []
+print(tt/100)
 
 #B.inventory = {}
 #B.addinventory(5)
@@ -3919,7 +3924,6 @@ class battle():
             draw_text(text, 20, BLACK, pos.x*TILESIZE - 10, pos.y*TILESIZE - 150)
     def draw_enemychar(self):
         for x in self.enemy:   
-            lel = 0
             for y in self.enemy[x]:
                 if y[6]:
                     ani = x.attack_animation
@@ -3931,13 +3935,11 @@ class battle():
                     pos = y[0]
                     goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))
                     screen.blit(ani[self.current_animation], ani[self.current_animation].get_rect(center=goal_center))
-                    pos = y[0]
-                    heat = y[1] 
-                    text = str(round(heat))+'/'+str(x.health)
-                    draw_text(text, 20, BLACK, pos.x*TILESIZE - 10, pos.y*TILESIZE - 150)
-                    rect = pg.Rect(int(pos.x*TILESIZE - 10), int(pos.y*TILESIZE - 120), int(heat), 20)
-                    pg.draw.rect(screen,RED,rect)
-                    lel += 1
+                heat = y[1] 
+                text = str(round(heat))+'/'+str(x.health)
+                draw_text(text, 20, BLACK, pos.x*TILESIZE - 10, pos.y*TILESIZE - 150)
+                rect = pg.Rect(int(pos.x*TILESIZE - 10), int(pos.y*TILESIZE - 120), int(heat), 20)
+                pg.draw.rect(screen,RED,rect)
 
                 
     def draw_icons(self):
