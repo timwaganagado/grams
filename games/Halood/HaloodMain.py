@@ -207,12 +207,13 @@ class enemy():
                 if ll >= 5:
                     amount += 1
         if done:
-            if total >= target.stagger and amount >= 2 and stun not in target.immunities:
+            if total >= target.stagger and amount >= 2 and stun not in target.immunities and 'ps' not in M.enemy[target][dup][4]:
                 M.enemy[target][dup][5].append('done')
                 if stun in M.enemy[target][dup][4]:
                     M.enemy[target][dup][4][stun] += 1
                 else:
                     M.enemy[target][dup][4].update({stun:1})
+                M.enemy[target][dup][4].update({'ps':1})
     class conrift():
         def __init__(self):
             self.vec = 0
@@ -1013,26 +1014,6 @@ class ally():
                 pos += vec(5,0)
         def draw_attack(self):
             pass
-        def quest(self,when):
-            if when != 0:    
-                M.addchar(self)
-            typeoq = 'battle'
-            enemies = [swordguy]
-            return typeoq,enemies
-        def quest_dialouge(self,when):
-            x = int(WIDTH/2)
-            y = int(HEIGHT/2+250)
-            rect = pg.Rect(0, 0, 1400, 400)
-            rect.center = x,y
-            pg.draw.rect(screen,BLACK,rect)
-            if ui.done == 0:
-                draw_text_center('There is a audible fight happening over the ridge',50,WHITE,x,y)
-            if ui.done == 1:
-                draw_text_center('You approach and find a mage battling a large enemy',50,WHITE,x,y)
-            if ui.done == 2:
-                ui.done = 0
-                Q.findquest(1)
-                
         def skill(self,cur):
             if cur == 'stun':
                 self.abilities[cur][2] = False
@@ -1117,35 +1098,6 @@ class ally():
                     draw_text(text, 20, RED, pos.x*TILESIZE, pos.y*TILESIZE + 75)
 
                 pos += vec(5,0)
-        def quest(self,when):
-            if when != 0:    
-                M.addchar(self)
-            typeoq = 'hunt'
-            enemies = [swordguy]
-            return typeoq,enemies
-        def quest_dialouge(self,when):
-            if when == 0:
-                x = int(WIDTH/2)
-                y = int(HEIGHT/2+100)
-                rect = pg.Rect(0, 0, 300, 80)
-                rect.center = x,y
-                pg.draw.rect(screen,BLACK,rect)
-                if ui.done == 0:
-                    draw_text_center('empty',50,WHITE,x,y)
-                if ui.done == 1:
-                    ui.done = 0
-                    Q.findquest(1)
-            else:
-                x = int(WIDTH/2)
-                y = int(HEIGHT/2+100)
-                rect = pg.Rect(0, 0, 300, 80)
-                rect.center = x,y
-                pg.draw.rect(screen,BLACK,rect)
-                if ui.done == 0:
-                    draw_text_center('empty',50,WHITE,x,y)
-                if ui.done == 1:
-                    ui.done = 0
-                    Q.findquest(1)
         def skill(self,cur):
             if cur == 'acceleration':
                 self.abilities[cur][2] = False
@@ -1379,25 +1331,6 @@ class ally():
                         text = str(self.actsmimic)
                         draw_text(text, 50, VIOLET, pos.x*TILESIZE + 40, pos.y*TILESIZE - 50) 
                     pos += vec(5,0)
-        def quest(self,when):
-            if when != 0:    
-                M.addchar(self)
-            typeoq = 'gauntlet'
-            enemies = [[swordguy],[rentoron]]
-            return typeoq,enemies
-        def quest_dialouge(self,when):
-            x = int(WIDTH/2)
-            y = int(HEIGHT/2+250)
-            rect = pg.Rect(0, 0, 1400, 400)
-            rect.center = x,y
-            pg.draw.rect(screen,BLACK,rect)
-            if ui.done == 0:
-                draw_text_center('empty',50,WHITE,x,y)
-            if ui.done == 1:
-                draw_text_center('empty',50,WHITE,x,y)
-            if ui.done == 2:
-                ui.done = 0
-                Q.findquest(1)
         def draw_attack(self):
             pass
         
@@ -1910,6 +1843,8 @@ playing = H
 '''
 NAMES 
 
+
+
 milidity nothing yet
 riteana nothing yet
 atteva nothing yet
@@ -1928,6 +1863,9 @@ heneric gas guy
 fern fan laby
 Striate plasma lady
 delator boss guy
+
+weapons:
+zenite 
 '''
 
 class dialouge_master():
@@ -2262,6 +2200,7 @@ class main():
                         self.playertrunover = False
                         M.actions = []
                         M.statuseffects(True)
+                        M.checkifdead()
                         self.display_time_stop = pg.time.get_ticks()
                         for x in M.enemy:
                             for y in M.enemy[x]:
@@ -2383,11 +2322,11 @@ class main():
             ui.menu()
     def questtop(self):
         if self.current_state == 'quest' or self.current_state == 'hunt':
-            ui.dialouge()
+            Q.click()
     def questbottom(self):
         if self.current_state == 'quest' or self.current_state == 'hunt':
             M.draw_background()
-            ui.display_dialouge()
+            Q.draw_quest()
     def creatortop(self):
         if self.current_state == 'creator':
             O.selectmapedit()
@@ -2587,7 +2526,6 @@ class tutorial():
         M.addchar(H)
     def create_map(self):
         L.levelid = {}
-        L.levelindex = {}
         L.drawdis = {}
         L.levelstatus = []
         L.path = {}
@@ -2615,8 +2553,7 @@ class tutorial():
             else:
                 L.make(line,[],tier,x)
             if x.x == 28:
-                L.levelid.update({line:[[cbm],'battle']})
-                L.levelindex.update({line:x})
+                L.levelid.update({x:[[cbm],'battle']})
             line += 1               
 
 tut = tutorial()
@@ -2655,6 +2592,10 @@ def draw_biggrid():
     for y in range(0, HEIGHT, TILESIZE*2 ):
         pg.draw.line(screen, LIGHTGRAY, (0, y), (WIDTH, y))
         
+background_fall = pg.image.load(os.path.join(filename,'backgorunds-2.png.png'))
+background_fall = pg.transform.scale(background_fall, (1920, 1080))
+background_dungeon = pg.image.load(os.path.join(filename,'dungeon.png'))
+background_dungeon = pg.transform.scale(background_dungeon, (1920, 1080))
 
 class overmap():
     def __init__(self):
@@ -2815,7 +2756,6 @@ O.get_connections()
 class test():
     def create_map(self):
         L.levelid = {}
-        L.levelindex = {}
         L.drawdis = {}
         L.levelstatus = []
         L.path = {}
@@ -2845,8 +2785,7 @@ class test():
             else:
                 L.make(line,[],tier,x)
             if x.x == 28:
-                L.levelid.update({line:[[cbm],'battle']})
-                L.levelindex.update({line:x})
+                L.levelid.update({x:[[cbm],'battle']})
             line += 1         
                 
 T = test()
@@ -2876,17 +2815,18 @@ class level():
         goal_center = (int(pos.x * TILESIZE*2 + TILESIZE*2 / 2), int(pos.y * TILESIZE*2 + TILESIZE*2 / 2))
         screen.blit(cross, cross.get_rect(center=goal_center))
         ll =  0
-        for x in self.levelindex:
-            #$draw_text(str(self.display_costs[ll]),20,BLACK,self.levelindex[x].x*TILESIZE*2,self.levelindex[x].y*TILESIZE*2)
+        for x in self.levelid:
+            #$draw_text(str(self.display_costs[ll]),20,BLACK,x.x*TILESIZE*2,x.y*TILESIZE*2)
+            loc = vec(x)
             ll += 1
-            if self.levelindex[x] in self.barrier:
-                pg.draw.circle(screen,RED,(int(self.levelindex[x].x*TILESIZE*2+TILESIZE*2/2),int(self.levelindex[x].y*TILESIZE*2+TILESIZE*2/2)),5)
+            if x in self.barrier:
+                pg.draw.circle(screen,RED,(int(loc.x*TILESIZE*2+TILESIZE*2/2),int(loc.y*TILESIZE*2+TILESIZE*2/2)),5)
             elif self.levelid[x][1] == 'shop':
-                pg.draw.circle(screen,BLUE,(int(self.levelindex[x].x*TILESIZE*2+TILESIZE*2/2),int(self.levelindex[x].y*TILESIZE*2+TILESIZE*2/2)),5)
-            elif self.levelindex[x] == self.tierasiquest or self.levelindex[x] == self.tiersecq and Q.active == True:
-                pg.draw.circle(screen,YELLOW,(int(self.levelindex[x].x*TILESIZE*2+TILESIZE*2/2),int(self.levelindex[x].y*TILESIZE*2+TILESIZE*2/2)),5)
+                pg.draw.circle(screen,BLUE,(int(loc.x*TILESIZE*2+TILESIZE*2/2),int(loc.y*TILESIZE*2+TILESIZE*2/2)),5)
+            elif x == self.tierasiquest or x == self.tiersecq and Q.active == True:
+                pg.draw.circle(screen,YELLOW,(int(loc.x*TILESIZE*2+TILESIZE*2/2),int(loc.y*TILESIZE*2+TILESIZE*2/2)),5)
             else:
-                pg.draw.circle(screen,BLACK,(int(self.levelindex[x].x*TILESIZE*2+TILESIZE*2/2),int(self.levelindex[x].y*TILESIZE*2+TILESIZE*2/2)),5)
+                pg.draw.circle(screen,BLACK,(int(loc.x*TILESIZE*2+TILESIZE*2/2),int(loc.y*TILESIZE*2+TILESIZE*2/2)),5)
     def draw_linestoconnections(self):
         #for x in self.connections:
         #    pg.draw.line(screen, BLUE, (int(self.crossvec.x*TILESIZE*2+TILESIZE*2/2),int(self.crossvec.y*TILESIZE*2+TILESIZE*2/2)), (int(x.x*TILESIZE*2+TILESIZE*2/2),int(x.y*TILESIZE*2+TILESIZE*2/2)))
@@ -2921,7 +2861,6 @@ class level():
                 x += 1
     def create_map(self):
         self.levelid = {}
-        self.levelindex = {}
         self.drawdis = {}
         self.levelstatus = []
         self.path = {}
@@ -2933,10 +2872,10 @@ class level():
         self.tierasiquest = 0
         tierquest = []
         self.tiersecq = []
-        
-        Q.choosequest()
-        typeoq,enemies = Q.l.quest(0)
-        Q.typeoq = typeoq
+        char = random.choices(Q.events,Q.eventchance)[0]
+        Q.currentquest = char
+        typeoq = Q.questmaster[char]['typeoq']
+        print(typeoq)
         for x in self.levels:
             if x.x % 4 == 1:
                 if x.x not in tier:
@@ -2958,7 +2897,7 @@ class level():
             Q.glevel = 0
         if typeoq == 'hunt':
             self.tiersecq = random.choice(self.tiersecq)
-        
+        print(self.tiersecq)
         for x in self.tierasi:
             if x != 25:
                 x2 = x + 4
@@ -3007,10 +2946,10 @@ class level():
                 tier = 'quest'
             if typeoq == 'hunt':
                 if x == self.tiersecq:
-                    tier = 'hunt'
+                    tier = 'quest'
             if tier == 'event':
                 enemies = random.choices(re.events,re.eventchance)[0]
-                self.make(line,enemies,tier,x)
+                self.make(enemies,tier,x)
             elif tier == 'battle':
                 if x.x in self.levelmaster:
                     level,b = self.finddis(x)
@@ -3031,17 +2970,13 @@ class level():
                         remove = self.get_cost(enemy)
                         cost -= remove
                         enemies.append(enemy[0])
-                    self.make(line,enemies,tier,x)
+                    self.make(enemies,tier,x)
             elif tier == 'quest':
-                self.make(line,[],tier,x)
-                self.savequest = line
+                self.make(char,tier,x)
+                self.savequest = x
                 self.savex = x
-            elif tier == 'hunt':
-                self.make(line,[],tier,x)
-                self.savequesth = line
-                self.savexh = x
             else:
-                self.make(line,[],tier,x)
+                self.make([],tier,x)
             if x.x == 28:
                 self.levelid.update({line:[[cbm,boulderine,boulderine],'battle']})
                 self.levelindex.update({line:x})
@@ -3087,9 +3022,8 @@ class level():
         if dva in target:
             cost += 9
         return cost
-    def make(self,line,enemies,tier,x):
-        self.levelid.update({line:[enemies,tier]})
-        self.levelindex.update({line:x}) 
+    def make(self,enemies,tier,x):
+        self.levelid.update({(x.x,x.y):[enemies,tier]})
     def nextlevel(self):
         if lock == True:
             if mpos2 in self.connections:
@@ -3100,9 +3034,7 @@ class level():
                         for ll in self.levels:
                             if ll.x == self.border:
                                 self.barrier.append(ll)
-                                for ww in self.levelindex:
-                                    if ll == self.levelindex[ww]:
-                                        L.levelid[ww][0] = [barrier] #creates barrier red dots 
+                                L.levelid[(ll.x,ll.y)][0] = [barrier] #creates barrier red dots 
 
                     self.crossvec = mpos2
                     self.level = mpos2.x - 3
@@ -3121,8 +3053,8 @@ class level():
                         re.eventstart()
                     L.get_connections()
                     main.current_state = tier
-                    if 'quest' == tier or 'hunt' == tier:
-                        Q.findquest(0)
+                    if 'quest' == tier:
+                        Q.eventstart()
                     self.click = False
         else:
             if self.click == True:
@@ -3130,17 +3062,22 @@ class level():
                 self.crossvec = mpos2
                 self.level = mpos2.x - 3
                 e,tier = self.getlevel()
-                
                 if self.level == 1:
-                    M.restart()
-                if 'battle' == tier:
+                    pass
+                    #M.restart()
+                if mpos2 in self.barrier:
                     M.start()
-                else:
+                    tier = 'battle'
+                elif 'battle' == tier:
+                    M.start()
+                elif 'shop' == tier:
                     shop.shopstart()
+                elif 'event' == tier:
+                    re.eventstart()
                 L.get_connections()
                 main.current_state = tier
-                if 'quest' == tier or 'hunt' == tier:
-                        Q.findquest(0)
+                if 'quest' == tier:
+                    Q.eventstart()
                 self.click = False
     def getlevel(self):
         if mpos2 in self.levelstatus and mpos2 not in self.barrier:
@@ -3148,8 +3085,8 @@ class level():
             e = 0
             tier = 'map'
         else:
-            for x in self.levelindex:
-                if self.levelindex[x] == mpos2:
+            for x in self.levelid:
+                if x == mpos2:
                     e = self.levelid[x][0]
                     tier = self.levelid[x][1]
         return e,tier
@@ -3177,6 +3114,94 @@ for x in levels:
         L.levels.append(vec(x))
 
 L.create_icons()
+
+class quest():
+    def __init__(self):
+        self.vec = 0
+    def addevent(self,char,dialouge,enemies,typeoq,chance,back):
+        self.questmaster.update({char:{'enemies':enemies,'dialouge':dialouge,'typeoq':typeoq,'map':back}})
+        self.events.append(char)
+        self.eventchance.append(chance)
+    def getmap(self):
+        return self.questmaster[self.currentquest]['map']
+    def click(self):
+        self.done += 1
+
+        if self.questmaster[self.currentquest]['typeoq'] == 'hunt':
+            if L.crossvec == L.tierasiquest:
+                if self.done >= len(self.questmaster[self.currentquest]['dialouge'][0]):
+                    M.addchar(self.currentquest)
+                    main.current_state = 'map'
+                    self.active = True
+                    self.done = 0
+                    self.savedone += 1
+            else:
+                if self.done >= len(self.questmaster[self.currentquest]['dialouge'][1]):
+                    main.current_state = 'battle'
+                    L.levelid.update({(L.savequest.x,L.savequest.y):[self.questmaster[self.currentquest]['enemies'],'battle']})
+                    M.start()
+                    self.done = 0
+                    self.savedone = 0
+        if self.questmaster[self.currentquest]['typeoq'] == 'gauntlet':
+            if self.done >= len(self.questmaster[self.currentquest]['dialouge']):
+                if self.active:
+                    main.current_state = 'battle'
+                    L.levelid.update({(L.savequest.x,L.savequest.y):[self.questmaster[self.currentquest]['enemies'][self.glevel],'battle']})
+                    self.glevel += 1
+                    print(self.glevel)
+                    print(len(self.questmaster[self.currentquest]['enemies']))
+                    if self.glevel == len(self.questmaster[self.currentquest]['enemies']):
+                        self.glevel = 0
+                        self.done = 0
+                    M.start()
+                else:
+                    M.addchar(self.currentquest)
+                    main.current_state = 'battle'
+                    L.levelid.update({(L.savequest.x,L.savequest.y):[self.questmaster[self.currentquest]['enemies'][self.glevel],'battle']})
+                    self.glevel += 1
+                    print(self.glevel)
+                    print(len(self.questmaster[self.currentquest]['enemies']))
+                    M.start()
+                    self.active = True
+        else:
+            if self.done >= len(self.questmaster[self.currentquest]['dialouge']):
+                if self.questmaster[self.currentquest]['typeoq'] == 'battle':
+                    M.addchar(self.currentquest)
+                    main.current_state = self.questmaster[self.currentquest]['typeoq']
+                    L.levelid.update({(L.savequest.x,L.savequest.y):[self.questmaster[self.currentquest]['enemies'],'battle']})
+                    M.start()
+                    self.done = 0
+                
+                
+    def draw_quest(self):
+        x = int(WIDTH/2)
+        y = int(HEIGHT/2+100)
+        rect = pg.Rect(0, 0, 1400, 400)
+        rect.center = x,y
+        pg.draw.rect(screen,BLACK,rect)
+
+        
+        if type(self.questmaster[self.currentquest]['dialouge'][0]) is not list:
+            txt = self.questmaster[self.currentquest]['dialouge'][self.done]
+        else:
+            txt = self.questmaster[self.currentquest]['dialouge'][self.savedone][self.done]
+        if txt != 0:
+            draw_text_center(txt,50,WHITE,x,y)
+        else:
+            self.click()
+    def eventstart(self):
+        self.currentquest,e = L.getlevel()
+
+Q = quest()
+Q.questmaster = {}
+Q.events = []
+Q.eventchance = []
+Q.done = 0
+Q.savedone = 0
+Q.active = False
+Q.addevent(Cri,['There is a audible fight happening over the ridge','You approach and find a mage battling a large enemy'],[swordguy],'battle',60,background_fall)
+Q.addevent(Hap,[['You reach the entrance to an inn',"As you're about to enter some one flies through the door",'he picks him self up sighing "no one will help me"','Help you with what','A vendeta',"you take a second","I'll help, if you join me",'deal'],['There he is you ready',"As ready as i'll ever be"]],[swordguy],'hunt',400,background_fall)
+Q.addevent(nover,['empty','empty'],[[swordguy],[rentoron]],'gauntlet',20,background_dungeon)
 
 class ui():
     def __init__(self):
@@ -3289,13 +3314,17 @@ ui.pause = False
 ui.save_state = 'overmap'
 ui.done = 0
 
+
+
 class randomevent():
     def __init__(self):
         self.vec = 0
-    def addevent(self,name,dialouge,typeoe,reward,chance):
-        self.eventmaster.update({name:{'type':typeoe,'dialouge':dialouge,'reward':reward}})
+    def addevent(self,name,dialouge,typeoe,reward,chance,back):
+        self.eventmaster.update({name:{'type':typeoe,'dialouge':dialouge,'reward':reward,'map':back}})
         self.events.append(name)
         self.eventchance.append(chance)
+    def getmap(self):
+        return self.eventmaster[self.currentevent]['map']
     def click(self):
         if self.savedone == -1:
             self.done += 1
@@ -3321,6 +3350,9 @@ class randomevent():
         rect = pg.Rect(0, 0, 1400, 400)
         rect.center = x,y
         pg.draw.rect(screen,BLACK,rect)
+        print(self.eventmaster,self.currentevent)
+        print(self.eventmaster[self.currentevent]['dialouge'])
+        print(self.eventmaster[self.currentevent]['dialouge'][self.done])
         if type(self.eventmaster[self.currentevent]['dialouge'][self.done]) is not list:
             txt = self.eventmaster[self.currentevent]['dialouge'][self.done]
         else:
@@ -3342,13 +3374,13 @@ re.events = []
 re.eventchance = []
 re.done = 0
 re.savedone = -1
-re.addevent('unimportant hill',['You found a small hill nothing important',['The earth is stained with what looks like a fight that happend eons ago',0,'It seems that the hill is man made']],'empty',0,60)
-re.addevent('improtant hill',['You found a small hill seems like a battle happend','You found 20 gold'],'gold',20,40)
-re.addevent('broken ultar',['You found a hidden ultar','As you aproach, the ultar glows','then crumbles'],'blessing',0,10)
-re.addevent('functioning ultar',['You found a hidden ultar','As you aproach, the ultar glows','Then burns'],'blessing',1,10)
-re.addevent('devine ultar',['You found a hidden ultar','As you aproach, the ultar glows','Light fills the air'],'better blessing',1,5)
-re.addevent('unispiring plains',['You come across some plains','The reeds whistle in the wind','You find nothing important'],'empty',0,60)
-re.addevent('ispiring plains',['You come across some plains','The reeds whistle in the wind','You find that some how, you learnt something'],'xp',10,30)
+re.addevent('unimportant hill',['You found a small hill nothing important',['The earth is stained with what looks like a fight that happend eons ago',0,'It seems that the hill is man made']],'empty',0,60,background_fall)
+re.addevent('improtant hill',['You found a small hill seems like a battle happend','You found 20 gold'],'gold',20,40,background_fall)
+re.addevent('broken ultar',['You found a hidden ultar','As you aproach, the ultar glows','then crumbles'],'blessing',0,10,background_fall)
+re.addevent('functioning ultar',['You found a hidden ultar','As you aproach, the ultar glows','Then burns'],'blessing',1,10,background_fall)
+re.addevent('devine ultar',['You found a hidden ultar','As you aproach, the ultar glows','Light fills the air'],'better blessing',1,5,background_fall)
+re.addevent('unispiring plains',['You come across some plains','The reeds whistle in the wind','You find nothing important'],'empty',0,60,background_fall)
+re.addevent('ispiring plains',['You come across some plains','The reeds whistle in the wind','You find that some how, you learnt something'],'xp',10,30,background_fall)
 
 class blessings():
     def __init__(self):
@@ -3597,58 +3629,23 @@ tt = 0
 o = 1
 for x in range(0,100):
     o = 1
+    B.inventory = {}
     while tbultrated not in B.test:
+        
         B.addbetterinventory(1)
         o+=1
         if o % 20 == 0:
             print(o)
             B.inventory = {}
     tt += len(B.test)
+    
     B.test = []
 print(tt/100)
 
 #B.inventory = {}
 #B.addinventory(5)
-
-class quest():
-    def __init__(self):
-        self.vec = 0
-    def choosequest(self):
-        self.l = random.choice(self.chars)
-        D.l = self.l
-        #self.chars.remove(self.l)
-    def findquest(self,when):
-        self.typeoq,enemies = self.l.quest(1)
-        if when == 1:
-            if self.typeoq == 'battle':
-                main.current_state = 'battle'
-                L.levelid.update({L.savequest:[enemies,'battle']})
-                L.levelindex.update({L.savequest:L.savex})
-                M.start()
-            if self.typeoq == 'hunt':
-                if L.crossvec == L.tierasiquest:
-                    main.current_state = 'map'
-                    self.active = True
-                else:
-                    main.current_state = 'battle'
-                    L.levelid.update({L.savequesth:[enemies,'battle']})
-                    L.levelindex.update({L.savequesth:L.savexh})
-                    M.start()
-            if self.typeoq == 'gauntlet':
-                main.current_state = 'battle'
-                L.levelid.update({L.savequest:[enemies[self.glevel],'battle']})
-                L.levelindex.update({L.savequest:L.savex})
-                self.glevel += 1
-                if self.glevel == len(enemies):
-                    self.glevel = 0
-                M.start()
-                
-                    
-Q = quest()
-
-Q.chars = [Cri,Hap,nover]
-#Q.chars = [Hap]
-Q.active = False
+print(background_dungeon)
+print(background_fall)
 
 
 class battle():
@@ -3912,16 +3909,26 @@ class battle():
             screen.blit(cur, cur.get_rect(center=goal_center))
             pos = self.allies[x][0]
             heat = self.allies[x][1]
-            rect = pg.Rect(int(pos.x*TILESIZE - 10), int(pos.y*TILESIZE - 120), int(heat), 20)
-            pg.draw.rect(screen,RED,rect)
-            if self.allies[x][3] > 0:
-                text = '+'+str(self.allies[x][3])
-                draw_text(text, 20,BLUE , pos.x*TILESIZE + 40, pos.y*TILESIZE - 150)
-                rect = pg.Rect(int(pos.x*TILESIZE - 10), int(pos.y*TILESIZE - 120), int(self.allies[x][3]   ), 20)
-                pg.draw.rect(screen,BLUE,rect)
-            
-            text = str(heat)+'/'+str(x.health)
-            draw_text(text, 20, BLACK, pos.x*TILESIZE - 10, pos.y*TILESIZE - 150)
+            if self.victory != True:
+                rect = pg.Rect(int(pos.x*TILESIZE - 10), int(pos.y*TILESIZE - 120), int(heat), 20)
+                pg.draw.rect(screen,RED,rect)
+                if self.allies[x][3] > 0:
+                    text = '+'+str(self.allies[x][3])
+                    draw_text(text, 20,BLUE , pos.x*TILESIZE + 40, pos.y*TILESIZE - 150)
+                    rect = pg.Rect(int(pos.x*TILESIZE - 10), int(pos.y*TILESIZE - 120), int(self.allies[x][3]   ), 20)
+                    pg.draw.rect(screen,BLUE,rect)
+
+                text = str(heat)+'/'+str(x.health)
+                draw_text(text, 20, BLACK, pos.x*TILESIZE - 10, pos.y*TILESIZE - 150)
+            else:
+                
+                rect = pg.Rect(int(pos.x*TILESIZE - 10), int(pos.y*TILESIZE - 120), int(50), 20)
+                pg.draw.rect(screen,BLACK,rect)
+                proport = 50/x.needtolvl
+                rect = pg.Rect(int(pos.x*TILESIZE - 10), int(pos.y*TILESIZE - 120), int(x.exp*proport), 20)
+                pg.draw.rect(screen,YELLOW,rect)
+                text = str(x.exp)+'/'+str(x.needtolvl)
+                draw_text(text, 20, BLACK, pos.x*TILESIZE - 10, pos.y*TILESIZE - 150)
     def draw_enemychar(self):
         for x in self.enemy:   
             for y in self.enemy[x]:
@@ -3986,7 +3993,7 @@ class battle():
                 lel += 1
     def draw_background(self):
         goal_center = int(WIDTH / 2), int(HEIGHT/ 2)
-        screen.blit(background_fall, background_fall.get_rect(center=goal_center))
+        screen.blit(self.background_current, self.background_current.get_rect(center=goal_center))
     def draw_attack(self):
         self.selectedchar.draw_attack() #pffft over here you already made one
         pass
@@ -4049,7 +4056,7 @@ class battle():
             main.endscreen_timer = pg.time.get_ticks()
             main.enemy_attck_time = 0
         elif len(self.enemy) <= 0:
-            if main.current_state == 'battle' and Q.typeoq != 'gauntlet':
+            if main.current_state == 'battle' and Q.questmaster[Q.currentquest]['typeoq'] != 'gauntlet':
                 L.levelstatus.append(mpos2)
             self.savelevel = {}
             for x in self.allies:
@@ -4060,10 +4067,7 @@ class battle():
             self.enemy = {}
             self.l = []
             self.actions = []
-            coins = 0
-            for x in self.savecost:
-                e = L.get_cost([x])
-                coins += e
+            coins = L.get_cost(self.savecost)
             main.amountmoney += coins
             splitcoins = coins/len(self.allies)
             if len(self.killhistory) != 0:
@@ -4112,9 +4116,9 @@ class battle():
             for x in self.allies:
                 self.savelevel[x] = self.savelevel[x] - x.lvl
             main.endscreen_timer = pg.time.get_ticks()
-            if Q.typeoq == 'gauntlet':
+            if Q.questmaster[Q.currentquest]['typeoq'] == 'gauntlet':
                 if Q.glevel != 0:
-                    Q.findquest(1)
+                    Q.click()
                 else:
                     L.levelstatus.append(mpos2)
                     self.victory = True
@@ -4261,6 +4265,10 @@ class battle():
                         self.enemy[x][lel][4][needle][1] -= 1
                         if self.enemy[x][lel][4][needle][1] == 0:
                             del self.enemy[x][lel][4][needle]
+                    if 'ps' in self.enemy[x][lel][4]:
+                        self.enemy[x][lel][4]['ps'] -= 0.5
+                        if self.enemy[x][lel][4]['ps'] == 0:
+                            del self.enemy[x][lel][4]['ps']
                     lel += 1
                 
         if not when:
@@ -4369,8 +4377,7 @@ M = battle()
 
 
 M.targetedenemy = 0
-background_fall = pg.image.load(os.path.join(filename,'backgorunds-2.png.png'))
-background_fall = pg.transform.scale(background_fall, (1920, 1080))
+
 
 M.savecost = []
 
@@ -4406,6 +4413,8 @@ M.spec = -1
 
 M.skills = False
 M.selectedblessing = -2
+
+M.background_current = background_fall
 
 shop.draw_shopkeeps()
 
