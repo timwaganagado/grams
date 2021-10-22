@@ -1,5 +1,7 @@
 import matplotlib.pyplot as plt
 
+#train = df.sample(frac=0.8,random_state=1)
+
 players = [504895.2,
 512082.0,
 506067.4,

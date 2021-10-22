@@ -2816,8 +2816,14 @@ class level():
         screen.blit(cross, cross.get_rect(center=goal_center))
         ll =  0
         for x in self.levelid:
-            #$draw_text(str(self.display_costs[ll]),20,BLACK,x.x*TILESIZE*2,x.y*TILESIZE*2)
             loc = vec(x)
+            try:
+                draw_text(str(self.display_costs[ll]),20,BLACK,loc.x*TILESIZE*2,loc.y*TILESIZE*2)
+                print(self.display_costs[ll],'ll',ll)
+                print(len(self.levelid))
+            except:
+                pass
+            
             ll += 1
             if x in self.barrier:
                 pg.draw.circle(screen,RED,(int(loc.x*TILESIZE*2+TILESIZE*2/2),int(loc.y*TILESIZE*2+TILESIZE*2/2)),5)
@@ -2830,9 +2836,9 @@ class level():
     def draw_linestoconnections(self):
         #for x in self.connections:
         #    pg.draw.line(screen, BLUE, (int(self.crossvec.x*TILESIZE*2+TILESIZE*2/2),int(self.crossvec.y*TILESIZE*2+TILESIZE*2/2)), (int(x.x*TILESIZE*2+TILESIZE*2/2),int(x.y*TILESIZE*2+TILESIZE*2/2)))
-        #a,b = self.finddis(self.crossvec)
-        ##print(a ** random.choice([1.5,1.55,1.6]))
-        #pg.draw.line(screen, BLUE, (int(self.crossvec.x*TILESIZE*2+TILESIZE*2/2),int(self.crossvec.y*TILESIZE*2+TILESIZE*2/2)), (int(b.x*TILESIZE*2+TILESIZE*2/2),int(b.y*TILESIZE*2+TILESIZE*2/2)))
+        a,b = self.finddis(self.crossvec)
+        print(a ** random.choice([1.5,1.55,1.6]))
+        pg.draw.line(screen, BLUE, (int(self.crossvec.x*TILESIZE*2+TILESIZE*2/2),int(self.crossvec.y*TILESIZE*2+TILESIZE*2/2)), (int(b.x*TILESIZE*2+TILESIZE*2/2),int(b.y*TILESIZE*2+TILESIZE*2/2)))
         for x in self.drawdis:
             x2 = int(x)
             y = self.tierasi[x]
@@ -3200,7 +3206,7 @@ Q.done = 0
 Q.savedone = 0
 Q.active = False
 Q.addevent(Cri,['There is a audible fight happening over the ridge','You approach and find a mage battling a large enemy'],[swordguy],'battle',60,background_fall)
-Q.addevent(Hap,[['You reach the entrance to an inn',"As you're about to enter some one flies through the door",'he picks him self up sighing "no one will help me"','Help you with what','A vendeta',"you take a second","I'll help, if you join me",'deal'],['There he is you ready',"As ready as i'll ever be"]],[swordguy],'hunt',400,background_fall)
+Q.addevent(Hap,[['You reach the entrance to an inn',"As you're about to enter some one flies through the door",'he picks him self up sighing "no one will help me"','Help you with what','A vendeta',"you take a second","I'll help, if you join me",'deal'],['There he is you ready',"As ready as i'll ever be"]],[swordguy],'hunt',40,background_fall)
 Q.addevent(nover,['empty','empty'],[[swordguy],[rentoron]],'gauntlet',20,background_dungeon)
 
 class ui():
