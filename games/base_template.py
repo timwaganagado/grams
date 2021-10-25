@@ -3,6 +3,8 @@ from os import path
 from collections import deque
 import random
 import shelve
+import os , sys
+import math
 vec = pg.math.Vector2
 
 TILESIZE = 30

@@ -38,7 +38,7 @@ ORANGE = (255, 165, 0)
 check = 'working'
 
 pg.init()
-displayspec = 1
+displayspec = 0
 #displayspec = input('')
 #if displayspec == '':
 #    displayspec = 0
@@ -460,7 +460,7 @@ auras = [(1, 2), (0, 2), (-1, 2), (-2, 2), (-3, 2), (-3, 1), (-2, 1), (-1, 1), (
 swordguy.clickaura = []
 for aura in auras:
     swordguy.clickaura.append(vec(aura))
-swordguy.attacks = {'blunt slash':[3,{},False,2,4],'slash':[3,{pierce:1},False,2,1],'miss':[0,{},False,1,1]}
+swordguy.attacks = {'blunt slash':[3,{},False,2,4],'slash':[3,{pierce:1},False,2,10],'miss':[0,{},False,1,1]}
 swordguy.stagger = 10
 
 home_img = pg.image.load(os.path.join(filename,cross)).convert_alpha()
@@ -799,10 +799,12 @@ class ally():
                     if pierce == y:
                         ll = random.choices([1,2],[80,20])[0]
                         if ll == 2:
+                            print(M.allies[target])
+                            print(M.allies[target][4])
                             M.allies[target][4].update({pierce:1})
                             if M.allies[target][3] == 0:
                                 if bleed in M.allies[target][4]:
-                                    M.allies[target][4][bleed] += x[bleed]
+                                    M.allies[target][4][bleed] += 1
                                 else:
                                     M.allies[target][4].update({bleed:1})
                     else:
@@ -1856,7 +1858,8 @@ Coulion electric canon guy
 
 zither xanth user comes from macrodoen, dancing assasins called the comerance, special dress called a nintine
 lunal staff guy renrica in staff
-
+sillid a fiedca
+cri a crystal dosen't get along with fiedcas
 
 adine psycic
 heneric gas guy
@@ -2054,12 +2057,19 @@ shop.shopstart()
 class main():
     def __init__(self):
         current_state = 0
+    def checkstate(self):
+        if self.savestate != self.current_state:
+            self.savestate = self.current_state
+            print(self.savestate,self.current_state)
+            if self.current_state == 'overmap':
+                print('yes')
+                Bg.checkback()
     def draw_level(self):
         text = 'current level '+str(int(L.crossvec.x - 3))
         draw_text(text, 30, BLACK, 50, 10)
     def draw_money(self):
-        text = 'coin '+str(self.amountmoney)
-        draw_text(text, 30, BLACK, 50, 40)
+        text = 'Coins '+str(self.amountmoney)
+        draw_text(text, 30, BLACK, 50, 10)
     def states(self):
         if self.current_state == 'battle':
             pass
@@ -2141,7 +2151,7 @@ class main():
                             y[6] = False
             self.anim_timer = pg.time.get_ticks()
         if self.current_state == 'battle':
-            M.draw_background()
+            Bg.draw_background()
             M.draw_allychar()
             M.draw_enemychar()
             M.draw_icons()
@@ -2168,6 +2178,7 @@ class main():
                     self.playertrunover = True
                     self.little = {}
                     self.k = 0
+                    M.checkifdead()
                     for x in M.enemy:
                         if len(M.enemy[x]) > 1:
                             for y in range(len(M.enemy[x])):
@@ -2178,7 +2189,7 @@ class main():
                             self.k += 1 
                     self.attacks = 0
                     self.enemycanattack = True
-                    M.checkifdead()
+                    
                 
                 if current_time - self.enemy_attck_time > 1000 and self.enemycanattack and len(M.allies) > 0 and not self.flop:
                     self.display_time_start = pg.time.get_ticks()  
@@ -2313,6 +2324,7 @@ class main():
             O.selectmap()
     def overmapbottom(self):
         if self.current_state == 'overmap':
+            Bg.draw_background()
             O.draw_overmap()
     def menutop(self):
         if self.current_state == 'menu' or ui.pause:
@@ -2325,7 +2337,7 @@ class main():
             Q.click()
     def questbottom(self):
         if self.current_state == 'quest' or self.current_state == 'hunt':
-            M.draw_background()
+            Bg.draw_background()
             Q.draw_quest()
     def creatortop(self):
         if self.current_state == 'creator':
@@ -2532,14 +2544,13 @@ class tutorial():
         L.pathloc = []
         tier = {}
         L.tierasi = {}
-        line = 0
         L.closest = {}
         L.levelid = {}
-        line = 0
         tier = 'battle'
         L.tierasiquest = (-1,-1)
         L.tiersecq = (-1,-1)
         Q.typeoq = 'none'
+        Q.currentquest = 0
         for x in self.levels:
             if tier == 'battle':
                 if x.x in L.levelmaster:
@@ -2549,12 +2560,11 @@ class tutorial():
                     remove = L.get_cost(enemy)
                     cost -= remove
                     enemies.append(enemy[0])
-                    L.make(line,enemies,tier,x)
+                    L.make(enemies,tier,x)
             else:
                 L.make(line,[],tier,x)
             if x.x == 28:
-                L.levelid.update({x:[[cbm],'battle']})
-            line += 1               
+                L.levelid.update({x:[[cbm],'battle']})             
 
 tut = tutorial()
 tut.done = 0
@@ -2568,6 +2578,7 @@ for x in levels:
 main = main()
 
 main.current_state = 'menu'
+main.savestate = 0
 main.amountmoney = 50
 main.enemy_attck_time = 0
 main.enemycanattack = False
@@ -2592,10 +2603,34 @@ def draw_biggrid():
     for y in range(0, HEIGHT, TILESIZE*2 ):
         pg.draw.line(screen, LIGHTGRAY, (0, y), (WIDTH, y))
         
+class background():
+    def __init__(self):
+        self.vec = 0
+    def checkback(self):
+        if main.current_state == 'overmap':
+            self.background_current = map_rica
+        if O.crossvec.x == 5:
+            self.background_current = background_fall
+    def draw_background(self):
+        goal_center = int(WIDTH / 2), int(HEIGHT/ 2)
+        screen.blit(self.background_current, self.background_current.get_rect(center=goal_center))
+        
+Bg = background()
+Bg.menuback = []
+        
 background_fall = pg.image.load(os.path.join(filename,'backgorunds-2.png.png'))
 background_fall = pg.transform.scale(background_fall, (1920, 1080))
 background_dungeon = pg.image.load(os.path.join(filename,'dungeon.png'))
 background_dungeon = pg.transform.scale(background_dungeon, (1920, 1080))
+landscape_mountain = pg.image.load(os.path.join(filename,'landscape_mountain.png'))
+landscape_mountain = pg.transform.scale(landscape_mountain, (1920, 1080))
+Bg.menuback.append(landscape_mountain)
+map_rica = pg.image.load(os.path.join(filename,'rica_map.png'))
+map_rica = pg.transform.scale(map_rica, (1920, 1080))
+Bg.menuback.append(map_rica)
+
+
+Bg.background_current = random.choice(Bg.menuback)
 
 class overmap():
     def __init__(self):
@@ -2616,10 +2651,15 @@ class overmap():
         pos = self.crossvec.x
         L.levelmaster = self.mapmaster[int((pos-2)/2)]
     def draw_overmap(self):
+        s = pg.Surface((1920,1080))  # the size of your rect
+        s.set_alpha(200)                # alpha level
+        s.fill((100,100,100 ))           # this fills the entire surface
+        screen.blit(s, (0,0)) 
         pos = self.crossvec
         goal_center = (int(pos.x * TILESIZE*2 + TILESIZE*2 / 2), int(pos.y * TILESIZE*2 + TILESIZE*2 / 2))
         screen.blit(cross, cross.get_rect(center=goal_center))
         for x in self.maps:
+            pg.draw.circle(screen,WHITE,(int(x.x*TILESIZE*2+TILESIZE*2/2),int(x.y*TILESIZE*2+TILESIZE*2/2)),10)
             pg.draw.circle(screen,BLACK,(int(x.x*TILESIZE*2+TILESIZE*2/2),int(x.y*TILESIZE*2+TILESIZE*2/2)),5)
         for x in self.connections:
             pg.draw.line(screen, BLUE, (int(self.crossvec.x*TILESIZE*2+TILESIZE*2/2),int(self.crossvec.y*TILESIZE*2+TILESIZE*2/2)), (int(x.x*TILESIZE*2+TILESIZE*2/2),int(x.y*TILESIZE*2+TILESIZE*2/2)))
@@ -2748,8 +2788,7 @@ O.removal = False
 maps = [(5, 6), (5, 10), (7, 8), (9, 6), (9, 10), (7, 12), (7, 4), (7, 4), (9, 2), (9, 2), (9, 14), (11, 12), (11, 8), (11, 4), (13, 2), (13, 6), (13, 10), (13, 14), (15, 4), (15, 8), (15, 12), (17, 14), (17, 10), (17, 6), (17, 2), (19, 4), (19, 8), (19, 12), (21, 14), (21, 10), (21, 6), (21, 2), (23, 4), (25, 6), (27, 8), (25, 10), (23, 12), (23, 8)]
 for x in maps:
     O.maps.append(vec(x))
-O.mapmaster = {1:{0: [2,[swordguy,grosehound],[2, 1]],1: [2,[swordguy,grosehound],[2, 2]],2: [2,[swordguy,grosehound,magee],[2, 2, 1]],3: [2,[swordguy,grosehound,magee],[2, 2, 1]],4: [2,[swordguy,magee,archer,grosehound],[2, 1, 1, 1]],5: [3,[swordguy,magee,grosehound,archer],[2, 1, 1, 1]],6: [3,[magee,rentoron,archer],[1, 1, 1]],7: [3,[magee,archer,rentoron],[1, 1, 1]],8: [3,[archer,rentoron],[1, 1]],9: [3,[grosehound,rentoron,archer],[1, 2, 1]],10: [5,[magee,archer,rentoron,grosehound],[1, 2, 1, 2]],11: [5,[magee,archer,rentoron],[1, 2, 1]],12: [5,[grosehound,rentoron,swordguy],[1, 1, 1]],13: [5,[swordguy,magee,archer,grosehound],[1, 1, 
-2, 1]],14: [5,[swordguy,magee,rentoron],[1, 2, 1]],15: [7,[swordguy,magee,archer,grosehound],[1, 2, 1, 1]],16: [7,[magee,archer,grosehound],[1, 1, 1]],17: [7,[magee,conrift,archer],[1, 1, 1]],18: [7,[magee,conrift,archer],[1, 1, 1]],19: [7,[magee,conrift,archer,grosehound],[1, 1, 1, 1]],20: [9,[swordguy,magee,conrift,archer,rentoron],[3, 2, 1, 2, 1]],21: [9,[swordguy,magee,conrift,archer],[1, 1, 1, 1]],22: [9,[swordguy,magee,grosehound,rentoron,archer],[1, 1, 1, 1, 1]],23: [9,[swordguy,magee,conrift,archer],[1, 1, 1, 1]],24: [9,[swordguy,magee,conrift,archer],[1, 1, 1, 1]],25: [11,[magee,conrift],[1, 1]],26: [12,[magee,conrift,archer],[5, 3, 1]],27: [12,[magee,conrift,archer,rentoron],[1, 1, 1, 1]],28: [13,[magee,conrift,grosehound],[1, 1, 2]],29: [14,[magee,conrift,grosehound],[1, 1, 2]],30: [15,[magee,conrift,grosehound],[1, 1, 2]]},0:{4: [2,[dva],[1]]},-1:{14: [2,[spsword],[1]],15: [2,[magee],[1]],16: [2,[magee],[1]],17: [2,[boulderine],[1]],18: [1,[archer],[1]]}}
+O.mapmaster = {1:{0: [2,[swordguy,grosehound],[2, 1]],1: [2,[swordguy,grosehound],[2, 2]],2: [2,[swordguy,grosehound,magee],[2, 2, 1]],3: [2,[swordguy,grosehound,magee],[2, 2, 1]],4: [2,[swordguy,magee,archer,grosehound],[2, 1, 1, 1]],5: [3,[swordguy,magee,grosehound,archer],[2, 1, 1, 1]],6: [3,[magee,rentoron,archer],[1, 1, 1]],7: [3,[magee,archer,rentoron],[1, 1, 1]],8: [3,[archer,rentoron],[1, 1]],9: [3,[grosehound,rentoron,archer],[1, 2, 1]],10: [5,[magee,archer,rentoron,grosehound],[1, 2, 1, 2]],11: [5,[magee,archer,rentoron],[1, 2, 1]],12: [5,[grosehound,rentoron,swordguy],[1, 1, 1]],13: [5,[swordguy,magee,archer,grosehound],[1, 1, 2, 1]],14: [5,[swordguy,magee,rentoron],[1, 2, 1]],15: [7,[swordguy,magee,archer,grosehound],[1, 2, 1, 1]],16: [7,[magee,archer,grosehound],[1, 1, 1]],17: [7,[magee,conrift,archer],[1, 1, 1]],18: [7,[magee,conrift,archer],[1, 1, 1]],19: [7,[magee,conrift,archer,grosehound],[1, 1, 1, 1]],20: [9,[swordguy,magee,conrift,archer,rentoron],[3, 2, 1, 2, 1]],21: [9,[swordguy,magee,conrift,archer],[1, 1, 1, 1]],22: [9,[swordguy,magee,grosehound,rentoron,archer],[1, 1, 1, 1, 1]],23: [9,[swordguy,magee,conrift,archer],[1, 1, 1, 1]],24: [9,[swordguy,magee,conrift,archer],[1, 1, 1, 1]],25: [11,[magee,conrift],[1, 1]],26: [12,[magee,conrift,archer],[5, 3, 1]],27: [12,[magee,conrift,archer,rentoron],[1, 1, 1, 1]],28: [13,[magee,conrift,grosehound],[1, 1, 2]],29: [14,[magee,conrift,grosehound],[1, 1, 2]],30: [15,[magee,conrift,grosehound],[1, 1, 2]]},0:{4: [2,[dva],[1]],5: [10,[swordguy],[1]]},-1:{14: [2,[spsword],[1]],15: [2,[magee],[1]],16: [2,[magee],[1]],17: [2,[boulderine],[1]],18: [1,[archer],[1]]}}
 
 O.get_connections()
 
@@ -2769,6 +2808,7 @@ class test():
         tier = 'battle'
         L.tierasiquest = vec(0,0)
         L.tiersecq = vec(0,0)
+        Q.currentquest = 0
         for x in L.levels:
             if tier == 'battle':
                 if x.x in L.levelmaster:
@@ -2781,11 +2821,11 @@ class test():
                         remove = L.get_cost(enemy)
                         cost -= remove
                         enemies.append(enemy[0])
-                    L.make(line,enemies,tier,x)
+                    L.make(enemies,tier,x)
             else:
                 L.make(line,[],tier,x)
             if x.x == 28:
-                L.levelid.update({x:[[cbm],'battle']})
+                L.levelid.update({(x.x,x.y):[[cbm],'battle']})
             line += 1         
                 
 T = test()
@@ -2819,8 +2859,8 @@ class level():
             loc = vec(x)
             try:
                 draw_text(str(self.display_costs[ll]),20,BLACK,loc.x*TILESIZE*2,loc.y*TILESIZE*2)
-                print(self.display_costs[ll],'ll',ll)
-                print(len(self.levelid))
+                #print(self.display_costs[ll],'ll',ll)
+                #print(len(self.levelid))
             except:
                 pass
             
@@ -2836,9 +2876,9 @@ class level():
     def draw_linestoconnections(self):
         #for x in self.connections:
         #    pg.draw.line(screen, BLUE, (int(self.crossvec.x*TILESIZE*2+TILESIZE*2/2),int(self.crossvec.y*TILESIZE*2+TILESIZE*2/2)), (int(x.x*TILESIZE*2+TILESIZE*2/2),int(x.y*TILESIZE*2+TILESIZE*2/2)))
-        a,b = self.finddis(self.crossvec)
-        print(a ** random.choice([1.5,1.55,1.6]))
-        pg.draw.line(screen, BLUE, (int(self.crossvec.x*TILESIZE*2+TILESIZE*2/2),int(self.crossvec.y*TILESIZE*2+TILESIZE*2/2)), (int(b.x*TILESIZE*2+TILESIZE*2/2),int(b.y*TILESIZE*2+TILESIZE*2/2)))
+        #a,b = self.finddis(self.crossvec)
+        #print(a ** random.choice([1.5,1.55,1.6]))
+        #pg.draw.line(screen, BLUE, (int(self.crossvec.x*TILESIZE*2+TILESIZE*2/2),int(self.crossvec.y*TILESIZE*2+TILESIZE*2/2)), (int(b.x*TILESIZE*2+TILESIZE*2/2),int(b.y*TILESIZE*2+TILESIZE*2/2)))
         for x in self.drawdis:
             x2 = int(x)
             y = self.tierasi[x]
@@ -3053,6 +3093,8 @@ class level():
                         tier = 'battle'
                     elif 'battle' == tier:
                         M.start()
+                        M.typeobattle = 'normal'
+                        Bg.checkback()
                     elif 'shop' == tier:
                         shop.shopstart()
                     elif 'event' == tier:
@@ -3076,6 +3118,8 @@ class level():
                     tier = 'battle'
                 elif 'battle' == tier:
                     M.start()
+                    M.typeobattle = 'normal'
+                    Bg.checkback()
                 elif 'shop' == tier:
                     shop.shopstart()
                 elif 'event' == tier:
@@ -3165,8 +3209,7 @@ class quest():
                     main.current_state = 'battle'
                     L.levelid.update({(L.savequest.x,L.savequest.y):[self.questmaster[self.currentquest]['enemies'][self.glevel],'battle']})
                     self.glevel += 1
-                    print(self.glevel)
-                    print(len(self.questmaster[self.currentquest]['enemies']))
+                    M.typeobattle = 'gauntlet'
                     M.start()
                     self.active = True
         else:
@@ -3197,6 +3240,7 @@ class quest():
             self.click()
     def eventstart(self):
         self.currentquest,e = L.getlevel()
+        Bg.background_current = self.questmaster[self.currentquest]['map']
 
 Q = quest()
 Q.questmaster = {}
@@ -3207,7 +3251,7 @@ Q.savedone = 0
 Q.active = False
 Q.addevent(Cri,['There is a audible fight happening over the ridge','You approach and find a mage battling a large enemy'],[swordguy],'battle',60,background_fall)
 Q.addevent(Hap,[['You reach the entrance to an inn',"As you're about to enter some one flies through the door",'he picks him self up sighing "no one will help me"','Help you with what','A vendeta',"you take a second","I'll help, if you join me",'deal'],['There he is you ready',"As ready as i'll ever be"]],[swordguy],'hunt',40,background_fall)
-Q.addevent(nover,['empty','empty'],[[swordguy],[rentoron]],'gauntlet',20,background_dungeon)
+Q.addevent(nover,['empty','empty'],[[swordguy],[rentoron]],'gauntlet',200,background_dungeon)
 
 class ui():
     def __init__(self):
@@ -3374,6 +3418,7 @@ class randomevent():
             self.click()
     def eventstart(self):
         self.currentevent,e = L.getlevel()
+        B.background_current = self.eventmaster[self.currentevent]['map']
 re = randomevent()
 re.eventmaster = {}
 re.events = []
@@ -3584,22 +3629,22 @@ haloodblessing = B.halood()
 hblesser = haloodblessing.lesser()
 hblesser.text = 'Halood Lesser'
 hblesser.txt = 'Attacks will remove 5 health, also at the end of combat 10 health will be restored.'
-hb_lesser_img = pg.image.load(os.path.join(filename,'cross-1.png.png')).convert_alpha()
+hb_lesser_img = pg.image.load(os.path.join(filename,'halood_blessing0.png')).convert_alpha()
 hblesser.img = pg.transform.scale(hb_lesser_img, (64, 64))
 hbnormal = haloodblessing.normal()
 hbnormal.text = 'Halood Normal'
 hbnormal.txt = 'Attacks will deal more damage and randomly remove 10 health, also at the end of combat 10 health will be restored.'
-hb_normal_img = pg.image.load(os.path.join(filename,'cross-1.png.png')).convert_alpha()
+hb_normal_img = pg.image.load(os.path.join(filename,'halood_blessing1.png')).convert_alpha()
 hbnormal.img = pg.transform.scale(hb_normal_img, (64, 64))
 hbgreater = haloodblessing.greater()
 hbgreater.text = 'Halood Greater'
 hbgreater.txt = 'Attacks will deal more damage and rarely remove 10 health, also at the end of each turn 5 health will be restored.'
-hb_greater_img = pg.image.load(os.path.join(filename,'cross-1.png.png')).convert_alpha()
+hb_greater_img = pg.image.load(os.path.join(filename,'halood_blessing2.png')).convert_alpha()
 hbgreater.img = pg.transform.scale(hb_greater_img, (64, 64))
 hbultrated = haloodblessing.ultrated()
 hbultrated.text = 'Halood Ultrated'
 hbultrated.txt = 'Attacks will deal more damage will never remove health, also at the end of each turn and combat 5 health will be restored.'
-hb_ultra_img = pg.image.load(os.path.join(filename,'cross-1.png.png')).convert_alpha()
+hb_ultra_img = pg.image.load(os.path.join(filename,'halood_blessing3.png')).convert_alpha()
 hbultrated.img = pg.transform.scale(hb_ultra_img, (64, 64))
 chance = 60
 B.addblessing(haloodblessing,hblesser,hbnormal,hbgreater,hbultrated,chance)
@@ -3609,22 +3654,22 @@ tulemblessing = B.tulem()
 tblesser = tulemblessing.lesser()
 tblesser.text = 'Tulem Lesser'
 tblesser.txt = 'Attacks will deal more damage.'
-lesser_img = pg.image.load(os.path.join(filename,'cross-1.png.png')).convert_alpha()
+lesser_img = pg.image.load(os.path.join(filename,'tulem_blessing0.png')).convert_alpha()
 tblesser.img = pg.transform.scale(lesser_img, (64, 64))
 tbnormal = tulemblessing.normal()
 tbnormal.text = 'Tulem Normal'
 tbnormal.txt = 'Attacks will deal more damage and apply bleed.'
-normal_img = pg.image.load(os.path.join(filename,'cross-1.png.png')).convert_alpha()
+normal_img = pg.image.load(os.path.join(filename,'tulem_blessing1.png')).convert_alpha()
 tbnormal.img = pg.transform.scale(normal_img, (64, 64))
 tbgreater = tulemblessing.greater()
 tbgreater.text = 'Tulem Greater'
 tbgreater.txt = 'Attacks will deal more damage and apply bleed with the chance of piercing.'
-greater_img = pg.image.load(os.path.join(filename,'cross-1.png.png')).convert_alpha()
+greater_img = pg.image.load(os.path.join(filename,'tulem_blessing2.png')).convert_alpha()
 tbgreater.img = pg.transform.scale(greater_img, (64, 64))
 tbultrated = tulemblessing.ultrated()
 tbultrated.text = 'Tulem Ultrated'
 tbultrated.txt = 'Attacks will deal more damage and apply bleed and piercing, also chance to reduce damage by half.'
-tb_ultra_img = pg.image.load(os.path.join(filename,'cross-1.png.png')).convert_alpha()
+tb_ultra_img = pg.image.load(os.path.join(filename,'tulem_blessing3.png')).convert_alpha()
 tbultrated.img = pg.transform.scale(tb_ultra_img, (64, 64))
 chance = 60
 B.addblessing(tulemblessing,tblesser,tbnormal,tbgreater,tbultrated,chance)
@@ -3859,16 +3904,15 @@ class battle():
         self.actions = []
         self.alliessave = []
         
-        self.addchar(playing)
+        #self.addchar(playing)
         
-        #self.addchar(zither)
+        self.addchar(nover)
         #
         #self.addchar(fairum)
         
         self.numberofallies()
         #for x in range(1,3):#range(1,random.randint(2,3))
     def addchar(self,new):
-        
         pos = new.vec
         eat = new.health
         lean = new.shield
@@ -3997,9 +4041,6 @@ class battle():
                 if y[3] != 0:
                     draw_text(str(y[3]),30,RED,self.enemy[x][lel][0].x*TILESIZE, self.enemy[x][lel][0].y*TILESIZE-150,align="bottomright") 
                 lel += 1
-    def draw_background(self):
-        goal_center = int(WIDTH / 2), int(HEIGHT/ 2)
-        screen.blit(self.background_current, self.background_current.get_rect(center=goal_center))
     def draw_attack(self):
         self.selectedchar.draw_attack() #pffft over here you already made one
         pass
@@ -4062,7 +4103,7 @@ class battle():
             main.endscreen_timer = pg.time.get_ticks()
             main.enemy_attck_time = 0
         elif len(self.enemy) <= 0:
-            if main.current_state == 'battle' and Q.questmaster[Q.currentquest]['typeoq'] != 'gauntlet':
+            if main.current_state == 'battle' and self.typeobattle == 'gauntlet':
                 L.levelstatus.append(mpos2)
             self.savelevel = {}
             for x in self.allies:
@@ -4122,7 +4163,7 @@ class battle():
             for x in self.allies:
                 self.savelevel[x] = self.savelevel[x] - x.lvl
             main.endscreen_timer = pg.time.get_ticks()
-            if Q.questmaster[Q.currentquest]['typeoq'] == 'gauntlet':
+            if self.typeobattle == 'gauntlet':
                 if Q.glevel != 0:
                     Q.click()
                 else:
@@ -4130,6 +4171,7 @@ class battle():
                     self.victory = True
             else:
                 self.victory = True
+
             self.damage = {}
     def numberofenemy(self):
         spaces = {'space1':[vec(37,20),99],'space2':[vec(43,25),99],'space3':[vec(43,15),99],'space4':[vec(47,18),99],'space5':[vec(47,22),99]}
@@ -4420,7 +4462,7 @@ M.spec = -1
 M.skills = False
 M.selectedblessing = -2
 
-M.background_current = background_fall
+
 
 shop.draw_shopkeeps()
 
@@ -4499,6 +4541,7 @@ while ui.running:
             #    print([(int(loc.x -  M.clericvec.x), int(loc.y - M.clericvec.y)) for loc in create])
             if event.key == pg.K_m:
                 main.current_state = 'creator'
+                M.addchar(nover)
             if event.key == pg.K_ESCAPE:
                 if main.current_state != 'menu':
                     if ui.pause:
@@ -4508,6 +4551,7 @@ while ui.running:
         if event.type == pg.QUIT: # allows for quit when clicking on the X 
             ui.running = False
             pg.quit() 
+        main.checkstate()
     current_time = pg.time.get_ticks()
     pg.display.set_caption("{:.2f}".format(clock.get_fps())) # changes the name of the application
     screen.fill(WHITE) # fills screnn with color
@@ -4524,10 +4568,9 @@ while ui.running:
     if main.current_state != 'menu':
         if main.current_state != 'creator':
             if M.tutorial != True: 
-                main.draw_level()
                 main.draw_money()
     else:
-        M.draw_background()
+        Bg.draw_background()
     main.menubottom()
     main.creatorbottom()
     pg.display.flip() # dose the changes goto doccumentation for other ways
@@ -4560,3 +4603,5 @@ listt = ''
 for x in list2:
     listt += x
 listt += '}'
+if main.current_state == 'creator':
+    print(listt)
