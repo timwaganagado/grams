@@ -799,8 +799,6 @@ class ally():
                     if pierce == y:
                         ll = random.choices([1,2],[80,20])[0]
                         if ll == 2:
-                            print(M.allies[target])
-                            print(M.allies[target][4])
                             M.allies[target][4].update({pierce:1})
                             if M.allies[target][3] == 0:
                                 if bleed in M.allies[target][4]:
@@ -2062,7 +2060,6 @@ class main():
             self.savestate = self.current_state
             print(self.savestate,self.current_state)
             if self.current_state == 'overmap':
-                print('yes')
                 Bg.checkback()
     def draw_level(self):
         text = 'current level '+str(int(L.crossvec.x - 3))
@@ -2218,6 +2215,7 @@ class main():
                                 y[5] = []
                 if 2000 < current_time - self.display_time_start:
                     M.draw_damage()
+                    M.checkifdead()
                 M.draw_txt_attack()
                 if current_time - self.display_time_stop > 3000 and self.playertrunover == False:
                     M.damage = {}
@@ -2355,6 +2353,7 @@ class tutorial():
         x = False
         if self.done == 13:
             main.current_state = 'overmap'
+            Bg.checkback()
             M.restart()
             L.crossvec = vec(3,8)
             L.get_connections()
@@ -2608,8 +2607,9 @@ class background():
         self.vec = 0
     def checkback(self):
         if main.current_state == 'overmap':
+            print('its happening ')
             self.background_current = map_rica
-        if O.crossvec.x == 5:
+        elif O.crossvec.x == 5 or O.crossvec.x == 3:
             self.background_current = background_fall
     def draw_background(self):
         goal_center = int(WIDTH / 2), int(HEIGHT/ 2)
@@ -2857,12 +2857,12 @@ class level():
         ll =  0
         for x in self.levelid:
             loc = vec(x)
-            try:
-                draw_text(str(self.display_costs[ll]),20,BLACK,loc.x*TILESIZE*2,loc.y*TILESIZE*2)
+            #try:
+                #draw_text(str(self.display_costs[ll]),20,BLACK,loc.x*TILESIZE*2,loc.y*TILESIZE*2)
                 #print(self.display_costs[ll],'ll',ll)
                 #print(len(self.levelid))
-            except:
-                pass
+            #except:
+             #   pass
             
             ll += 1
             if x in self.barrier:
@@ -2874,8 +2874,9 @@ class level():
             else:
                 pg.draw.circle(screen,BLACK,(int(loc.x*TILESIZE*2+TILESIZE*2/2),int(loc.y*TILESIZE*2+TILESIZE*2/2)),5)
     def draw_linestoconnections(self):
-        #for x in self.connections:
-        #    pg.draw.line(screen, BLUE, (int(self.crossvec.x*TILESIZE*2+TILESIZE*2/2),int(self.crossvec.y*TILESIZE*2+TILESIZE*2/2)), (int(x.x*TILESIZE*2+TILESIZE*2/2),int(x.y*TILESIZE*2+TILESIZE*2/2)))
+        if not M.tutorial:
+            for x in self.connections:
+                pg.draw.line(screen, BLUE, (int(self.crossvec.x*TILESIZE*2+TILESIZE*2/2),int(self.crossvec.y*TILESIZE*2+TILESIZE*2/2)), (int(x.x*TILESIZE*2+TILESIZE*2/2),int(x.y*TILESIZE*2+TILESIZE*2/2)))
         #a,b = self.finddis(self.crossvec)
         #print(a ** random.choice([1.5,1.55,1.6]))
         #pg.draw.line(screen, BLUE, (int(self.crossvec.x*TILESIZE*2+TILESIZE*2/2),int(self.crossvec.y*TILESIZE*2+TILESIZE*2/2)), (int(b.x*TILESIZE*2+TILESIZE*2/2),int(b.y*TILESIZE*2+TILESIZE*2/2)))
@@ -2921,7 +2922,6 @@ class level():
         char = random.choices(Q.events,Q.eventchance)[0]
         Q.currentquest = char
         typeoq = Q.questmaster[char]['typeoq']
-        print(typeoq)
         for x in self.levels:
             if x.x % 4 == 1:
                 if x.x not in tier:
@@ -2943,7 +2943,6 @@ class level():
             Q.glevel = 0
         if typeoq == 'hunt':
             self.tiersecq = random.choice(self.tiersecq)
-        print(self.tiersecq)
         for x in self.tierasi:
             if x != 25:
                 x2 = x + 4
@@ -3030,7 +3029,7 @@ class level():
             line += 1         
     def get_connections(self):
         self.connections = []
-        possible = [vec(1,0),vec(1,-1),vec(1,1),vec(0,1),vec(0,-1)]
+        possible = [vec(1,0),vec(1,-1),vec(1,1),vec(0,1),vec(0,-1),vec(-1,0),vec(-1,-1),vec(-1,1)]
         for x in possible:
             newcheck = self.crossvec + x
             if newcheck in self.levels:
@@ -3382,6 +3381,7 @@ class randomevent():
             self.done += 1
             self.savedone  = -1
         if self.done >= len(self.eventmaster[self.currentevent]['dialouge']):
+            print(self.eventmaster,self.currentevent)
             main.current_state = 'map'
             self.done = 0
             if self.eventmaster[self.currentevent]['type'] == 'gold':
@@ -3400,9 +3400,7 @@ class randomevent():
         rect = pg.Rect(0, 0, 1400, 400)
         rect.center = x,y
         pg.draw.rect(screen,BLACK,rect)
-        print(self.eventmaster,self.currentevent)
-        print(self.eventmaster[self.currentevent]['dialouge'])
-        print(self.eventmaster[self.currentevent]['dialouge'][self.done])
+        
         if type(self.eventmaster[self.currentevent]['dialouge'][self.done]) is not list:
             txt = self.eventmaster[self.currentevent]['dialouge'][self.done]
         else:
@@ -3411,7 +3409,6 @@ class randomevent():
             else:    
                 self.savedone = random.choice(self.eventmaster[self.currentevent]['dialouge'][self.done])
                 txt = self.savedone
-                print(txt)
         if txt != 0:
             draw_text_center(txt,50,WHITE,x,y)
         else:
@@ -3558,7 +3555,6 @@ class blessings():
             def __init__(self):
                 self.vec = 0
             def attack(self,amount,target,aimed,dup):
-                print(M.enemy[aimed][dup][4])
                 if bleed in M.enemy[aimed][dup][4]:
                     M.enemy[aimed][dup][4][bleed] += 1
                 else:
@@ -3676,27 +3672,25 @@ B.addblessing(tulemblessing,tblesser,tbnormal,tbgreater,tbultrated,chance)
 '''
 insen
 '''
-tt = 0
-o = 1
-for x in range(0,100):
-    o = 1
-    B.inventory = {}
-    while tbultrated not in B.test:
-        
-        B.addbetterinventory(1)
-        o+=1
-        if o % 20 == 0:
-            print(o)
-            B.inventory = {}
-    tt += len(B.test)
-    
-    B.test = []
-print(tt/100)
+#tt = 0
+#o = 1
+#for x in range(0,100):
+    #o = 1
+    #B.inventory = {}
+    #while tbultrated not in B.test:
+    #    
+       # B.addbetterinventory(1)
+      #  o+=1
+     #   if o % 20 == 0:
+    #        print(o)
+   #         B.inventory = {}
+  #  tt += len(B.test)
+ #   
+#    B.test = []
+#print(tt/100)
 
 #B.inventory = {}
 #B.addinventory(5)
-print(background_dungeon)
-print(background_fall)
 
 
 class battle():
@@ -3906,7 +3900,7 @@ class battle():
         
         #self.addchar(playing)
         
-        self.addchar(nover)
+        self.addchar(playing)
         #
         #self.addchar(fairum)
         
@@ -4102,6 +4096,12 @@ class battle():
             self.loss = True
             main.endscreen_timer = pg.time.get_ticks()
             main.enemy_attck_time = 0
+            L.turns = 0
+            L.border = 3
+            L.barrier = []
+            for x in self.alliessave:
+                x.xp = 0
+                x.unlockedablilites = []
         elif len(self.enemy) <= 0:
             if main.current_state == 'battle' and self.typeobattle == 'gauntlet':
                 L.levelstatus.append(mpos2)
