@@ -38,7 +38,7 @@ ORANGE = (255, 165, 0)
 check = 'working'
 
 pg.init()
-displayspec = 0
+displayspec = 1
 #displayspec = input('')
 #if displayspec == '':
 #    displayspec = 0
@@ -113,10 +113,18 @@ testenemy = testenemy()
 
 stunte = testenemy.stunte()
 
+swordguy_img = pg.image.load(os.path.join(filename,'Layer 1_swordguy_combat1.png')).convert_alpha()
+swordguy_img = pg.transform.scale(swordguy_img, (256, 256))
+swordguy2_img = pg.image.load(os.path.join(filename,'Layer 1_swordguy_combat2.png')).convert_alpha()
+swordguy2_img = pg.transform.scale(swordguy2_img, (256, 256))
+swordguy3_img = pg.image.load(os.path.join(filename,'Layer 1_swordguy_combat3.png')).convert_alpha()
+swordguy3_img = pg.transform.scale(swordguy3_img, (256, 256))
+
 stunte.vec = vec(43,20)
 stunte.health = 25
 stunte.immunities = []
 stunte.combat_animation = {1:home_img,2:home_img,3:home_img}
+stunte.attack_animation = {1:home_img,2:home_img,3:home_img}
 auras = [(1, 2), (0, 2), (-1, 2), (-2, 2), (-3, 2), (-3, 1), (-2, 1), (-1, 1), (0, 1), (1, 1), (1, 0), (0, 0), (-1, 0), (-2, 0), (-3, 0), (-3, -1), (-2, -1), (-1, -1), (0, -1), (1, -1), (1, -2), (0, -2), (-1, -2), (-2, -2), (-3, -2)]
 stunte.clickaura = []
 for aura in auras:
@@ -2153,6 +2161,7 @@ class main():
             M.draw_enemychar()
             M.draw_icons()
             M.draw_effects()
+            M.draw_phase()
             if ui.pause:
                 M.draw_allychar()
                 M.draw_enemychar()
@@ -2176,6 +2185,7 @@ class main():
                     self.little = {}
                     self.k = 0
                     M.checkifdead()
+                    M.phase = 'Enemy'
                     for x in M.enemy:
                         if len(M.enemy[x]) > 1:
                             for y in range(len(M.enemy[x])):
@@ -2213,6 +2223,8 @@ class main():
                         for x in M.enemy:
                             for y in M.enemy[x]:
                                 y[5] = []
+                        if not len(M.actions) >= len(M.allies):
+                            M.phase = 'Player'
                 if 2000 < current_time - self.display_time_start:
                     M.draw_damage()
                     M.checkifdead()
@@ -2788,7 +2800,7 @@ O.removal = False
 maps = [(5, 6), (5, 10), (7, 8), (9, 6), (9, 10), (7, 12), (7, 4), (7, 4), (9, 2), (9, 2), (9, 14), (11, 12), (11, 8), (11, 4), (13, 2), (13, 6), (13, 10), (13, 14), (15, 4), (15, 8), (15, 12), (17, 14), (17, 10), (17, 6), (17, 2), (19, 4), (19, 8), (19, 12), (21, 14), (21, 10), (21, 6), (21, 2), (23, 4), (25, 6), (27, 8), (25, 10), (23, 12), (23, 8)]
 for x in maps:
     O.maps.append(vec(x))
-O.mapmaster = {1:{0: [2,[swordguy,grosehound],[2, 1]],1: [2,[swordguy,grosehound],[2, 2]],2: [2,[swordguy,grosehound,magee],[2, 2, 1]],3: [2,[swordguy,grosehound,magee],[2, 2, 1]],4: [2,[swordguy,magee,archer,grosehound],[2, 1, 1, 1]],5: [3,[swordguy,magee,grosehound,archer],[2, 1, 1, 1]],6: [3,[magee,rentoron,archer],[1, 1, 1]],7: [3,[magee,archer,rentoron],[1, 1, 1]],8: [3,[archer,rentoron],[1, 1]],9: [3,[grosehound,rentoron,archer],[1, 2, 1]],10: [5,[magee,archer,rentoron,grosehound],[1, 2, 1, 2]],11: [5,[magee,archer,rentoron],[1, 2, 1]],12: [5,[grosehound,rentoron,swordguy],[1, 1, 1]],13: [5,[swordguy,magee,archer,grosehound],[1, 1, 2, 1]],14: [5,[swordguy,magee,rentoron],[1, 2, 1]],15: [7,[swordguy,magee,archer,grosehound],[1, 2, 1, 1]],16: [7,[magee,archer,grosehound],[1, 1, 1]],17: [7,[magee,conrift,archer],[1, 1, 1]],18: [7,[magee,conrift,archer],[1, 1, 1]],19: [7,[magee,conrift,archer,grosehound],[1, 1, 1, 1]],20: [9,[swordguy,magee,conrift,archer,rentoron],[3, 2, 1, 2, 1]],21: [9,[swordguy,magee,conrift,archer],[1, 1, 1, 1]],22: [9,[swordguy,magee,grosehound,rentoron,archer],[1, 1, 1, 1, 1]],23: [9,[swordguy,magee,conrift,archer],[1, 1, 1, 1]],24: [9,[swordguy,magee,conrift,archer],[1, 1, 1, 1]],25: [11,[magee,conrift],[1, 1]],26: [12,[magee,conrift,archer],[5, 3, 1]],27: [12,[magee,conrift,archer,rentoron],[1, 1, 1, 1]],28: [13,[magee,conrift,grosehound],[1, 1, 2]],29: [14,[magee,conrift,grosehound],[1, 1, 2]],30: [15,[magee,conrift,grosehound],[1, 1, 2]]},0:{4: [2,[dva],[1]],5: [10,[swordguy],[1]]},-1:{14: [2,[spsword],[1]],15: [2,[magee],[1]],16: [2,[magee],[1]],17: [2,[boulderine],[1]],18: [1,[archer],[1]]}}
+O.mapmaster = {1:{0: [2,[swordguy,grosehound],[2, 1]],1: [2,[swordguy,grosehound],[2, 2]],2: [2,[swordguy,grosehound,magee],[2, 2, 1]],3: [2,[swordguy,grosehound,magee],[2, 2, 1]],4: [2,[swordguy,magee,archer,grosehound],[2, 1, 1, 1]],5: [3,[swordguy,magee,grosehound,archer],[2, 1, 1, 1]],6: [3,[magee,rentoron,archer],[1, 1, 1]],7: [3,[magee,archer,rentoron],[1, 1, 1]],8: [3,[archer,rentoron],[1, 1]],9: [3,[grosehound,rentoron,archer],[1, 2, 1]],10: [5,[magee,archer,rentoron,grosehound],[1, 2, 1, 2]],11: [5,[magee,archer,rentoron],[1, 2, 1]],12: [5,[grosehound,rentoron,swordguy],[1, 1, 1]],13: [5,[swordguy,magee,archer,grosehound],[1, 1, 2, 1]],14: [5,[swordguy,magee,rentoron],[1, 2, 1]],15: [7,[swordguy,magee,archer,grosehound],[1, 2, 1, 1]],16: [7,[magee,archer,grosehound],[1, 1, 1]],17: [7,[magee,conrift,archer],[1, 1, 1]],18: [7,[magee,conrift,archer],[1, 1, 1]],19: [7,[magee,conrift,archer,grosehound],[1, 1, 1, 1]],20: [9,[swordguy,magee,conrift,archer,rentoron],[3, 2, 1, 2, 1]],21: [9,[swordguy,magee,conrift,archer],[1, 1, 1, 1]],22: [9,[swordguy,magee,grosehound,rentoron,archer],[1, 1, 1, 1, 1]],23: [9,[swordguy,magee,conrift,archer],[1, 1, 1, 1]],24: [9,[swordguy,magee,conrift,archer],[1, 1, 1, 1]],25: [11,[magee,conrift],[1, 1]],26: [12,[magee,conrift,archer],[5, 3, 1]],27: [12,[magee,conrift,archer,rentoron],[1, 1, 1, 1]],28: [13,[magee,conrift,grosehound],[1, 1, 2]],29: [14,[magee,conrift,grosehound],[1, 1, 2]],30: [15,[magee,conrift,grosehound],[1, 1, 2]]},0:{4: [2,[dva],[1]],5: [10,[swordguy],[1]],6: [1,[stunte],[1]]},-1:{14: [2,[spsword],[1]],15: [2,[magee],[1]],16: [2,[magee],[1]],17: [2,[boulderine],[1]],18: [1,[archer],[1]]}}
 
 O.get_connections()
 
@@ -3023,8 +3035,7 @@ class level():
             else:
                 self.make([],tier,x)
             if x.x == 28:
-                self.levelid.update({line:[[cbm,boulderine,boulderine],'battle']})
-                self.levelindex.update({line:x})
+                self.make([cbm,boulderine,boulderine],'battle',x)
             self.display_costs.append(level)
             line += 1         
     def get_connections(self):
@@ -3066,6 +3077,8 @@ class level():
             cost += 2
         if dva in target:
             cost += 9
+        if stunte in target:
+            cost += 1
         return cost
     def make(self,enemies,tier,x):
         self.levelid.update({(x.x,x.y):[enemies,tier]})
@@ -3991,8 +4004,28 @@ class battle():
                 draw_text(text, 20, BLACK, pos.x*TILESIZE - 10, pos.y*TILESIZE - 150)
                 rect = pg.Rect(int(pos.x*TILESIZE - 10), int(pos.y*TILESIZE - 120), int(heat), 20)
                 pg.draw.rect(screen,RED,rect)
-
+    def draw_phase(self):
+        if self.phase == 'Enemy':
+            if self.decrease == 50:
+                self.toggle = True
+            if self.toggle:
+                self.decrease *= 0.89
+                self.phasetext += vec(0,self.decrease)
                 
+                print(self.phasetext)
+                if self.decrease < 1:
+                    self.toggle = False
+        if self.phase == 'Player':
+            if self.decrease <= 1:
+                self.toggle = True
+            if self.toggle:
+                self.decrease /= 0.89
+                self.phasetext += vec(0,self.decrease)
+                if self.decrease > 80:
+                    self.toggle = False
+                    self.decrease = 50
+                    self.phasetext = vec(WIDTH/2,-30)
+        draw_text_center(self.phase, 50, BLACK, self.phasetext.x,self.phasetext.y)
     def draw_icons(self):
         for x in self.allies:
             if self.selectedchar == x:
@@ -4103,7 +4136,7 @@ class battle():
                 x.xp = 0
                 x.unlockedablilites = []
         elif len(self.enemy) <= 0:
-            if main.current_state == 'battle' and self.typeobattle == 'gauntlet':
+            if main.current_state == 'battle' or self.typeobattle == 'gauntlet':
                 L.levelstatus.append(mpos2)
             self.savelevel = {}
             for x in self.allies:
@@ -4462,7 +4495,10 @@ M.spec = -1
 M.skills = False
 M.selectedblessing = -2
 
-
+M.phasetext = vec(WIDTH/2,-30)
+M.phase = 'Player'
+M.decrease = 50
+M.toggle = False
 
 shop.draw_shopkeeps()
 
