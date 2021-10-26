@@ -87,7 +87,7 @@ class testenemy():
         def thunk(self,ll):
             damage = enemy.decision(self,ll)
             enemy.defaultattack(self,ll,damage)
-        def damage(self,dup,damage):
+        def damage(self,dup,damage,inin):
             M.enemy[self][dup][1] -= damage
     class bleedte():
         def __init__(self):
@@ -95,7 +95,7 @@ class testenemy():
         def thunk(self,ll):
             damage = enemy.decision(self,ll)
             enemy.defaultattack(self,ll,damage)
-        def damage(self,dup,damage):
+        def damage(self,dup,damage,inin):
             M.enemy[self][dup][1] -= damage
     class spsword():
         def __init__(self):
@@ -103,7 +103,7 @@ class testenemy():
         def thunk(self,ll):
             damage = enemy.decision(self,ll)
             enemy.defaultattack(self,ll,damage)
-        def damage(self,dup,damage):
+        def damage(self,dup,damage,inin):
             M.enemy[self][dup][1] -= damage
 
 home_img = pg.image.load(os.path.join(filename,cross)).convert_alpha()
@@ -198,9 +198,10 @@ class enemy():
         for x in range(0,damage[3]):
             target.damage(damage,initiated,dup)
             
-    def damage(target,dup,damage):
+    def damage(target,dup,damage,inin):
         if pierce in M.enemy[target][dup][4]:
             damage *= 1.5
+        damage = ally.checkblessing('attacking',inin,damage,target,dup)
         M.enemy[target][dup][1] -= damage 
         M.enemy[target][dup][5].append(damage)
         total = 0
@@ -228,8 +229,8 @@ class enemy():
         def thunk(self,ll):
             damage = enemy.decision(self,ll)
             enemy.defaultattack(self,ll,damage)
-        def damage(self,dup,damage):
-            enemy.damage(self,dup,damage)
+        def damage(self,dup,damage,inin):
+            enemy.damage(self,dup,damage,inin)
     class magee():
         def __init__(self):
             self.vec = 0
@@ -262,24 +263,24 @@ class enemy():
                 M.enemy[healb][heals][1] += damage[0]
                 if M.enemy[healb][heals][1] > healb.health:
                     M.enemy[healb][heals][1] = healb.health
-        def damage(self,dup,damage):
-            enemy.damage(self,dup,damage)
+        def damage(self,dup,damage,inin):
+            enemy.damage(self,dup,damage,inin)
     class swordguy():
         def __init__(self):
             self.vec = 0
         def thunk(self,ll):
             damage = enemy.decision(self,ll)
             enemy.defaultattack(self,ll,damage)
-        def damage(self,dup,damage):
-            enemy.damage(self,dup,damage)
+        def damage(self,dup,damage,inin):
+            enemy.damage(self,dup,damage,inin)
     class archer():
         def __init__(self):
             self.vec = 0 
         def thunk(self,ll):
             damage = enemy.decision(self,ll)
             enemy.defaultattack(self,ll,damage)
-        def damage(self,dup,damage):
-            enemy.damage(self,dup,damage)
+        def damage(self,dup,damage,inin):
+            enemy.damage(self,dup,damage,inin)
     class boulderine():
         def __init__(self):
             self.vec = 0
@@ -291,15 +292,15 @@ class enemy():
                 enemy.defaultattack(self,ll,damage)
         def support(self,damage,ll):
             M.enemy[self][ll][4].update({dodge:1})
-        def damage(self,dup,damage):
+        def damage(self,dup,damage,inin):
             if dodge in M.enemy[self][dup][4]: 
                 if M.allies[M.selectedchar][3] > 0:
-                    enemy.damage(self,dup,damage)
+                    enemy.damage(self,dup,damage,inin)
                     M.selectedchar.damage([10])
                 else:
                     M.selectedchar.damage([10])
             else:
-                enemy.damage(self,dup,damage)
+                enemy.damage(self,dup,damage,inin)
     class hardboulderine():
         def __init__(self):
             self.vec = 0
@@ -311,15 +312,15 @@ class enemy():
                 enemy.defaultattack(self,ll,damage)
         def support(self,damage,ll):
             M.enemy[self][ll][4].update({dodge:1})
-        def damage(self,dup,damage):
+        def damage(self,dup,damage,inin):
             if dodge in M.enemy[self][dup][4]: 
                 if M.allies[M.selectedchar][3] > 0:
-                    enemy.damage(self,dup,damage)
+                    enemy.damage(self,dup,damage,inin)
                     M.selectedchar.damage([10])
                 else:
                     M.selectedchar.damage([10])
             else:
-                enemy.damage(self,dup,damage)
+                enemy.damage(self,dup,damage,inin)
     class rentoron():
         def __init__(self):
             self.vec = 0 
@@ -335,16 +336,16 @@ class enemy():
                     x.damage([10,{}],self,ll)
             else:
                 M.enemy[self][ll][4].update({charge:1})
-        def damage(self,dup,damage):
-            enemy.damage(self,dup,damage)
+        def damage(self,dup,damage,inin):
+            enemy.damage(self,dup,damage,inin)
     class grosehound():
         def __init__(self):
             self.vec = 0
         def thunk(self,ll):
             damage = enemy.decision(self,ll)
             enemy.defaultattack(self,ll,damage)
-        def damage(self,dup,damage):
-            enemy.damage(self,dup,damage)
+        def damage(self,dup,damage,inin):
+            enemy.damage(self,dup,damage,inin)
     class barrier():
         def __init__(self):
             self.vec = 0
@@ -353,8 +354,8 @@ class enemy():
             if damage[2]:
                 damage[3] = random.choice([1,2,3,4,5,6,7,8])
             enemy.defaultattack(self,ll,damage)
-        def damage(self,dup,damage):
-            enemy.damage(self,dup,damage)
+        def damage(self,dup,damage,inin):
+            enemy.damage(self,dup,damage,inin)
     class dva():
         def __init__(self):
             self.vec = 0
@@ -377,8 +378,8 @@ class enemy():
                 M.enemy[self][ll][4].update({'weapon':random.choice(cweapons)})
             else:
                 enemy.defaultattack(self,ll,damage)
-        def damage(self,dup,damage):
-            enemy.damage(self,dup,damage)
+        def damage(self,dup,damage,inin):
+            enemy.damage(self,dup,damage,inin)
 
 
 
@@ -626,7 +627,7 @@ class boss():
                 self.support([0])
             attacks,chance = self.decision(ll)
             self.attack(ll,attacks,chance)
-        def damage(self,dup,damage):
+        def damage(self,dup,damage,inin):
             M.enemy[self][dup][1] -= damage
         def attack(self,ll,attacks,chance):
             for attackingtwice in range(0,2):
@@ -660,7 +661,7 @@ class boss():
         def support(self,target):
             if target[0] == 0:
                 M.enemy[self][0][1] += M.enemy[self][0][1]*4/10
-        def damage(self,dup,damage):
+        def damage(self,dup,damage,inin):
             M.enemy[self][dup][1] -= damage
     class selloquie():
         def __init__(self):
@@ -874,11 +875,9 @@ class ally():
                 self.healdam += int((blooddamage * self.attacks[attack][0])/2)
             damage = blooddamage * self.attacks[attack][0]
             damage = ally.checkattack(damage,self)
-            damage = ally.checkblessing('attacking',self,damage,target,dup)
             self.passive()
-            target.damage(dup,damage)
+            target.damage(dup,damage,self)
             ally.applyeffects(target,dup,attack,self)
-            
         def support(self,target):
             if M.selectedattack == self.attack3:
                 if self.attack3 in self.unlockedabilites:
@@ -980,6 +979,7 @@ class ally():
                     M.allies[target][4] = {}
             self.passive(attack)
         def passive(self,used):
+            damage = ally.checkblessing('passive',self,0,0,0)
             for x in self.attacks:
                 if x == used:
                     self.attacks[x][0] += (1 + self.inc)
@@ -994,7 +994,7 @@ class ally():
                 if self.attacks[x][0] > 10:
                     self.attacks[x][0] = 2
         def passive_endturn(self):
-            pass
+            damage = ally.checkblessing('endpassive',self,0,0,0)
         def damage(self,taken,initiated,ll):
             ally.damage(self,taken,initiated,ll)
         def draw_icons(self):
@@ -1047,9 +1047,9 @@ class ally():
             else:
                 damage = self.attacks[attack][0]+self.inc
             damage = ally.checkattack(damage,self)
-            target.damage(dup,damage)
+            target.damage(dup,damage,self)
             if self.attacktwice == True:
-                target.damage(dup,damage)
+                target.damage(dup,damage,self)
                 self.attacktwice = False
             ally.applyeffects(target,dup,attack,self)
             self.passive(attack)
@@ -1063,6 +1063,7 @@ class ally():
                 M.actions.remove(Hap)
         def passive(self,used):
             if used != self.attack1:
+                damage = ally.checkblessing('passive',self,0,0,0)
                 self.momentum += 1
                 if self.momentum >=3:
                     self.momentum = 3
@@ -1072,6 +1073,7 @@ class ally():
                     if bleed in self.attacks[self.attack1][1][0]:
                         del self.attacks[self.attack1][1][0][bleed]
         def passive_endturn(self):
+            damage = ally.checkblessing('endpassive',self,0,0,0)
             if bleed in self.attacks[self.attack1][1][0]:
                 del self.attacks[self.attack1][1][0][bleed]
             self.momentum = 0
@@ -1141,7 +1143,7 @@ class ally():
                             lel += 1
                 else:
                     ally.applyeffects(target,dup,attack,self)
-                target.damage(dup,damage)
+                target.damage(dup,damage,self)
             else:
                 M.actions.remove(self)
 
@@ -1157,9 +1159,11 @@ class ally():
             else:
                 M.actions.remove(self)
         def passive(self,used):
+            damage = ally.checkblessing('passive',self,0,0,0)
             self.attacks[used][0][1] -= 1
             self.acts += 1
         def passive_endturn(self):
+            damage = ally.checkblessing('endpassive',self,0,0,0)
             for x in range(self.acts):
                 if self.attack4 in self.unlockedabilites:
                     cur = random.choices([self.attack1,self.attack2,self.attack4],[35,55,10])[0]
@@ -1239,7 +1243,7 @@ class ally():
                     damage = self.attacks[attack][0]
                 ally.applyeffects(target,dup,attack,self)
                 damage = ally.checkattack(damage,self)
-                target.damage(dup,damage)
+                target.damage(dup,damage,self)
                 self.passive(attack)
         def support(self,target):
             if self.block:
@@ -1291,6 +1295,7 @@ class ally():
                         self.combat_animation = {1:nover_block_img,2:nover_block_img,3:nover_block_img}
 
         def passive(self,used):     
+            damage = ally.checkblessing('passive',self,0,0,0)
             self.acts -= 1
             if self.acts < 0:
                 self.acts = 0 
@@ -1303,7 +1308,7 @@ class ally():
                     self.attacks = self.saveattacks
                     self.mimicing = False
         def passive_endturn(self):
-            pass
+            damage = ally.checkblessing('endpassive',self,0,0,0)
         def damage(self,taken,initiated,ll):
             if self.block:
                 taken[0] = int(taken[0]/2)
@@ -1374,7 +1379,7 @@ class ally():
                         for y in M.enemy[x]:
                             y[1] -= random.randint(0,self.attacks[self.attack4][0][0])
                             damage = self.attacks[self.attack4][0][0]
-                target.damage(dup,damage)
+                target.damage(dup,damage,self)
                 self.passive(attack)
             else:
                 M.actions.remove(self)
@@ -1391,11 +1396,13 @@ class ally():
             else:
                 M.actions.remove(self)
         def passive(self,used):
+            damage = ally.checkblessing('passive',self,0,0,0)
             self.plates -= self.attacks[used][0][1]
             self.plates += 2
             if self.plates > self.plateslimit:
                 self.plates = self.plateslimit
         def passive_endturn(self):
+            damage = ally.checkblessing('endpassive',self,0,0,0)
             self.plates += 10
             if self.plates > self.plateslimit:
                 self.plates = self.plateslimit
@@ -1469,7 +1476,8 @@ class ally():
                 stacks = M.enemy[target][dup][4][needle][0]
                 damage *= -0.25*stacks*stacks+1.75*stacks-0.5
             ally.applyeffects(target,dup,attack,self)
-            target.damage(dup,damage)
+            
+            target.damage(dup,damage,self)
             self.passive(attack)
             #M.actions.remove(self)
         def support(self,target):
@@ -1489,10 +1497,11 @@ class ally():
                 stacks *= 5
                 M.allies[self][3] += stacks
         def passive(self,used):
+            damage = ally.checkblessing('passive',self,0,0,0)
             if self.agro >= 1:
                 self.agro = 1
         def passive_endturn(self):
-            pass
+            damage = ally.checkblessing('endpassive',self,0,0,0)
         def damage(self,taken,initiated,ll):
             if needle in M.enemy[initiated][ll][4]:
                 stacks = M.enemy[initiated][ll][4][needle][0]
@@ -3685,22 +3694,22 @@ B.addblessing(tulemblessing,tblesser,tbnormal,tbgreater,tbultrated,chance)
 '''
 insen
 '''
-#tt = 0
-#o = 1
-#for x in range(0,100):
-    #o = 1
-    #B.inventory = {}
-    #while tbultrated not in B.test:
-    #    
-       # B.addbetterinventory(1)
-      #  o+=1
-     #   if o % 20 == 0:
-    #        print(o)
-   #         B.inventory = {}
-  #  tt += len(B.test)
- #   
-#    B.test = []
-#print(tt/100)
+tt = 0
+o = 1
+for x in range(0,100):
+    o = 1
+    B.inventory = {}
+    while tbultrated not in B.test:
+        
+        B.addbetterinventory(1)
+        o+=1
+        if o % 20 == 0:
+            print(o)
+            B.inventory = {}
+    tt += len(B.test)
+    
+    B.test = []
+print(tt/100)
 
 #B.inventory = {}
 #B.addinventory(5)
