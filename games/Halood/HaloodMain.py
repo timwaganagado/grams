@@ -4020,8 +4020,6 @@ class battle():
             if self.toggle:
                 self.decrease *= 0.89
                 self.phasetext += vec(0,self.decrease)
-                
-                print(self.phasetext)
                 if self.decrease < 1:
                     self.toggle = False
         if self.phase == 'Player':
