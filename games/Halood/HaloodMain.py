@@ -469,19 +469,33 @@ auras = [(1, 2), (0, 2), (-1, 2), (-2, 2), (-3, 2), (-3, 1), (-2, 1), (-1, 1), (
 swordguy.clickaura = []
 for aura in auras:
     swordguy.clickaura.append(vec(aura))
-swordguy.attacks = {'blunt slash':[3,{},False,2,4],'slash':[3,{pierce:1},False,2,10],'miss':[0,{},False,1,1]}
+swordguy.attacks = {'blunt slash':[3,{},False,2,4],'slash':[3,{pierce:1},False,2,2],'miss':[0,{},False,1,1]}
 swordguy.stagger = 10
 
 home_img = pg.image.load(os.path.join(filename,cross)).convert_alpha()
 home_img = pg.transform.scale(home_img, (256, 256))
+
+archer_img = pg.image.load(os.path.join(filename,'archer_combat0.png')).convert_alpha()
+archer_img = pg.transform.scale(archer_img, (256, 256))
+archer2_img = pg.image.load(os.path.join(filename,'archer_combat1.png')).convert_alpha()
+archer2_img = pg.transform.scale(archer2_img, (256, 256))
+archer3_img = pg.image.load(os.path.join(filename,'archer_combat2.png')).convert_alpha()
+archer3_img = pg.transform.scale(archer3_img, (256, 256))
+
+archer_attacking_img = pg.image.load(os.path.join(filename,'archer_attacking0.png')).convert_alpha()
+archer_attacking_img = pg.transform.scale(archer_attacking_img, (256, 256))
+archer_attacking2_img = pg.image.load(os.path.join(filename,'archer_attacking1.png')).convert_alpha()
+archer_attacking2_img = pg.transform.scale(archer_attacking2_img, (256, 256))
+archer_attacking3_img = pg.image.load(os.path.join(filename,'archer_attacking2.png')).convert_alpha()
+archer_attacking3_img = pg.transform.scale(archer_attacking3_img, (256, 256))
 
 archer = enemy.archer()
 enemy.list.append(archer)
 archer.vec = vec(43,20)
 archer.health = 20
 archer.immunities = []
-archer.combat_animation = {1:home_img,2:home_img,3:home_img}
-archer.attack_animation = {1:magee_attacking_img,2:magee_attacking2_img,3:magee_attacking3_img}
+archer.combat_animation = {1:archer_img,2:archer2_img,3:archer3_img}
+archer.attack_animation = {1:archer_attacking_img,2:archer_attacking2_img,3:archer_attacking3_img}
 auras = [(1, 2), (0, 2), (-1, 2), (-2, 2), (-3, 2), (-3, 1), (-2, 1), (-1, 1), (0, 1), (1, 1), (1, 0), (0, 0), (-1, 0), (-2, 0), (-3, 0), (-3, -1), (-2, -1), (-1, -1), (0, -1), (1, -1), (1, -2), (0, -2), (-1, -2), (-2, -2), (-3, -2)]
 archer.clickaura = []
 for aura in auras:
