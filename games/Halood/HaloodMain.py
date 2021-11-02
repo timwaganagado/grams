@@ -113,11 +113,14 @@ testenemy = testenemy()
 
 stunte = testenemy.stunte()
 
-swordguy_img = pg.image.load(os.path.join(filename,'Layer 1_swordguy_combat1.png')).convert_alpha()
+currentfileg =  filename +'\enemies'
+
+currentfiles = currentfileg + '\swordguy'
+swordguy_img = pg.image.load(os.path.join(currentfiles,'Layer 1_swordguy_combat1.png')).convert_alpha()
 swordguy_img = pg.transform.scale(swordguy_img, (256, 256))
-swordguy2_img = pg.image.load(os.path.join(filename,'Layer 1_swordguy_combat2.png')).convert_alpha()
+swordguy2_img = pg.image.load(os.path.join(currentfiles,'Layer 1_swordguy_combat2.png')).convert_alpha()
 swordguy2_img = pg.transform.scale(swordguy2_img, (256, 256))
-swordguy3_img = pg.image.load(os.path.join(filename,'Layer 1_swordguy_combat3.png')).convert_alpha()
+swordguy3_img = pg.image.load(os.path.join(currentfiles,'Layer 1_swordguy_combat3.png')).convert_alpha()
 swordguy3_img = pg.transform.scale(swordguy3_img, (256, 256))
 
 stunte.vec = vec(43,20)
@@ -143,11 +146,11 @@ for aura in auras:
     bleedte.clickaura.append(vec(aura))
 bleedte.attacks = {'constrict':[0,{bleed:1},False,1,1]}
 
-swordguy_img = pg.image.load(os.path.join(filename,'Layer 1_swordguy_combat1.png')).convert_alpha()
+swordguy_img = pg.image.load(os.path.join(currentfiles,'Layer 1_swordguy_combat1.png')).convert_alpha()
 swordguy_img = pg.transform.scale(swordguy_img, (256, 256))
-swordguy2_img = pg.image.load(os.path.join(filename,'Layer 1_swordguy_combat2.png')).convert_alpha()
+swordguy2_img = pg.image.load(os.path.join(currentfiles,'Layer 1_swordguy_combat2.png')).convert_alpha()
 swordguy2_img = pg.transform.scale(swordguy2_img, (256, 256))
-swordguy3_img = pg.image.load(os.path.join(filename,'Layer 1_swordguy_combat3.png')).convert_alpha()
+swordguy3_img = pg.image.load(os.path.join(currentfiles,'Layer 1_swordguy_combat3.png')).convert_alpha()
 swordguy3_img = pg.transform.scale(swordguy3_img, (256, 256))
 
 spsword = testenemy.spsword()
@@ -391,18 +394,20 @@ enemy.list.append(bleedte)
 enemy.list.append(spsword)
 enemy.list.append(stunte)
 
-conrift_combat_img = pg.image.load(os.path.join(filename,'conrift_combat0.png')).convert_alpha()
+currentfiles = currentfileg + '\conrift'
+
+conrift_combat_img = pg.image.load(os.path.join(currentfiles,'conrift_combat0.png')).convert_alpha()
 conrift_combat_img = pg.transform.scale(conrift_combat_img, (256, 256))
-conrift_combat2_img = pg.image.load(os.path.join(filename,'conrift_combat1.png')).convert_alpha()
+conrift_combat2_img = pg.image.load(os.path.join(currentfiles,'conrift_combat1.png')).convert_alpha()
 conrift_combat2_img = pg.transform.scale(conrift_combat2_img, (256, 256))
-conrift_combat3_img = pg.image.load(os.path.join(filename,'conrift_combat2.png')).convert_alpha()
+conrift_combat3_img = pg.image.load(os.path.join(currentfiles,'conrift_combat2.png')).convert_alpha()
 conrift_combat3_img = pg.transform.scale(conrift_combat3_img, (256, 256))
 
-magee_attacking_img = pg.image.load(os.path.join(filename,'magee_attacking0.png')).convert_alpha()
+magee_attacking_img = pg.image.load(os.path.join(currentfiles,'conrift_attacking0.png')).convert_alpha()
 magee_attacking_img = pg.transform.scale(magee_attacking_img, (256, 256))
-magee_attacking2_img = pg.image.load(os.path.join(filename,'magee_attacking1.png')).convert_alpha()
+magee_attacking2_img = pg.image.load(os.path.join(currentfiles,'conrift_attacking1.png')).convert_alpha()
 magee_attacking2_img = pg.transform.scale(magee_attacking2_img, (256, 256))
-magee_attacking3_img = pg.image.load(os.path.join(filename,'magee_attacking2.png')).convert_alpha()
+magee_attacking3_img = pg.image.load(os.path.join(currentfiles,'conrift_attacking2.png')).convert_alpha()
 magee_attacking3_img = pg.transform.scale(magee_attacking3_img, (256, 256))
 
 conrift = enemy.conrift()
@@ -416,18 +421,20 @@ conrift.clickaura = [vec(-1,0),vec(-1,1),vec(-1,2),vec(-1,3),vec(-1,-1),vec(-1,-
 conrift.attacks = {'darkness':[5,{},False,1,5],'conduction':[20,{fire:1,stun:1},False,1,1]}
 conrift.stagger = 15
 
-magee_combat_img = pg.image.load(os.path.join(filename,'magee_combat0.png')).convert_alpha()
+currentfiles = currentfileg + '\magee'
+
+magee_combat_img = pg.image.load(os.path.join(currentfiles,'magee_combat0.png')).convert_alpha()
 magee_combat_img = pg.transform.scale(magee_combat_img, (256, 256))
-magee_combat2_img = pg.image.load(os.path.join(filename,'magee_combat1.png')).convert_alpha()
+magee_combat2_img = pg.image.load(os.path.join(currentfiles,'magee_combat1.png')).convert_alpha()
 magee_combat2_img = pg.transform.scale(magee_combat2_img, (256, 256))
-magee_combat3_img = pg.image.load(os.path.join(filename,'magee_combat2.png')).convert_alpha()
+magee_combat3_img = pg.image.load(os.path.join(currentfiles,'magee_combat2.png')).convert_alpha()
 magee_combat3_img = pg.transform.scale(magee_combat3_img, (256, 256))
 
-magee_attacking_img = pg.image.load(os.path.join(filename,'magee_attacking0.png')).convert_alpha()
+magee_attacking_img = pg.image.load(os.path.join(currentfiles,'magee_attacking0.png')).convert_alpha()
 magee_attacking_img = pg.transform.scale(magee_attacking_img, (256, 256))
-magee_attacking2_img = pg.image.load(os.path.join(filename,'magee_attacking1.png')).convert_alpha()
+magee_attacking2_img = pg.image.load(os.path.join(currentfiles,'magee_attacking1.png')).convert_alpha()
 magee_attacking2_img = pg.transform.scale(magee_attacking2_img, (256, 256))
-magee_attacking3_img = pg.image.load(os.path.join(filename,'magee_attacking2.png')).convert_alpha()
+magee_attacking3_img = pg.image.load(os.path.join(currentfiles,'magee_attacking2.png')).convert_alpha()
 magee_attacking3_img = pg.transform.scale(magee_attacking3_img, (256, 256))
 
 magee = enemy.magee()
@@ -444,18 +451,20 @@ for aura in auras:
 magee.attacks = {'fire ball':[10,{fire:1},False,1,4],'lightning':[15,{stun:1},False,1,1],'ice shards':[5,{pierce:1},False,1,4],'heal':[5,{},True,0,2],'miss':[0,{},False,1,1]}
 magee.stagger = 15
 
-swordguy_img = pg.image.load(os.path.join(filename,'Layer 1_swordguy_combat1.png')).convert_alpha()
+currentfiles = currentfileg + '\swordguy'
+
+swordguy_img = pg.image.load(os.path.join(currentfiles,'Layer 1_swordguy_combat1.png')).convert_alpha()
 swordguy_img = pg.transform.scale(swordguy_img, (256, 256))
-swordguy2_img = pg.image.load(os.path.join(filename,'Layer 1_swordguy_combat2.png')).convert_alpha()
+swordguy2_img = pg.image.load(os.path.join(currentfiles,'Layer 1_swordguy_combat2.png')).convert_alpha()
 swordguy2_img = pg.transform.scale(swordguy2_img, (256, 256))
-swordguy3_img = pg.image.load(os.path.join(filename,'Layer 1_swordguy_combat3.png')).convert_alpha()
+swordguy3_img = pg.image.load(os.path.join(currentfiles,'Layer 1_swordguy_combat3.png')).convert_alpha()
 swordguy3_img = pg.transform.scale(swordguy3_img, (256, 256))
 
-swordguy_attacking_img = pg.image.load(os.path.join(filename,'swordguy_attacking0.png')).convert_alpha()
+swordguy_attacking_img = pg.image.load(os.path.join(currentfiles,'swordguy_attacking0.png')).convert_alpha()
 swordguy_attacking_img = pg.transform.scale(swordguy_attacking_img, (256, 256))
-swordguy_attacking2_img = pg.image.load(os.path.join(filename,'swordguy_attacking1.png')).convert_alpha()
+swordguy_attacking2_img = pg.image.load(os.path.join(currentfiles,'swordguy_attacking1.png')).convert_alpha()
 swordguy_attacking2_img = pg.transform.scale(swordguy_attacking2_img, (256, 256))
-swordguy_attacking3_img = pg.image.load(os.path.join(filename,'swordguy_attacking2.png')).convert_alpha()
+swordguy_attacking3_img = pg.image.load(os.path.join(currentfiles,'swordguy_attacking2.png')).convert_alpha()
 swordguy_attacking3_img = pg.transform.scale(swordguy_attacking3_img, (256, 256))
 
 swordguy = enemy.swordguy()
@@ -475,18 +484,20 @@ swordguy.stagger = 10
 home_img = pg.image.load(os.path.join(filename,cross)).convert_alpha()
 home_img = pg.transform.scale(home_img, (256, 256))
 
-archer_img = pg.image.load(os.path.join(filename,'archer_combat0.png')).convert_alpha()
+currentfiles = currentfileg + "/archer"
+
+archer_img = pg.image.load(os.path.join(currentfiles,'archer_combat0.png')).convert_alpha()
 archer_img = pg.transform.scale(archer_img, (256, 256))
-archer2_img = pg.image.load(os.path.join(filename,'archer_combat1.png')).convert_alpha()
+archer2_img = pg.image.load(os.path.join(currentfiles,'archer_combat1.png')).convert_alpha()
 archer2_img = pg.transform.scale(archer2_img, (256, 256))
-archer3_img = pg.image.load(os.path.join(filename,'archer_combat2.png')).convert_alpha()
+archer3_img = pg.image.load(os.path.join(currentfiles,'archer_combat2.png')).convert_alpha()
 archer3_img = pg.transform.scale(archer3_img, (256, 256))
 
-archer_attacking_img = pg.image.load(os.path.join(filename,'archer_attacking0.png')).convert_alpha()
+archer_attacking_img = pg.image.load(os.path.join(currentfiles,'archer_attacking0.png')).convert_alpha()
 archer_attacking_img = pg.transform.scale(archer_attacking_img, (256, 256))
-archer_attacking2_img = pg.image.load(os.path.join(filename,'archer_attacking1.png')).convert_alpha()
+archer_attacking2_img = pg.image.load(os.path.join(currentfiles,'archer_attacking1.png')).convert_alpha()
 archer_attacking2_img = pg.transform.scale(archer_attacking2_img, (256, 256))
-archer_attacking3_img = pg.image.load(os.path.join(filename,'archer_attacking2.png')).convert_alpha()
+archer_attacking3_img = pg.image.load(os.path.join(currentfiles,'archer_attacking2.png')).convert_alpha()
 archer_attacking3_img = pg.transform.scale(archer_attacking3_img, (256, 256))
 
 archer = enemy.archer()
@@ -503,6 +514,8 @@ for aura in auras:
 archer.attacks = {'piercing arrow':[5,{pierce:1},False,1,5],'blunt arrow':[5,{},False,1,1],'miss':[0,{},False,1,2]}
 archer.stagger = 10
 
+currentfiles = currentfileg + '\boulderine'
+
 boulderine = enemy.boulderine()
 enemy.list.append(boulderine)
 boulderine.vec = vec(43,20)
@@ -516,6 +529,8 @@ for aura in auras:
     boulderine.clickaura.append(vec(aura))
 boulderine.attacks = {'weak smoke':[5,{weakness:1},False,1,2],'reposte':[0,{},True,0,2],'miss':[0,{},False,1,1]}
 boulderine.stagger = 15
+
+currentfiles = currentfileg + '\hardboulderine'
 
 hardboulderine = enemy.hardboulderine()
 enemy.list.append(hardboulderine)
@@ -531,11 +546,13 @@ for aura in auras:
 hardboulderine.attacks = {'hard smoke':[10,{},False,1,2],'reposte':[0,{},True,0,2],'miss':[0,{},False,1,1]}
 hardboulderine.stagger = 20
 
-rentoron_combat_img = pg.image.load(os.path.join(filename,'rentoron_combat0.png')).convert_alpha()
+currentfiles = currentfileg + '/rentoron'
+
+rentoron_combat_img = pg.image.load(os.path.join(currentfiles,'rentoron_combat0.png')).convert_alpha()
 rentoron_combat_img = pg.transform.scale(rentoron_combat_img, (256, 256))
-rentoron_combat2_img = pg.image.load(os.path.join(filename,'rentoron_combat1.png')).convert_alpha()
+rentoron_combat2_img = pg.image.load(os.path.join(currentfiles,'rentoron_combat1.png')).convert_alpha()
 rentoron_combat2_img = pg.transform.scale(rentoron_combat2_img, (256, 256))
-rentoron_combat3_img = pg.image.load(os.path.join(filename,'rentoron_combat2.png')).convert_alpha()
+rentoron_combat3_img = pg.image.load(os.path.join(currentfiles,'rentoron_combat2.png')).convert_alpha()
 rentoron_combat3_img = pg.transform.scale(rentoron_combat3_img, (256, 256))
 
 rentoron = enemy.rentoron()
@@ -552,11 +569,13 @@ for aura in auras:
 rentoron.attacks = {'jump':[2,{charge:1},True,1,2],'smack':[5,{},False,1,4],'miss':[0,{},False,1,0]}
 rentoron.stagger = 13
 
-grosehund_combat_img = pg.image.load(os.path.join(filename,'grosehund_combat0.png')).convert_alpha()
+currentfiles = currentfileg + '\grosehund'
+
+grosehund_combat_img = pg.image.load(os.path.join(currentfiles,'grosehund_combat0.png')).convert_alpha()
 grosehund_combat_img = pg.transform.scale(grosehund_combat_img, (256, 256))
-grosehund_combat2_img = pg.image.load(os.path.join(filename,'grosehund_combat1.png')).convert_alpha()
+grosehund_combat2_img = pg.image.load(os.path.join(currentfiles,'grosehund_combat1.png')).convert_alpha()
 grosehund_combat2_img = pg.transform.scale(grosehund_combat2_img, (256, 256))
-grosehund_combat3_img = pg.image.load(os.path.join(filename,'grosehund_combat2.png')).convert_alpha()
+grosehund_combat3_img = pg.image.load(os.path.join(currentfiles,'grosehund_combat2.png')).convert_alpha()
 grosehund_combat3_img = pg.transform.scale(grosehund_combat3_img, (256, 256))
 
 grosehound = enemy.grosehound()
@@ -573,6 +592,8 @@ for aura in auras:
 grosehound.attacks = {'scracth':[3,{},False,1,4],'deep bite':[3,{bleed:1},False,1,1],'miss':[0,{},False,1,1]}
 grosehound.stagger = 5
 
+currentfiles = currentfileg + '\barrier'
+
 barrier = enemy.barrier()
 enemy.list.append(archer)
 barrier.vec = vec(43,20)
@@ -586,6 +607,8 @@ for aura in auras:
     barrier.clickaura.append(vec(aura))
 barrier.attacks = {'decimating energy':[5,{},False,5,5],'chaos energy':[5,{},False,1,1],'misalignment':[5,{},False,1,2]}
 barrier.stagger = 10
+
+currentfiles = currentfileg + '\dva'
 
 dva = enemy.dva()
 enemy.list.append(dva)
@@ -1573,19 +1596,21 @@ class ally():
                 self.needtolvl *= 2
                 
                 
-                
-                
+
+currentfileg =  filename +'/allies'                
                 
 ally = ally()
                     
 iconaura = [(2, 2), (2, 1), (2, 0), (2, -1), (2, -2), (1, -2), (1, -1), (1, 0), (1, 1), (1, 2), (0, 2), (0, 1), (0, 0), (0, -1), (0, -2), (-1, -2), (-1, -1), (-1, 0), (-1, 1), (-1, 2), (-2, 2), (-2, 1), (-2, 0), (-2, -1), (-2, -2)]            
 
+currentfiles = currentfileg + '/zither'
+
 zither = ally.zither()
-zither_combat_img = pg.image.load(os.path.join(filename,'zither_combat0.png')).convert_alpha()
+zither_combat_img = pg.image.load(os.path.join(currentfiles,'zither_combat0.png')).convert_alpha()
 zither_combat_img = pg.transform.scale(zither_combat_img, (256, 256))
-zither_combat2_img = pg.image.load(os.path.join(filename,'zither_combat1.png')).convert_alpha()
+zither_combat2_img = pg.image.load(os.path.join(currentfiles,'zither_combat1.png')).convert_alpha()
 zither_combat2_img = pg.transform.scale(zither_combat2_img, (256, 256))
-zither_combat3_img = pg.image.load(os.path.join(filename,'zither_combat2.png')).convert_alpha()
+zither_combat3_img = pg.image.load(os.path.join(currentfiles,'zither_combat2.png')).convert_alpha()
 zither_combat3_img = pg.transform.scale(zither_combat3_img, (256, 256))
 zither_ability1_img = pg.image.load(os.path.join(filename,'cross-1.png.png'))
 zither_ability1_img = pg.transform.scale(zither_ability1_img, (128, 128))
@@ -1618,20 +1643,22 @@ aura = [(1, 3), (0, 3), (-1, 3), (-1, 2), (0, 2), (1, 2), (1, 1), (0, 1), (-1, 1
 for x in aura:
     zither.clickaura.append(vec(x))
 
+currentfiles = currentfileg + '/fairum'
+
 fairum = ally.fairum()
-fairum_combat_img = pg.image.load(os.path.join(filename,"fairum_combat0.png")).convert_alpha()
+fairum_combat_img = pg.image.load(os.path.join(currentfiles,"fairum_combat0.png")).convert_alpha()
 fairum_combat_img = pg.transform.scale(fairum_combat_img, (256, 256))
-fairum_combat2_img = pg.image.load(os.path.join(filename,"fairum_combat1.png")).convert_alpha()
+fairum_combat2_img = pg.image.load(os.path.join(currentfiles,"fairum_combat1.png")).convert_alpha()
 fairum_combat2_img = pg.transform.scale(fairum_combat2_img, (256, 256))
-fairum_combat3_img = pg.image.load(os.path.join(filename,"fairum_combat2.png")).convert_alpha()
+fairum_combat3_img = pg.image.load(os.path.join(currentfiles,"fairum_combat2.png")).convert_alpha()
 fairum_combat3_img = pg.transform.scale(fairum_combat3_img, (256, 256))
-fairum_ability1_img = pg.image.load(os.path.join(filename,'fairum_abilites0.png'))
+fairum_ability1_img = pg.image.load(os.path.join(currentfiles,'fairum_abilites0.png'))
 fairum_ability1_img = pg.transform.scale(fairum_ability1_img, (128, 128))
-fairum_ability2_img = pg.image.load(os.path.join(filename,'fairum_abilites1.png'))
+fairum_ability2_img = pg.image.load(os.path.join(currentfiles,'fairum_abilites1.png'))
 fairum_ability2_img = pg.transform.scale(fairum_ability2_img, (128, 128))
-fairum_ability3_img = pg.image.load(os.path.join(filename,'fairum_abilites2.png'))
+fairum_ability3_img = pg.image.load(os.path.join(currentfiles,'fairum_abilites2.png'))
 fairum_ability3_img = pg.transform.scale(fairum_ability3_img, (128, 128))
-fairum_ability4_img = pg.image.load(os.path.join(filename,'fairum_abilites3.png'))
+fairum_ability4_img = pg.image.load(os.path.join(currentfiles,'fairum_abilites3.png'))
 fairum_ability4_img = pg.transform.scale(fairum_ability4_img, (128, 128))
 fairum.attack1 = 'plate push'
 fairum.attack2 = 'construct'
@@ -1657,35 +1684,36 @@ aura = [(1, 3), (0, 3), (-1, 3), (-1, 2), (0, 2), (1, 2), (1, 1), (0, 1), (-1, 1
 for x in aura:
     fairum.clickaura.append(vec(x))
 
+currentfiles = currentfileg + '/nover'
 
 nover = ally.noverence()
-nover_combat_img = pg.image.load(os.path.join(filename,'Layer 1_nover_combat1.png')).convert_alpha()
+nover_combat_img = pg.image.load(os.path.join(currentfiles,'Layer 1_nover_combat1.png')).convert_alpha()
 nover_combat_img = pg.transform.scale(nover_combat_img, (256, 256))
-nover_combat2_img = pg.image.load(os.path.join(filename,'Layer 1_nover_combat2.png')).convert_alpha()
+nover_combat2_img = pg.image.load(os.path.join(currentfiles,'Layer 1_nover_combat2.png')).convert_alpha()
 nover_combat2_img = pg.transform.scale(nover_combat2_img, (256, 256))
-nover_combat3_img = pg.image.load(os.path.join(filename,'Layer 1_nover_combat3.png')).convert_alpha()
+nover_combat3_img = pg.image.load(os.path.join(currentfiles,'Layer 1_nover_combat3.png')).convert_alpha()
 nover_combat3_img = pg.transform.scale(nover_combat3_img, (256, 256))
 
-nover_transformed_img = pg.image.load(os.path.join(filename,'nover_transformed.png')).convert_alpha()
+nover_transformed_img = pg.image.load(os.path.join(currentfiles,'nover_transformed.png')).convert_alpha()
 nover_transformed_img = pg.transform.scale(nover_transformed_img, (256, 256))
 
-nover_mimic_img = pg.image.load(os.path.join(filename,'Layer 1_nover_mimic1.png')).convert_alpha()
+nover_mimic_img = pg.image.load(os.path.join(currentfiles,'Layer 1_nover_mimic1.png')).convert_alpha()
 nover_mimic_img = pg.transform.scale(nover_mimic_img, (256, 256))
-nover_mimic2_img = pg.image.load(os.path.join(filename,'Layer 1_nover_mimic2.png')).convert_alpha()
+nover_mimic2_img = pg.image.load(os.path.join(currentfiles,'Layer 1_nover_mimic2.png')).convert_alpha()
 nover_mimic2_img = pg.transform.scale(nover_mimic2_img, (256, 256))
-nover_mimic3_img = pg.image.load(os.path.join(filename,'Layer 1_nover_mimic3.png')).convert_alpha()
+nover_mimic3_img = pg.image.load(os.path.join(currentfiles,'Layer 1_nover_mimic3.png')).convert_alpha()
 nover_mimic3_img = pg.transform.scale(nover_mimic3_img, (256, 256))
 
-nover_block_img = pg.image.load(os.path.join(filename,'nover_combat_alternate.png')).convert_alpha()
+nover_block_img = pg.image.load(os.path.join(currentfiles,'nover_combat_alternate.png')).convert_alpha()
 nover_block_img = pg.transform.scale(nover_block_img, (256, 256))
 
-nover_ability1_img = pg.image.load(os.path.join(filename,"nover_abilites0.png"))
+nover_ability1_img = pg.image.load(os.path.join(currentfiles,"nover_abilites0.png"))
 nover_ability1_img = pg.transform.scale(nover_ability1_img, (128, 128))
-nover_ability2_img = pg.image.load(os.path.join(filename,"nover_abilites1.png"))
+nover_ability2_img = pg.image.load(os.path.join(currentfiles,"nover_abilites1.png"))
 nover_ability2_img = pg.transform.scale(nover_ability2_img, (128, 128))
-nover_ability3_img = pg.image.load(os.path.join(filename,"nover_abilites2.png"))
+nover_ability3_img = pg.image.load(os.path.join(currentfiles,"nover_abilites2.png"))
 nover_ability3_img = pg.transform.scale(nover_ability3_img, (128, 128))
-nover_ability4_img = pg.image.load(os.path.join(filename,"nover_abilites3.png"))
+nover_ability4_img = pg.image.load(os.path.join(currentfiles,"nover_abilites3.png"))
 nover_ability4_img = pg.transform.scale(nover_ability4_img, (128, 128))
 nover.attack1 = 'block'
 nover.attack2 = 'leech'
@@ -1718,20 +1746,22 @@ nover.clickaura = []
 for x in aura:
     nover.clickaura.append(vec(x))
 
+currentfiles = currentfileg + '/heplane'
+
 H = ally.heplane()
-heplane_combat_img = pg.image.load(os.path.join(filename,'Layer 1_heplane_combat1.png')).convert_alpha()
+heplane_combat_img = pg.image.load(os.path.join(currentfiles,'Layer 1_heplane_combat1.png')).convert_alpha()
 heplane_combat_img = pg.transform.scale(heplane_combat_img, (256, 256))
-heplane_combat2_img = pg.image.load(os.path.join(filename,'Layer 1_heplane_combat2.png')).convert_alpha()
+heplane_combat2_img = pg.image.load(os.path.join(currentfiles,'Layer 1_heplane_combat2.png')).convert_alpha()
 heplane_combat2_img = pg.transform.scale(heplane_combat2_img, (256, 256))
-heplane_combat3_img = pg.image.load(os.path.join(filename,'Layer 1_heplane_combat3.png')).convert_alpha()
+heplane_combat3_img = pg.image.load(os.path.join(currentfiles,'Layer 1_heplane_combat3.png')).convert_alpha()
 heplane_combat3_img = pg.transform.scale(heplane_combat3_img, (256, 256))
-heplane_ability1_img = pg.image.load(os.path.join(filename,'heplane_abilites0.png'))
+heplane_ability1_img = pg.image.load(os.path.join(currentfiles,'heplane_abilites0.png'))
 heplane_ability1_img = pg.transform.scale(heplane_ability1_img, (128, 128))
-heplane_ability2_img = pg.image.load(os.path.join(filename,'heplane_abilites1.png'))
+heplane_ability2_img = pg.image.load(os.path.join(currentfiles,'heplane_abilites1.png'))
 heplane_ability2_img = pg.transform.scale(heplane_ability2_img, (128, 128))
-heplane_ability3_img = pg.image.load(os.path.join(filename,'heplane_abilites2.png'))
+heplane_ability3_img = pg.image.load(os.path.join(currentfiles,'heplane_abilites2.png'))
 heplane_ability3_img = pg.transform.scale(heplane_ability3_img, (128, 128))
-heplane_ability4_img = pg.image.load(os.path.join(filename,'heplane_abilites3.png')).convert_alpha()
+heplane_ability4_img = pg.image.load(os.path.join(currentfiles,'heplane_abilites3.png')).convert_alpha()
 heplane_ability4_img = pg.transform.scale(heplane_ability4_img, (128, 128))
 H.attack1 = 'coilent'
 H.attack2 = 'punch'
@@ -1757,20 +1787,22 @@ H.clickaura = []
 for x in aura:
     H.clickaura.append(vec(x))
 
+currentfiles = currentfileg + '/cri'
+
 Cri = ally.cri()
-cri_combat_img = pg.image.load(os.path.join(filename,'cri_combat0.png')).convert_alpha()
+cri_combat_img = pg.image.load(os.path.join(currentfiles,'cri_combat0.png')).convert_alpha()
 cri_combat_img = pg.transform.scale(cri_combat_img, (256, 256))
-cri_combat2_img = pg.image.load(os.path.join(filename,'cri_combat1.png')).convert_alpha()
+cri_combat2_img = pg.image.load(os.path.join(currentfiles,'cri_combat1.png')).convert_alpha()
 cri_combat2_img = pg.transform.scale(cri_combat2_img, (256, 256))
-cri_combat3_img = pg.image.load(os.path.join(filename,'cri_combat2.png')).convert_alpha()
+cri_combat3_img = pg.image.load(os.path.join(currentfiles,'cri_combat2.png')).convert_alpha()
 cri_combat3_img = pg.transform.scale(cri_combat3_img, (256, 256))
-cri_ability1_img = pg.image.load(os.path.join(filename,'crystal_icons-2.png.png'))
+cri_ability1_img = pg.image.load(os.path.join(currentfiles,'crystal_icons-2.png.png'))
 cri_ability1_img = pg.transform.scale(cri_ability1_img, (128, 128))
-cri_ability2_img = pg.image.load(os.path.join(filename,'crystal_icons-3.png.png'))
+cri_ability2_img = pg.image.load(os.path.join(currentfiles,'crystal_icons-3.png.png'))
 cri_ability2_img = pg.transform.scale(cri_ability2_img, (128, 128))
-cri_ability3_img = pg.image.load(os.path.join(filename,'crystal_icons-1.png.png'))
+cri_ability3_img = pg.image.load(os.path.join(currentfiles,'crystal_icons-1.png.png'))
 cri_ability3_img = pg.transform.scale(cri_ability3_img, (128, 128))
-cri_stunicon_img = pg.image.load(os.path.join(filename,'sri_stun-1.png.png'))
+cri_stunicon_img = pg.image.load(os.path.join(currentfiles,'sri_stun-1.png.png'))
 cri_stunicon_img = pg.transform.scale(cri_stunicon_img, (128, 128))
 Cri.attack1 = 'flash and crash'
 Cri.attack2 = 'crystal glass'
@@ -1794,18 +1826,20 @@ Cri.clickaura = []
 for x in aura:
     Cri.clickaura.append(vec(x))
     
+currentfiles = currentfileg + '/haptic'    
+    
 Hap = ally.haptic()
-haptic_combat_img = pg.image.load(os.path.join(filename,'Layer 1_haptic_combat1.png')).convert_alpha()
+haptic_combat_img = pg.image.load(os.path.join(currentfiles,'Layer 1_haptic_combat1.png')).convert_alpha()
 haptic_combat_img = pg.transform.scale(haptic_combat_img, (256, 256))
-haptic_combat2_img = pg.image.load(os.path.join(filename,'Layer 1_haptic_combat2.png')).convert_alpha()
+haptic_combat2_img = pg.image.load(os.path.join(currentfiles,'Layer 1_haptic_combat2.png')).convert_alpha()
 haptic_combat2_img = pg.transform.scale(haptic_combat2_img, (256, 256))
-haptic_combat3_img = pg.image.load(os.path.join(filename,'Layer 1_haptic_combat3.png')).convert_alpha()
+haptic_combat3_img = pg.image.load(os.path.join(currentfiles,'Layer 1_haptic_combat3.png')).convert_alpha()
 haptic_combat3_img = pg.transform.scale(haptic_combat3_img, (256, 256))
-haptic_ability1_img = pg.image.load(os.path.join(filename,'haptic_abilites1.png'))
+haptic_ability1_img = pg.image.load(os.path.join(currentfiles,'haptic_abilites1.png'))
 haptic_ability1_img = pg.transform.scale(haptic_ability1_img, (128, 128))
-haptic_ability2_img = pg.image.load(os.path.join(filename,'haptic_abilites0.png'))
+haptic_ability2_img = pg.image.load(os.path.join(currentfiles,'haptic_abilites0.png'))
 haptic_ability2_img = pg.transform.scale(haptic_ability2_img, (128, 128))
-haptic_ability3_img = pg.image.load(os.path.join(filename,'haptic_abilites2.png'))
+haptic_ability3_img = pg.image.load(os.path.join(currentfiles,'haptic_abilites2.png'))
 haptic_ability3_img = pg.transform.scale(haptic_ability3_img, (128, 128))
 Hap.attack1 = 'accumulation'
 Hap.attack2 = 'flailing'
@@ -1831,20 +1865,22 @@ Hap.clickaura = []
 for x in aura:
     Hap.clickaura.append(vec(x))
 
+currentfiles = currentfileg + '/sillid'  
+
 sillid = ally.sillid()
-sillid_combat_img = pg.image.load(os.path.join(filename,'Layer 1_sillid_combat1.png')).convert_alpha()
+sillid_combat_img = pg.image.load(os.path.join(currentfiles,'Layer 1_sillid_combat1.png')).convert_alpha()
 sillid_combat_img = pg.transform.scale(sillid_combat_img, (256, 256))
-sillid_combat2_img = pg.image.load(os.path.join(filename,'Layer 1_sillid_combat2.png')).convert_alpha()
+sillid_combat2_img = pg.image.load(os.path.join(currentfiles,'Layer 1_sillid_combat2.png')).convert_alpha()
 sillid_combat2_img = pg.transform.scale(sillid_combat2_img, (256, 256))
-sillid_combat3_img = pg.image.load(os.path.join(filename,'Layer 1_sillid_combat3.png')).convert_alpha()
+sillid_combat3_img = pg.image.load(os.path.join(currentfiles,'Layer 1_sillid_combat3.png')).convert_alpha()
 sillid_combat3_img = pg.transform.scale(sillid_combat3_img, (256, 256))
-sillid_ability1_img = pg.image.load(os.path.join(filename,'sillid_abilites1.png'))
+sillid_ability1_img = pg.image.load(os.path.join(currentfiles,'sillid_abilites1.png'))
 sillid_ability1_img = pg.transform.scale(sillid_ability1_img, (128, 128))
-sillid_ability2_img = pg.image.load(os.path.join(filename,'sillid_abilites0.png'))
+sillid_ability2_img = pg.image.load(os.path.join(currentfiles,'sillid_abilites0.png'))
 sillid_ability2_img = pg.transform.scale(sillid_ability2_img, (128, 128))
-sillid_ability3_img = pg.image.load(os.path.join(filename,'sillid_abilites2.png'))
+sillid_ability3_img = pg.image.load(os.path.join(currentfiles,'sillid_abilites2.png'))
 sillid_ability3_img = pg.transform.scale(sillid_ability3_img, (128, 128))
-sillid_ability4_img = pg.image.load(os.path.join(filename,'sillid_abilites3.png'))
+sillid_ability4_img = pg.image.load(os.path.join(currentfiles,'sillid_abilites3.png'))
 sillid_ability4_img = pg.transform.scale(sillid_ability4_img, (128, 128))
 sillid.attack1 = 'iron arrow'
 sillid.attack2 = 'dirt arrow'
@@ -1898,6 +1934,13 @@ delator boss guy
 
 weapons:
 zenite 
+
+problomatic heat 
+an emblematic feat
+we just need one thing
+it's just some unity
+almost finnished course
+
 '''
 
 class dialouge_master():
@@ -2090,7 +2133,7 @@ class main():
         if self.savestate != self.current_state:
             self.savestate = self.current_state
             print(self.savestate,self.current_state)
-            if self.current_state == 'overmap':
+            if self.current_state == 'overmap' or self.current_state == 'map':
                 Bg.checkback()
     def draw_level(self):
         text = 'current level '+str(int(L.crossvec.x - 3))
@@ -2207,6 +2250,7 @@ class main():
                     self.playertrunover = True
                     self.little = {}
                     self.k = 0
+                    M.damage = {}
                     M.checkifdead()
                     M.phase = 'Enemy'
                     for x in M.enemy:
@@ -2246,19 +2290,15 @@ class main():
                         for x in M.enemy:
                             for y in M.enemy[x]:
                                 y[5] = []
+                                y[3] = 0
                         if not len(M.actions) >= len(M.allies):
                             M.phase = 'Player'
                 if 2000 < current_time - self.display_time_start:
                     M.draw_damage()
-                    M.checkifdead()
                 M.draw_txt_attack()
                 if current_time - self.display_time_stop > 3000 and self.playertrunover == False:
                     M.damage = {}
-                    for x in M.enemy:
-                        lel = 0
-                        for y in M.enemy[x]:
-                            M.enemy[x][lel][3] = 0
-                            lel += 1
+                    
 
                 #if current_time - self.display_time > 2000:
                 #    if not M.victory:
@@ -2288,8 +2328,10 @@ class main():
                     main.playertrunover = False
                     main.k = 0
                     main.little = {}
+                    M.phase = 'player'
                     draw_text_center('You died',40,YELLOW,int(WIDTH/2),int(HEIGHT/2-200))
-                    if current_time - self.endscreen_timer > 1000:
+                    print(current_time,self.endscreen_timer)
+                    if current_time - self.endscreen_timer > 5000:
                         for x in M.alliessave:
                             x.unlockedabilites = []
                             x.exp = 0
@@ -2316,6 +2358,7 @@ class main():
                 L.clickmenu()
     def levelbottom(self):
         if self.current_state == 'map':
+            Bg.draw_background()
             L.draw_currentposition()
             L.draw_linestoconnections()
             L.draw_icons()
@@ -2336,6 +2379,7 @@ class main():
             re.click()
     def eventbottom(self):
         if self.current_state == 'event':
+            Bg.draw_background()
             re.draw_event()
     def switchtop(self):
         if self.current_state == 'switch':
@@ -2642,8 +2686,11 @@ class background():
         self.vec = 0
     def checkback(self):
         if main.current_state == 'overmap':
-            print('its happening ')
             self.background_current = map_rica
+        elif main.current_state == 'map':
+            self.background_current = map_default
+        elif main.current_state == 'event':
+            self.background_current = re.eventmaster[re.currentevent]['map']
         elif O.crossvec.x == 5 or O.crossvec.x == 3:
             self.background_current = background_fall
     def draw_background(self):
@@ -2652,6 +2699,8 @@ class background():
         
 Bg = background()
 Bg.menuback = []
+
+pg.mixer.music.load(os.path.join(filename,'6007165778657280.wav'))
         
 background_fall = pg.image.load(os.path.join(filename,'backgorunds-2.png.png'))
 background_fall = pg.transform.scale(background_fall, (1920, 1080))
@@ -2663,6 +2712,8 @@ Bg.menuback.append(landscape_mountain)
 map_rica = pg.image.load(os.path.join(filename,'rica_map.png'))
 map_rica = pg.transform.scale(map_rica, (1920, 1080))
 Bg.menuback.append(map_rica)
+map_default = pg.image.load(os.path.join(filename,'defaultmap.png'))
+map_default = pg.transform.scale(map_default, (1920, 1080))
 
 
 Bg.background_current = random.choice(Bg.menuback)
@@ -2676,12 +2727,14 @@ class overmap():
             main.test = True
             self.get_levelcontents()
             T.create_map()
+            Bg.checkback()
         if mpos2 in self.connections:
             self.crossvec = mpos2
             self.get_connections()
             main.current_state = 'map'
             self.get_levelcontents()
             L.create_map()
+            Bg.checkback()
     def get_levelcontents(self):
         pos = self.crossvec.x
         L.levelmaster = self.mapmaster[int((pos-2)/2)]
@@ -3129,13 +3182,13 @@ class level():
                     elif 'battle' == tier:
                         M.start()
                         M.typeobattle = 'normal'
-                        Bg.checkback()
                     elif 'shop' == tier:
                         shop.shopstart()
                     elif 'event' == tier:
                         re.eventstart()
                     L.get_connections()
                     main.current_state = tier
+                    Bg.checkback()
                     if 'quest' == tier:
                         Q.eventstart()
                     self.click = False
@@ -3154,13 +3207,13 @@ class level():
                 elif 'battle' == tier:
                     M.start()
                     M.typeobattle = 'normal'
-                    Bg.checkback()
                 elif 'shop' == tier:
                     shop.shopstart()
                 elif 'event' == tier:
                     re.eventstart()
                 L.get_connections()
                 main.current_state = tier
+                Bg.checkback()
                 if 'quest' == tier:
                     Q.eventstart()
                 self.click = False
@@ -3301,20 +3354,26 @@ class ui():
         y = int(HEIGHT/2-100)
         self.play = pg.Rect(0, 0, 300, 80)
         self.play.center = x,y
-        text = 'play'
+        text = 'Play'
         self.playtext = [text,50,WHITE,x, y-5]
         x = int(WIDTH/2)
-        y = int(HEIGHT/2+100)
+        y = int(HEIGHT/2+200)
         self.quit = pg.Rect(0, 0, 300, 80)
         self.quit.center = x,y
-        text = 'quit'
+        text = 'Quit'
         self.quittext = [text,50,WHITE,x, y-5]
         x = int(WIDTH/2)
         y = int(HEIGHT/2)
         self.continuebutton = pg.Rect(0, 0, 300, 80)
         self.continuebutton.center = x,y
-        text = 'continue'
+        text = 'Continue'
         self.continuetext = [text,50,WHITE,x, y-5]
+        x = int(WIDTH/2)
+        y = int(HEIGHT/2+100)
+        self.setbutton = pg.Rect(0, 0, 300, 80)
+        self.setbutton.center = x,y
+        text = 'Settings'
+        self.settext = [text,50,WHITE,x, y-5]
         
         
         x = int(WIDTH/2)
@@ -3329,6 +3388,24 @@ class ui():
         self.menubutton.center = x,y
         text = 'menu'
         self.menutext = [text,50,WHITE,x, y-5]
+        
+        x = int(WIDTH/2)
+        y = int(HEIGHT/2-100)
+        self.fancybutton = pg.Rect(0, 0, 550, 80)
+        self.fancybutton.center = x,y
+        text = 'turn on/off fancy graphics'
+        self.fancytext = [text,50,WHITE,x, y-5]
+        self.fancydisp = pg.Rect(0, 0, 200, 80)
+        self.fancydisp.center = x+400,y
+        text = 0
+        self.fancydisptext = [text,50,WHITE,x+400, y-5]
+        
+        x = int(WIDTH/2)
+        y = int(HEIGHT/2)
+        self.donebutton = pg.Rect(0, 0, 300, 80)
+        self.donebutton.center = x,y
+        text = 'done'
+        self.donetext = [text,50,WHITE,x, y-5]
         
     def display_dialouge(self):
         if main.current_state == 'quest':
@@ -3345,6 +3422,17 @@ class ui():
             pg.draw.rect(screen,BLACK,self.menubutton)
             a = self.menutext
             draw_text_center(a[0],a[1],a[2],a[3],a[4])
+        elif self.settings:
+            pg.draw.rect(screen,BLACK,self.fancybutton)
+            a = self.fancytext
+            draw_text_center(a[0],a[1],a[2],a[3],a[4])
+            pg.draw.rect(screen,BLACK,self.fancydisp)
+            a = self.fancydisptext
+            draw_text_center(str(M.fancy),a[1],a[2],a[3],a[4])
+            
+            pg.draw.rect(screen,BLACK,self.donebutton)
+            a = self.donetext
+            draw_text_center(a[0],a[1],a[2],a[3],a[4])
         else:
             a = self.gamenametext
             draw_text_center(a[0],a[1],a[2],a[3],a[4])
@@ -3355,7 +3443,11 @@ class ui():
             pg.draw.rect(screen,BLACK,self.continuebutton)
             a = self.continuetext
             draw_text_center(a[0],a[1],a[2],a[3],a[4])
-
+            
+            pg.draw.rect(screen,BLACK,self.setbutton)
+            a = self.settext
+            draw_text_center(a[0],a[1],a[2],a[3],a[4])
+            
         pg.draw.rect(screen,BLACK,self.quit)
         a = self.quittext
         draw_text_center(a[0],a[1],a[2],a[3],a[4])
@@ -3375,6 +3467,14 @@ class ui():
                 self.save_state = main.current_state
                 main.current_state = 'menu'
                 self.pause = False
+        elif self.settings:
+            if self.donebutton.collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)):
+                self.settings = False
+            if self.fancybutton.collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)):
+                if M.fancy:
+                    M.fancy = False
+                else:
+                    M.fancy = True
         else:    
             if self.play.collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)):
                 main.current_state = 'map'
@@ -3387,6 +3487,8 @@ class ui():
                 M.tutorial = True
             if self.continuebutton.collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)):
                 main.current_state = self.save_state
+            if self.setbutton.collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)):
+                self.settings = True
 
         if self.quit.collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)):
             self.running = False
@@ -3396,6 +3498,7 @@ class ui():
 ui = ui()
 
 ui.pause = False
+ui.settings = False
 ui.save_state = 'overmap'
 ui.done = 0
 
@@ -4028,24 +4131,30 @@ class battle():
                 rect = pg.Rect(int(pos.x*TILESIZE - 10), int(pos.y*TILESIZE - 120), int(heat), 20)
                 pg.draw.rect(screen,RED,rect)
     def draw_phase(self):
-        if self.phase == 'Enemy':
-            if self.decrease == 50:
-                self.toggle = True
-            if self.toggle:
-                self.decrease *= 0.89
-                self.phasetext += vec(0,self.decrease)
-                if self.decrease < 1:
-                    self.toggle = False
-        if self.phase == 'Player':
-            if self.decrease <= 1:
-                self.toggle = True
-            if self.toggle:
-                self.decrease /= 0.89
-                self.phasetext += vec(0,self.decrease)
-                if self.decrease > 80:
-                    self.toggle = False
-                    self.decrease = 50
-                    self.phasetext = vec(WIDTH/2,-30)
+        if self.fancy:
+            if self.phase == 'Enemy':
+                if self.decrease == 50:
+                    self.toggle = True
+                if self.toggle:
+                    self.decrease *= 0.89
+                    self.phasetext += vec(0,self.decrease)
+                    if self.decrease < 1:
+                        self.toggle = False
+            if self.phase == 'Player':
+                if self.decrease <= 1:
+                    self.toggle = True
+                if self.toggle:
+                    self.decrease /= 0.89
+                    self.phasetext += vec(0,self.decrease)
+                    if self.decrease > 80:
+                        self.toggle = False
+                        self.decrease = 50
+                        self.phasetext = vec(WIDTH/2,-30)
+        else:
+            if self.phase == 'Enemy':
+                self.phasetext = vec(WIDTH/2,400)
+            if self.phase == 'Player':
+                self.phasetext = vec(WIDTH/2,-30)
         draw_text_center(self.phase, 50, BLACK, self.phasetext.x,self.phasetext.y)
     def draw_icons(self):
         for x in self.allies:
@@ -4520,12 +4629,17 @@ M.phasetext = vec(WIDTH/2,-30)
 M.phase = 'Player'
 M.decrease = 50
 M.toggle = False
+M.fancy = True
 
 shop.draw_shopkeeps()
 
 mpos = vec(0,0)
 create = []
 lock = True
+
+pg.mixer.music.load(os.path.join(filename,'6007165778657280.wav'))
+pg.mixer.music.play(-1,0,2000)
+pg.mixer.music.set_volume(0.5)
 
 L.get_connections()
 ui.running = True
@@ -4630,6 +4744,7 @@ while ui.running:
         Bg.draw_background()
     main.menubottom()
     main.creatorbottom()
+    
     pg.display.flip() # dose the changes goto doccumentation for other ways
 
 listt = '{'
