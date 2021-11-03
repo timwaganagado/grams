@@ -2700,7 +2700,6 @@ class background():
 Bg = background()
 Bg.menuback = []
 
-pg.mixer.music.load(os.path.join(filename,'6007165778657280.wav'))
         
 background_fall = pg.image.load(os.path.join(filename,'backgorunds-2.png.png'))
 background_fall = pg.transform.scale(background_fall, (1920, 1080))
@@ -3422,6 +3421,9 @@ class ui():
             pg.draw.rect(screen,BLACK,self.menubutton)
             a = self.menutext
             draw_text_center(a[0],a[1],a[2],a[3],a[4])
+            pg.draw.rect(screen,BLACK,self.quit)
+            a = self.quittext
+            draw_text_center(a[0],a[1],a[2],a[3],a[4])
         elif self.settings:
             pg.draw.rect(screen,BLACK,self.fancybutton)
             a = self.fancytext
@@ -3448,9 +3450,11 @@ class ui():
             a = self.settext
             draw_text_center(a[0],a[1],a[2],a[3],a[4])
             
-        pg.draw.rect(screen,BLACK,self.quit)
-        a = self.quittext
-        draw_text_center(a[0],a[1],a[2],a[3],a[4])
+            pg.draw.rect(screen,BLACK,self.quit)
+            a = self.quittext
+            draw_text_center(a[0],a[1],a[2],a[3],a[4])
+            
+        
         
         
     def menu(self):
@@ -4637,9 +4641,9 @@ mpos = vec(0,0)
 create = []
 lock = True
 
-pg.mixer.music.load(os.path.join(filename,'6007165778657280.wav'))
+pg.mixer.music.load(os.path.join(filename,'walking through.wav'))
 pg.mixer.music.play(-1,0,2000)
-pg.mixer.music.set_volume(0.5)
+pg.mixer.music.set_volume(0.2)
 
 L.get_connections()
 ui.running = True
