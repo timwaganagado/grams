@@ -1,4 +1,7 @@
 import matplotlib.pyplot as plt
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LinearRegression
 
 #train = df.sample(frac=0.8,random_state=1)
 
@@ -228,14 +231,40 @@ months = ['Last 30 Days',
 plt.figure(1)
 
 test = []
-while len(months) != 0:
-    w = months.pop()
-    test.append(w)
-plt.scatter(test,players)
-plt.xlabel('Month')
-plt.ylabel('Players (Average)')
-plt.title('CS:GO    IGN: 8/10, Google Users: 93%')
+o = 0
+for x in months:
+    test.append(o)
+    o += 1 
+X = np.array(test).reshape(-1,1)
 
+y = np.array(players).reshape(-1,1)
+
+to_predict_x=[]
+for x in range(0,50):
+    to_predict_x.append(o)
+#    X.append(o)
+    o+= 1
+to_predict_x= np.array(to_predict_x).reshape(-1,1)
+
+regsr=LinearRegression()
+regsr.fit(X,y)
+
+predicted_y= regsr.predict(to_predict_x)
+m= regsr.coef_
+c= regsr.intercept_
+#for x in predicted_y:
+ #   for ll in x:
+  #      print(ll)
+   #     y.append(ll)
+
+plt.scatter(X,y,color="blue")
+new_y=[ m*i+c for i in np.append(X,to_predict_x)]
+new_y=np.array(new_y).reshape(-1,1)
+plt.plot(np.append(X,to_predict_x),new_y,color="red")
+
+
+plt.show()
+'''
 playerscyberpunk = [11827.8,
 10432.3,
 9634.0	 ,
@@ -463,7 +492,6 @@ test = []
 while len(monthsrust) != 0:
     w = monthsrust.pop()
     test.append(w)
-print(test)
 plt.figure(3)
 plt.scatter(test,playersrust)
 plt.xlabel('Month')
@@ -618,10 +646,10 @@ test = []
 while len(monthsrainbow) != 0:
     w = monthsrainbow.pop()
     test.append(w)
-print(test)
 plt.figure(3)
 plt.scatter(test,playersrainbow)
 plt.xlabel('Month')
 plt.ylabel('Players (Average)')
 plt.title("Tom Clancy's Rainbow Six Siege    IGN: 8.5/10, Google Users: 94%")
 plt.show()
+'''
