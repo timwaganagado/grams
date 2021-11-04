@@ -4270,8 +4270,9 @@ class battle():
                 x.xp = 0
                 x.unlockedablilites = []
         elif len(self.enemy) <= 0:
-            if main.current_state == 'battle' or self.typeobattle == 'gauntlet':
-                L.levelstatus.append(mpos2)
+            if main.current_state == 'battle':
+                if self.typeobattle != 'gauntlet':
+                    L.levelstatus.append(mpos2)
             self.savelevel = {}
             for x in self.allies:
                 x.passive_endturn()
@@ -4642,8 +4643,10 @@ create = []
 lock = True
 
 pg.mixer.music.load(os.path.join(filename,'walking through.wav'))
-pg.mixer.music.play(-1,0,2000)
+pg.mixer.music.play(2,0,2000)
 pg.mixer.music.set_volume(0.2)
+
+music = ['walking through.wav','rushed adventure.wav']
 
 L.get_connections()
 ui.running = True
@@ -4748,7 +4751,12 @@ while ui.running:
         Bg.draw_background()
     main.menubottom()
     main.creatorbottom()
-    
+    if not pg.mixer.music.get_busy():
+        pg.mixer.music.unload()
+        pg.mixer.music.load(os.path.join(filename,random.choice(music)))
+        pg.mixer.music.play(2,0,2000)
+        pg.mixer.music.set_volume(0.2)
+        
     pg.display.flip() # dose the changes goto doccumentation for other ways
 
 listt = '{'
