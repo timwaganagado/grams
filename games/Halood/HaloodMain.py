@@ -2187,25 +2187,19 @@ class main():
                                 if mpos in M.allies[x][2]:
                                     M.actions.append(M.selectedchar)
                                     M.selectedchar.support(x)
-                                    M.attackselect = False
                                     M.checkifdead()
-                            M.attackselect = False
                         else:
                             der,xxer = M.selectenemy()
                             if der != 'pass':
                                 M.actions.append(M.selectedchar)
                                 M.selectedchar.attack((der,xxer),M.selectedattack)
-                                M.attackselect = False
-                                M.checkifdead()
-                                M.attackselect = False         
+                                M.checkifdead()  
                     else:
                         pass 
                 elif mpos not in M.getaura() and mpos not in M.selectingattack():
                     M.selectedchar = 0
-                    M.attackselect = False
                 if mpos in M.selectingchar() :#and M.attackselect == False:
                     M.selectchar()
-                    M.attackselect = False
                 if mpos in M.selectingattack():
                     M.selectattack()
     def battlebottom(self):
@@ -2228,6 +2222,7 @@ class main():
             M.draw_icons()
             M.draw_effects()
             M.draw_phase()
+            M.draw_transition()
             if ui.pause:
                 M.draw_allychar()
                 M.draw_enemychar()
@@ -2313,7 +2308,7 @@ class main():
                             draw_text_center('LEVEL UP',40,YELLOW,pos.x*TILESIZE,pos.y*TILESIZE+150)
                     draw_text_center('Victory',40,YELLOW,int(WIDTH/2),int(HEIGHT/2-200))
                     if current_time - self.endscreen_timer > 10000:
-                        main.current_state = 'map'
+                        M.tran = True
                         if len(L.connections) == 0:
                             main.current_state = 'overmap'
                             L.crossvec = vec(3,8)
@@ -2362,6 +2357,7 @@ class main():
             L.draw_currentposition()
             L.draw_linestoconnections()
             L.draw_icons()
+            M.draw_transition()
             if M.tutorial:
                 tut.pause()
     def shoptop(self):
@@ -2381,6 +2377,7 @@ class main():
         if self.current_state == 'event':
             Bg.draw_background()
             re.draw_event()
+            M.draw_transition()
     def switchtop(self):
         if self.current_state == 'switch':
             if M.tutorial:
@@ -2416,6 +2413,7 @@ class main():
         if self.current_state == 'quest' or self.current_state == 'hunt':
             Bg.draw_background()
             Q.draw_quest()
+            M.draw_transition()
     def creatortop(self):
         if self.current_state == 'creator':
             O.selectmapedit()
@@ -2640,7 +2638,7 @@ class tutorial():
                     enemies.append(enemy[0])
                     L.make(enemies,tier,x)
             else:
-                L.make(line,[],tier,x)
+                L.make(x,[],tier)
             if x.x == 28:
                 L.levelid.update({x:[[cbm],'battle']})             
 
@@ -2691,6 +2689,8 @@ class background():
             self.background_current = map_default
         elif main.current_state == 'event':
             self.background_current = re.eventmaster[re.currentevent]['map']
+        elif main.current_state == 'quest':
+            self.background_current = Q.questmaster[Q.currentquest]['map']
         elif O.crossvec.x == 5 or O.crossvec.x == 3:
             self.background_current = background_fall
     def draw_background(self):
@@ -3183,13 +3183,9 @@ class level():
                         M.typeobattle = 'normal'
                     elif 'shop' == tier:
                         shop.shopstart()
-                    elif 'event' == tier:
-                        re.eventstart()
                     L.get_connections()
-                    main.current_state = tier
-                    Bg.checkback()
-                    if 'quest' == tier:
-                        Q.eventstart()
+                    self.savestate = tier
+                    M.tran = True
                     self.click = False
         else:
             if self.click == True:
@@ -3208,13 +3204,10 @@ class level():
                     M.typeobattle = 'normal'
                 elif 'shop' == tier:
                     shop.shopstart()
-                elif 'event' == tier:
-                    re.eventstart()
                 L.get_connections()
-                main.current_state = tier
-                Bg.checkback()
-                if 'quest' == tier:
-                    Q.eventstart()
+                self.savestate = tier
+                M.tran = True
+                
                 self.click = False
     def getlevel(self):
         if mpos2 in self.levelstatus and mpos2 not in self.barrier:
@@ -3226,6 +3219,7 @@ class level():
                 if x == mpos2:
                     e = self.levelid[x][0]
                     tier = self.levelid[x][1]
+                    print(e,tier,x)
         return e,tier
 
 
@@ -3283,6 +3277,7 @@ class quest():
             if self.done >= len(self.questmaster[self.currentquest]['dialouge']):
                 if self.active:
                     main.current_state = 'battle'
+                    M.typeobattle = 'gauntlet'
                     L.levelid.update({(L.savequest.x,L.savequest.y):[self.questmaster[self.currentquest]['enemies'][self.glevel],'battle']})
                     self.glevel += 1
                     print(self.glevel)
@@ -3311,7 +3306,7 @@ class quest():
                 
     def draw_quest(self):
         x = int(WIDTH/2)
-        y = int(HEIGHT/2+100)
+        y = int(HEIGHT/2+300)
         rect = pg.Rect(0, 0, 1400, 400)
         rect.center = x,y
         pg.draw.rect(screen,BLACK,rect)
@@ -3401,6 +3396,17 @@ class ui():
         
         x = int(WIDTH/2)
         y = int(HEIGHT/2)
+        self.musicvolbutton = pg.Rect(0, 0, 550, 80)
+        self.musicvolbutton.center = x,y
+        text = 'music volume'
+        self.musicvoltext = [text,50,WHITE,x, y-5]
+        self.musicvoldisp = pg.Rect(0, 0, 200, 80)
+        self.musicvoldisp.center = x+400,y
+        text = 0
+        self.musicvoldisptext = [text,50,WHITE,x+400, y-5]
+        
+        x = int(WIDTH/2)
+        y = int(HEIGHT/2+100)
         self.donebutton = pg.Rect(0, 0, 300, 80)
         self.donebutton.center = x,y
         text = 'done'
@@ -3431,6 +3437,15 @@ class ui():
             pg.draw.rect(screen,BLACK,self.fancydisp)
             a = self.fancydisptext
             draw_text_center(str(M.fancy),a[1],a[2],a[3],a[4])
+            
+            pg.draw.rect(screen,BLACK,self.musicvolbutton)
+            a = self.musicvoltext
+            draw_text_center(a[0],a[1],a[2],a[3],a[4])
+            
+            pg.draw.rect(screen,BLACK,self.musicvoldisp)
+            a = self.musicvoldisptext
+            draw_text_center(str(round(pg.mixer.music.get_volume()*10)*10),a[1],a[2],a[3],a[4])
+            
             
             pg.draw.rect(screen,BLACK,self.donebutton)
             a = self.donetext
@@ -3479,6 +3494,12 @@ class ui():
                     M.fancy = False
                 else:
                     M.fancy = True
+            if self.musicvolbutton.collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)):
+                ll = pg.mixer.music.get_volume() + 0.2
+                if ll > 1:
+                    ll = 0.2
+                pg.mixer.music.set_volume(ll)
+                
         else:    
             if self.play.collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)):
                 main.current_state = 'map'
@@ -3525,7 +3546,7 @@ class randomevent():
             self.savedone  = -1
         if self.done >= len(self.eventmaster[self.currentevent]['dialouge']):
             print(self.eventmaster,self.currentevent)
-            main.current_state = 'map'
+            M.tran = True
             self.done = 0
             if self.eventmaster[self.currentevent]['type'] == 'gold':
                 main.amountmoney += self.eventmaster[self.currentevent]['reward']
@@ -3539,7 +3560,7 @@ class randomevent():
                 B.addbetterinventory(self.eventmaster[self.currentevent]['reward'])
     def draw_event(self):
         x = int(WIDTH/2)
-        y = int(HEIGHT/2+100)
+        y = int(HEIGHT/2+300)
         rect = pg.Rect(0, 0, 1400, 400)
         rect.center = x,y
         pg.draw.rect(screen,BLACK,rect)
@@ -3558,7 +3579,6 @@ class randomevent():
             self.click()
     def eventstart(self):
         self.currentevent,e = L.getlevel()
-        B.background_current = self.eventmaster[self.currentevent]['map']
 re = randomevent()
 re.eventmaster = {}
 re.events = []
@@ -3571,7 +3591,7 @@ re.addevent('broken ultar',['You found a hidden ultar','As you aproach, the ulta
 re.addevent('functioning ultar',['You found a hidden ultar','As you aproach, the ultar glows','Then burns'],'blessing',1,10,background_fall)
 re.addevent('devine ultar',['You found a hidden ultar','As you aproach, the ultar glows','Light fills the air'],'better blessing',1,5,background_fall)
 re.addevent('unispiring plains',['You come across some plains','The reeds whistle in the wind','You find nothing important'],'empty',0,60,background_fall)
-re.addevent('ispiring plains',['You come across some plains','The reeds whistle in the wind','You find that some how, you learnt something'],'xp',10,30,background_fall)
+re.addevent('ispiring plains',['You come across some plains','The reeds whistle in the wind','You find that some how, you learnt something'],'xp',10,30,landscape_mountain)
 
 class blessings():
     def __init__(self):
@@ -4160,6 +4180,59 @@ class battle():
             if self.phase == 'Player':
                 self.phasetext = vec(WIDTH/2,-30)
         draw_text_center(self.phase, 50, BLACK, self.phasetext.x,self.phasetext.y)
+    def draw_transition(self):
+        if self.fancy:
+            if self.tran == True:
+                self.tranrect += self.speed
+                self.speed *= 1.11
+                rect = pg.Rect(int(0), int(self.tranrect- 600),1920,600 )
+                pg.draw.rect(screen,BLACK,rect)
+                rect = pg.Rect(int(0),int(HEIGHT-self.tranrect) ,1920, 600)
+                pg.draw.rect(screen,BLACK,rect)
+                if self.tranrect > HEIGHT/2:
+                    self.speed = 50
+                    self.trantime = pg.time.get_ticks()
+                    self.tran = -1
+            elif self.tran == False:
+                self.tranrect -= self.speed
+                self.speed *= 1.11
+                rect = pg.Rect(int(0), int(self.tranrect- 600),1920,600 )
+                pg.draw.rect(screen,BLACK,rect)
+                rect = pg.Rect(int(0),int(HEIGHT-self.tranrect) ,1920, 600)
+                pg.draw.rect(screen,BLACK,rect)
+                if self.tranrect < 0:
+                    self.tran = -1
+                    self.speed = 50
+
+
+            if current_time - self.trantime > 500 and self.trantime != 0:
+                self.tran = False
+                self.trantime = 0
+                if main.current_state != 'map':
+                    main.current_state = 'map' 
+                elif main.current_state == 'map':
+                    main.current_state = L.savestate
+                    if 'event' == L.savestate:
+                        re.eventstart()
+                    elif 'quest' == L.savestate:
+                        Q.eventstart()
+                Bg.checkback()
+            rect = pg.Rect(int(0), int(self.tranrect- 600),1920,600 )
+            pg.draw.rect(screen,BLACK,rect)
+            rect = pg.Rect(int(0),int(HEIGHT-self.tranrect) ,1920, 600)
+            pg.draw.rect(screen,BLACK,rect)
+        else:
+            if self.tran:
+                if main.current_state != 'map':
+                    main.current_state = 'map' 
+                elif main.current_state == 'map':
+                    main.current_state = L.savestate
+                    if 'event' == L.savestate:
+                        re.eventstart()
+                    elif 'quest' == L.savestate:
+                        Q.eventstart()
+                self.tran = False
+                Bg.checkback()
     def draw_icons(self):
         for x in self.allies:
             if self.selectedchar == x:
@@ -4255,6 +4328,7 @@ class battle():
                 del self.allies[x]
                 if x == self.selectedchar:
                     self.selectedchar = 0
+                    self.selectedattack = 0
                 for w in self.spaces:
                     for a in self.spaces[w]:
                         if a[1] == x:
@@ -4270,9 +4344,8 @@ class battle():
                 x.xp = 0
                 x.unlockedablilites = []
         elif len(self.enemy) <= 0:
-            if main.current_state == 'battle':
-                if self.typeobattle != 'gauntlet':
-                    L.levelstatus.append(mpos2)
+            if main.current_state == 'battle' and self.typeobattle != 'gauntlet':
+                L.levelstatus.append(mpos2)
             self.savelevel = {}
             for x in self.allies:
                 x.passive_endturn()
@@ -4513,6 +4586,10 @@ class battle():
                             del self.enemy[x][lel][4][dodge]
                     lel += 1
             
+M = battle()
+M.tranrect = 1
+M.speed = 50
+M.trantime = 0
 ''' = progress + done ' ' in the works - later
 Gameplay
 multiple enemies that attack +
@@ -4587,10 +4664,6 @@ primopsed va
 #L.levelmaster = O.mapmaster[1]
 #for x in range(0,1):
 #    L.create_map()
-    
-M = battle()
-
-
 
 M.targetedenemy = 0
 
@@ -4636,6 +4709,8 @@ M.decrease = 50
 M.toggle = False
 M.fancy = True
 
+M.tran = False
+
 shop.draw_shopkeeps()
 
 mpos = vec(0,0)
@@ -4673,7 +4748,7 @@ while ui.running:
                 if M.victory:
                     if not M.tutorial:
                         M.victory = False
-                        main.current_state = 'map'
+                        M.tran = True
                         if len(L.connections) == 0:
                             main.current_state = 'overmap'
                             L.crossvec = vec(3,8)

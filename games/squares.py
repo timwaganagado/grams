@@ -490,7 +490,7 @@ G = game()
 S = state()
 M = menu()
 name1 = 'burton'
-name2 = 'jim'
+name2 = 'p2'
 name3 = 'p3'
 name4 = 'p4'
 
