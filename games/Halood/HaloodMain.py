@@ -2640,7 +2640,7 @@ class tutorial():
                     enemies.append(enemy[0])
                     L.make(enemies,tier,x)
             else:
-                L.make(line,[],tier,x)
+                L.make(x,[],tier)
             if x.x == 28:
                 L.levelid.update({x:[[cbm],'battle']})             
 
@@ -4721,8 +4721,10 @@ create = []
 lock = True
 
 pg.mixer.music.load(os.path.join(filename,'walking through.wav'))
-pg.mixer.music.play(-1,0,2000)
+pg.mixer.music.play(2,0,2000)
 pg.mixer.music.set_volume(0.2)
+
+music = ['walking through.wav','rushed adventure.wav']
 
 L.get_connections()
 ui.running = True
@@ -4827,7 +4829,12 @@ while ui.running:
         Bg.draw_background()
     main.menubottom()
     main.creatorbottom()
-    
+    if not pg.mixer.music.get_busy():
+        pg.mixer.music.unload()
+        pg.mixer.music.load(os.path.join(filename,random.choice(music)))
+        pg.mixer.music.play(2,0,2000)
+        pg.mixer.music.set_volume(0.2)
+        
     pg.display.flip() # dose the changes goto doccumentation for other ways
 
 listt = '{'
