@@ -299,9 +299,9 @@ class enemy():
             if dodge in M.enemy[self][dup][4]: 
                 if M.allies[M.selectedchar][3] > 0:
                     enemy.damage(self,dup,damage,inin)
-                    M.selectedchar.damage([10])
+                    M.selectedchar.damage([10,{},False,2,4],self,dup)
                 else:
-                    M.selectedchar.damage([10])
+                    M.selectedchar.damage([10,{},False,2,4],self,dup)
             else:
                 enemy.damage(self,dup,damage,inin)
     class hardboulderine():
@@ -766,6 +766,7 @@ class boss():
 cbm = boss.courptbattlemage()
 cbm.vec = vec(43,20)
 cbm.health = 200
+cbm.immunities = []
 cbm.combat_animation = {1:home_img,2:home_img,3:home_img}
 cbm.attack_animation = {1:magee_attacking_img,2:magee_attacking2_img,3:magee_attacking3_img}
 auras = [(0, 3), (1, 3), (2, 3), (2, 2), (1, 2), (0, 2), (0, 1), (1, 1), (2, 1), (2, 0), (1, 0), (0, 0), (0, -1), (1, -1), (2, -1), (2, -2), (1, -2), (0, -2), (0, -3), (1, -3), (2, -3)]
@@ -1295,7 +1296,7 @@ class ally():
                 self.passive(0)
             else:
                 if M.selectedattack == self.attack4:
-                    if self.actsmimic == 0:
+                    if self.actsmimic == 0 and target != self:
                         self.actsmimic = 2
                         self.mimicing = True
                         self.attacks = target.attacks
@@ -2179,8 +2180,8 @@ class main():
                     if mpos in M.selectingattack():
                         M.selectattack()
             else:
-                if mpos in M.getaura() and M.selectedchar != 0:
-                    if M.attackselect == True and len(M.actions) != len(M.allies) and M.selectedchar not in M.actions:
+                if mpos in M.getaura() and M.selectedchar != 0 and M.selectedattack != 0:
+                    if len(M.actions) != len(M.allies) and M.selectedchar not in M.actions:
                         M.damage = {}
                         if M.selectedchar.attacks[M.selectedattack][2] != False:
                             for x in M.allies:
@@ -2200,6 +2201,7 @@ class main():
                     M.selectedchar = 0
                 if mpos in M.selectingchar() :#and M.attackselect == False:
                     M.selectchar()
+                    M.selectedattack = 0
                 if mpos in M.selectingattack():
                     M.selectattack()
     def battlebottom(self):
@@ -4684,6 +4686,7 @@ M.killhistory = []
 M.damage = {}
 M.attackselect = False
 #M.clickaura = [vec(-1,-1)]
+M.typeobattle = 'normal'
 
 
 main.anim_timer = pg.time.get_ticks()
