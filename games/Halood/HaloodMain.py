@@ -202,6 +202,7 @@ class enemy():
             target.damage(damage,initiated,dup)
             
     def damage(target,dup,damage,inin):
+        print(M.enemy[target][dup][4])
         if pierce in M.enemy[target][dup][4]:
             damage *= 1.5
         damage = ally.checkblessing('attacking',inin,damage,target,dup)
@@ -693,7 +694,7 @@ class boss():
             print(attacking)
             print(M.enemy[self][ll][3])
             if attacking == 'slash' or attacking == 'heavy swing':
-                self.attack_animation = {1:cbm_attackingblunt_img,2:cbm_attackingblunt2_img,3:cbm_attackingblunt2_img}
+                self.attack_animation = {1:cbm_attackingblunt_img,2:cbm_attackingblunt2_img,3:cbm_attackingblunt3_img}
             else:
                 self.attack_animation = {1:cbm_attackingmagic_img,2:cbm_attackingmagic2_img,3:cbm_attackingmagic3_img}
             M.enemy[self][ll][3].append(attacking)
@@ -2326,8 +2327,6 @@ class main():
                     self.enemy_damage = pg.time.get_ticks()
                     self.display_time = pg.time.get_ticks()
                     M.enemyattack(self.attacks,self.little[self.attacks][1])
-                    if stun not in M.enemy[self.little[self.attacks][0]][self.little[self.attacks][1]][4]:
-                        M.enemy[self.little[self.attacks][0]][self.little[self.attacks][1]][6] = True
                     self.flop = True
                     
                 if 2000 < current_time - self.enemy_damage and self.enemycanattack and self.flop:
@@ -2347,11 +2346,11 @@ class main():
                         
                         if not len(M.actions) >= len(M.allies):
                             M.phase = 'Player'
-                        else:
                             for x in M.enemy:
                                 for y in M.enemy[x]:
                                     y[5] = []
                                     y[3] = 0
+                            
                 if 2000 < current_time - self.display_time_start:
                     M.draw_damage()
                 M.draw_txt_attack()
@@ -4361,7 +4360,7 @@ class battle():
                 else:
                     if y == 0:
                         draw_text('miss',30,RED,self.allies[x][0].x*TILESIZE, self.allies[x][0].y*TILESIZE-170,align="bottomright")  
-                damage += y
+                    damage += y
             if x in self.allies:
                 draw_text(str(damage),30,RED,self.allies[x][0].x*TILESIZE, self.allies[x][0].y*TILESIZE-150,align="bottomright")  
     def draw_txt_attack(self):
@@ -4627,6 +4626,7 @@ class battle():
             else:
                 del self.enemy[x][ll][4][stun]
         else: 
+            M.enemy[x][ll][6] = True
             x.thunk(ll)
     def workingattack(self,attack,effect):
         pass
@@ -4685,6 +4685,10 @@ class battle():
                         self.enemy[x][lel][4][dodge] -= 1
                         if self.enemy[x][lel][4][dodge] == 0:
                             del self.enemy[x][lel][4][dodge]
+                    if pierce in self.enemy[x][lel][4]:
+                        self.enemy[x][lel][4][pierce] -= 1
+                        if self.enemy[x][lel][4][pierce] == 0:
+                            del self.enemy[x][lel][4][pierce]
                     lel += 1
             
 M = battle()
