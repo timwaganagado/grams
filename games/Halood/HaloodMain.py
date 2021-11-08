@@ -2295,14 +2295,6 @@ class main():
                 M.draw_txt_attack()
                 if current_time - self.display_time_stop > 3000 and self.playertrunover == False:
                     M.damage = {}
-                    
-
-                #if current_time - self.display_time > 2000:
-                #    if not M.victory:
-                #        if not M.loss:
-                #            M.checkifdead()
-
-            
                 if M.victory:
                     for x in M.savelevel:
                         if M.savelevel[x] != 0:
@@ -2311,10 +2303,17 @@ class main():
                     draw_text_center('Victory',40,YELLOW,int(WIDTH/2),int(HEIGHT/2-200))
                     if current_time - self.endscreen_timer > 10000:
                         M.tran = True
-                        if len(L.connections) == 0:
-                            main.current_state = 'overmap'
-                            L.crossvec = vec(3,8)
-                            L.get_connections()
+                        if L.crossvec.x == 28:
+                            if O.crossvec.x == 5:
+                                print('gameover')
+                                M.tran = True
+                            else:
+                                main.current_state = 'overmap'
+                                L.crossvec = vec(3,8)
+                                L.get_connections()
+                                L.turns = 0
+                                L.border = 3
+                                L.barrier = []
                         M.victory = False
                 if M.loss:
                     main.little = {}
@@ -2329,19 +2328,9 @@ class main():
                     draw_text_center('You died',40,YELLOW,int(WIDTH/2),int(HEIGHT/2-200))
                     print(current_time,self.endscreen_timer)
                     if current_time - self.endscreen_timer > 5000:
-                        for x in M.alliessave:
-                            x.unlockedabilites = []
-                            x.exp = 0
-                            x.lvl = 0
-                            x.needtolvl = 10
-                        M.restart()
-                        O.crossvec = vec(3,8)
-                        O.get_connections()
-                        L.crossvec = vec(3,8)
-                        L.get_connections()
-                        M.enemy = {}
-                        main.current_state = 'menu'
                         M.loss = False
+                        M.restart()
+                        main.current_state = 'menu'
                         main.endscreen_timer = 0
 
     def leveltop(self):
@@ -2422,7 +2411,14 @@ class main():
     def creatorbottom(self):
         if self.current_state == 'creator':
             O.draw_mapedit()
-            
+    def gameovertop(self):
+        if self.current_state == 'gameover':
+            go.reset()
+    def gameoverbottom(self):
+        if self.current_state == 'gameover':
+            Bg.draw_background()
+            go.draw_victory()
+            M.draw_transition()
             
 main.attacks = 0
 class tutorial():
@@ -2718,6 +2714,25 @@ map_default = pg.transform.scale(map_default, (1920, 1080))
 
 
 Bg.background_current = random.choice(Bg.menuback)
+
+class gameover():
+    def __init__(self):
+        self.vec = 0
+    def reset(self):
+        if self.done == 1:
+            M.tran = True
+            M.restart()
+            self.done = 0
+        self.done += 1
+    def draw_victory(self):
+        M.draw_allychar()
+        if self.done == 0:
+            draw_text_center("You have slain the evil over the land",40,YELLOW,int(WIDTH/2),int(HEIGHT/2-200))
+        elif self.done == 1:
+            draw_text_center("Thank you for playing",40,YELLOW,int(WIDTH/2),int(HEIGHT/2-200))
+
+go = gameover()
+go.done = 0
 
 class overmap():
     def __init__(self):
@@ -4062,7 +4077,19 @@ class battle():
         self.l = []
         self.actions = []
         self.alliessave = []
-        
+        L.turns = 0
+        L.border = 3
+        L.barrier = []
+        for x in M.alliessave:
+            x.unlockedabilites = []
+            x.exp = 0
+            x.lvl = 0
+            x.needtolvl = 10
+        O.crossvec = vec(3,8)
+        O.get_connections()
+        L.crossvec = vec(3,8)
+        L.get_connections()
+        M.enemy = {}
         #self.addchar(playing)
         
         self.addchar(playing)
@@ -4210,14 +4237,19 @@ class battle():
             if current_time - self.trantime > 500 and self.trantime != 0:
                 self.tran = False
                 self.trantime = 0
-                if main.current_state != 'map':
-                    main.current_state = 'map' 
+                if main.current_state == 'gameover':
+                    main.current_state = 'menu'
                 elif main.current_state == 'map':
                     main.current_state = L.savestate
                     if 'event' == L.savestate:
                         re.eventstart()
                     elif 'quest' == L.savestate:
                         Q.eventstart()
+                elif main.current_state != 'map':
+                    if L.crossvec.x != 28:    
+                        main.current_state = 'map' 
+                    else:
+                        main.current_state = 'gameover'
                 Bg.checkback()
             rect = pg.Rect(int(0), int(self.tranrect- 600),1920,600 )
             pg.draw.rect(screen,BLACK,rect)
@@ -4342,7 +4374,9 @@ class battle():
             L.turns = 0
             L.border = 3
             L.barrier = []
+            O.crossvec = vec(3,8)
             for x in self.alliessave:
+                x.needtolvl = 20
                 x.xp = 0
                 x.unlockedablilites = []
         elif len(self.enemy) <= 0:
@@ -4752,10 +4786,17 @@ while ui.running:
                     if not M.tutorial:
                         M.victory = False
                         M.tran = True
-                        if len(L.connections) == 0:
-                            main.current_state = 'overmap'
-                            L.crossvec = vec(3,8)
-                            L.get_connections()
+                        if L.crossvec.x == 28:
+                            if O.crossvec.x == 5:
+                                print('gameover')
+                                M.tran = True
+                            else:
+                                main.current_state = 'overmap'
+                                L.crossvec = vec(3,8)
+                                L.get_connections()
+                                L.turns = 0
+                                L.border = 3
+                                L.barrier = []
                 if ui.pause != True:
                     main.eventtop()
                     main.questtop()
@@ -4764,6 +4805,7 @@ while ui.running:
                     main.battletop()
                     main.switchtop()
                     main.shoptop()
+                main.gameovertop()
                 main.menutop()
                 main.creatortop()
                 mpos = vec(0,0)
@@ -4800,10 +4842,11 @@ while ui.running:
                 M.addchar(nover)
             if event.key == pg.K_ESCAPE:
                 if main.current_state != 'menu':
-                    if ui.pause:
-                        ui.pause = False
-                    else:
-                        ui.pause = True
+                    if main.current_state != 'gameover':
+                        if ui.pause:
+                            ui.pause = False
+                        else:
+                            ui.pause = True
         if event.type == pg.QUIT: # allows for quit when clicking on the X 
             ui.running = False
             pg.quit() 
@@ -4828,6 +4871,7 @@ while ui.running:
     else:
         Bg.draw_background()
     main.menubottom()
+    main.gameoverbottom()
     main.creatorbottom()
     if not pg.mixer.music.get_busy():
         pg.mixer.music.unload()
