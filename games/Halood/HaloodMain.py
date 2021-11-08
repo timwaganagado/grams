@@ -555,13 +555,20 @@ rentoron_combat2_img = pg.transform.scale(rentoron_combat2_img, (256, 256))
 rentoron_combat3_img = pg.image.load(os.path.join(currentfiles,'rentoron_combat2.png')).convert_alpha()
 rentoron_combat3_img = pg.transform.scale(rentoron_combat3_img, (256, 256))
 
+rentoron_attacking_img = pg.image.load(os.path.join(currentfiles,'rentoron_attacking0.png')).convert_alpha()
+rentoron_attacking_img = pg.transform.scale(rentoron_attacking_img, (256, 256))
+rentoron_attacking2_img = pg.image.load(os.path.join(currentfiles,'rentoron_attacking1.png')).convert_alpha()
+rentoron_attacking2_img = pg.transform.scale(rentoron_attacking2_img, (256, 256))
+rentoron_attacking3_img = pg.image.load(os.path.join(currentfiles,'rentoron_attacking2.png')).convert_alpha()
+rentoron_attacking3_img = pg.transform.scale(rentoron_attacking3_img, (256, 256))
+
 rentoron = enemy.rentoron()
 enemy.list.append(rentoron)
 rentoron.vec = vec(43,20)
 rentoron.health = 30
 rentoron.immunities = []
 rentoron.combat_animation = {1:rentoron_combat_img,2:rentoron_combat2_img,3:rentoron_combat3_img}
-rentoron.attack_animation = {1:magee_attacking_img,2:magee_attacking2_img,3:magee_attacking3_img}
+rentoron.attack_animation = {1:rentoron_attacking_img,2:rentoron_attacking2_img,3:rentoron_attacking3_img}
 auras = [(1, 2), (0, 2), (-1, 2), (-2, 2), (-3, 2), (-3, 1), (-2, 1), (-1, 1), (0, 1), (1, 1), (1, 0), (0, 0), (-1, 0), (-2, 0), (-3, 0), (-3, -1), (-2, -1), (-1, -1), (0, -1), (1, -1), (1, -2), (0, -2), (-1, -2), (-2, -2), (-3, -2)]
 rentoron.clickaura = []
 for aura in auras:
@@ -578,13 +585,20 @@ grosehund_combat2_img = pg.transform.scale(grosehund_combat2_img, (256, 256))
 grosehund_combat3_img = pg.image.load(os.path.join(currentfiles,'grosehund_combat2.png')).convert_alpha()
 grosehund_combat3_img = pg.transform.scale(grosehund_combat3_img, (256, 256))
 
+grosehund_attacking_img = pg.image.load(os.path.join(currentfiles,'grosehund_attacking0.png')).convert_alpha()
+grosehund_attacking_img = pg.transform.scale(grosehund_attacking_img, (256, 256))
+grosehund_attacking2_img = pg.image.load(os.path.join(currentfiles,'grosehund_attacking1.png')).convert_alpha()
+grosehund_attacking2_img = pg.transform.scale(grosehund_attacking2_img, (256, 256))
+grosehund_attacking3_img = pg.image.load(os.path.join(currentfiles,'grosehund_attacking2.png')).convert_alpha()
+grosehund_attacking3_img = pg.transform.scale(grosehund_attacking3_img, (256, 256))
+
 grosehound = enemy.grosehound()
 enemy.list.append(grosehound)
 grosehound.vec = vec(43,20)
 grosehound.health = 15
 grosehound.immunities = []
 grosehound.combat_animation = {1:grosehund_combat_img,2:grosehund_combat2_img,3:grosehund_combat3_img}
-grosehound.attack_animation = {1:magee_attacking_img,2:magee_attacking2_img,3:magee_attacking3_img}
+grosehound.attack_animation = {1:grosehund_attacking_img,2:grosehund_attacking2_img,3:grosehund_attacking3_img}
 auras = [(1, 2), (0, 2), (-1, 2), (-2, 2), (-3, 2), (-3, 1), (-2, 1), (-1, 1), (0, 1), (1, 1), (1, 0), (0, 0), (-1, 0), (-2, 0), (-3, 0), (-3, -1), (-2, -1), (-1, -1), (0, -1), (1, -1), (1, -2), (0, -2), (-1, -2), (-2, -2), (-3, -2)]
 grosehound.clickaura = []
 for aura in auras:
@@ -592,7 +606,7 @@ for aura in auras:
 grosehound.attacks = {'scracth':[3,{},False,1,4],'deep bite':[3,{bleed:1},False,1,1],'miss':[0,{},False,1,1]}
 grosehound.stagger = 5
 
-currentfiles = currentfileg + '\barrier'
+currentfiles = currentfileg + '/barrier'
 
 barrier = enemy.barrier()
 enemy.list.append(archer)
@@ -667,34 +681,45 @@ class boss():
         def damage(self,dup,damage,inin):
             M.enemy[self][dup][1] -= damage
         def attack(self,ll,attacks,chance):
-            for attackingtwice in range(0,2):
-                dead = []
-                possible = []
-                attacking = random.choices(attacks,chance)
-                damage = self.attacks[attacking[0]]
-                if damage[5]:
-                    for x in M.spaces:
+            if self.attackone == 1:
+                self.turncounter += 1
+                M.enemy[self][ll][3] = []
+                self.attackone += 1
+            else:
+                self.attackone = 1
+            dead = []
+            possible = []
+            attacking = random.choices(attacks,chance)[0]
+            print(attacking)
+            print(M.enemy[self][ll][3])
+            if attacking == 'slash' or attacking == 'heavy swing':
+                self.attack_animation = {1:cbm_attackingblunt_img,2:cbm_attackingblunt2_img,3:cbm_attackingblunt2_img}
+            else:
+                self.attack_animation = {1:cbm_attackingmagic_img,2:cbm_attackingmagic2_img,3:cbm_attackingmagic3_img}
+            M.enemy[self][ll][3].append(attacking)
+            print(M.enemy[self][ll][3])
+            damage = self.attacks[attacking]
+            if damage[5]:
+                for x in M.spaces:
+                    for l in M.spaces[x]:
+                        if l[1] != 99:
+                            possible.append(l[1])
+                        else:
+                            dead.append(l[1])
+            else:
+                for x in M.spaces:
+                    if x == 'front row':
                         for l in M.spaces[x]:
                             if l[1] != 99:
                                 possible.append(l[1])
                             else:
                                 dead.append(l[1])
-                else:
-                    for x in M.spaces:
-                        if x == 'front row':
-                            for l in M.spaces[x]:
-                                if l[1] != 99:
-                                    possible.append(l[1])
-                                else:
-                                    dead.append(l[1])
-                        if x == 'back row' and len(dead) == 2:
-                            for j in M.spaces[x]:
-                                possible.append(j[1])
-                target = random.choice(possible)
-                for x in range(0,damage[3]):
-                    target.damage(damage,self,ll)
-                        
-            self.turncounter += 1
+                    if x == 'back row' and len(dead) == 2:
+                        for j in M.spaces[x]:
+                            possible.append(j[1])
+            target = random.choice(possible)
+            for x in range(0,damage[3]):
+                target.damage(damage,self,ll)
         def support(self,target):
             if target[0] == 0:
                 M.enemy[self][0][1] += M.enemy[self][0][1]*4/10
@@ -760,21 +785,49 @@ class boss():
             self.turncounter += 1
         def support(self,target):
             if target[0] == 0:
-                M.enemy[cbm][0][1] += M.enemy[cbm][0][1]*4/10
+                M.enemy[self][0][1] += M.enemy[self][0][1]*4/10
             #print('heal')
             
+boss = boss()
+boss.bosses = []
+
+currentfiles = currentfileg + '/cbm'
+
+cbm_combat_img = pg.image.load(os.path.join(currentfiles,'cbm_combat0.png')).convert_alpha()
+cbm_combat_img = pg.transform.scale(cbm_combat_img, (300, 300))
+cbm_combat1_img = pg.image.load(os.path.join(currentfiles,'cbm_combat1.png')).convert_alpha()
+cbm_combat1_img = pg.transform.scale(cbm_combat1_img, (300, 300))
+cbm_combat2_img = pg.image.load(os.path.join(currentfiles,'cbm_combat2.png')).convert_alpha()
+cbm_combat2_img = pg.transform.scale(cbm_combat2_img, (300, 300))
+
+cbm_attackingmagic_img = pg.image.load(os.path.join(currentfiles,'cbm_attackingmagic0.png')).convert_alpha()
+cbm_attackingmagic_img = pg.transform.scale(cbm_attackingmagic_img, (300, 300))
+cbm_attackingmagic2_img = pg.image.load(os.path.join(currentfiles,'cbm_attackingmagic1.png')).convert_alpha()
+cbm_attackingmagic2_img = pg.transform.scale(cbm_attackingmagic2_img, (300, 300))
+cbm_attackingmagic3_img = pg.image.load(os.path.join(currentfiles,'cbm_attackingmagic2.png')).convert_alpha()
+cbm_attackingmagic3_img = pg.transform.scale(cbm_attackingmagic3_img, (300, 300))
+
+cbm_attackingblunt_img = pg.image.load(os.path.join(currentfiles,'cbm_attackingblunt0.png')).convert_alpha()
+cbm_attackingblunt_img = pg.transform.scale(cbm_attackingblunt_img, (300, 300))
+cbm_attackingblunt2_img = pg.image.load(os.path.join(currentfiles,'cbm_attackingblunt1.png')).convert_alpha()
+cbm_attackingblunt2_img = pg.transform.scale(cbm_attackingblunt2_img, (300, 300))
+cbm_attackingblunt3_img = pg.image.load(os.path.join(currentfiles,'cbm_attackingblunt2.png')).convert_alpha()
+cbm_attackingblunt3_img = pg.transform.scale(cbm_attackingblunt3_img, (300, 300))
+
 cbm = boss.courptbattlemage()
+boss.bosses.append(cbm)
 cbm.vec = vec(43,20)
 cbm.health = 200
 cbm.immunities = []
-cbm.combat_animation = {1:home_img,2:home_img,3:home_img}
+cbm.attackone = 1
+cbm.combat_animation = {1:cbm_combat_img,2:cbm_combat1_img,3:cbm_combat2_img}
 cbm.attack_animation = {1:magee_attacking_img,2:magee_attacking2_img,3:magee_attacking3_img}
 auras = [(0, 3), (1, 3), (2, 3), (2, 2), (1, 2), (0, 2), (0, 1), (1, 1), (2, 1), (2, 0), (1, 0), (0, 0), (0, -1), (1, -1), (2, -1), (2, -2), (1, -2), (0, -2), (0, -3), (1, -3), (2, -3)]
 cbm.clickaura = []
 cbm.turncounter = 0
 for aura in auras:
     cbm.clickaura.append(vec(aura))
-cbm.attacks = {'slash':[5,[0],False,2,4,False],'blast':[15,{fire:1},False,1,3,False],'charging fire':[1,{fire:3},True,1,3,True],'blinding light':[1,{stun:1},True,1,2,True],'miss':[0,{},True,1,1,True]}
+cbm.attacks = {'slash':[5,{},False,2,4,False],'heavy swing':[15,{},False,1,3,False],'charging fire':[1,{fire:3},True,1,3,True],'blinding light':[1,{stun:1},True,1,2,True],'miss':[0,{},True,1,1,True]}
 
 
 
@@ -943,7 +996,6 @@ class ally():
             if M.allies[self][1] > 50:
                 M.allies[self][1] = 50
         def damage(self,taken,initiated,ll):
-            
             ally.damage(self,taken,initiated,ll)
         def draw_icons(self):
             pos = vec(18,31)
@@ -2152,6 +2204,10 @@ class main():
                     if mpos in M.getaura() and M.selectedchar != 0 :
                         if M.attackselect == True and M.enemycanattack == False :
                             M.damage = {}
+                            for x in M.enemy:
+                                for y in M.enemy[x]:
+                                    y[5] = []
+                                    y[3] = 0
                             if M.selectedchar.attacks[M.selectedattack][2] != False:
                                 if mpos in M.allies[M.ally1][2]:
                                         M.actions.append(M.selectedchar)
@@ -2258,6 +2314,9 @@ class main():
                         else:
                             self.little.update({self.k:[x,0]})
                             self.k += 1 
+                            if x in boss.bosses:
+                                self.little.update({self.k:[x,0]})
+                                self.k += 1
                     self.attacks = 0
                     self.enemycanattack = True
                     
@@ -2266,6 +2325,7 @@ class main():
                     self.display_time_start = pg.time.get_ticks()  
                     self.enemy_damage = pg.time.get_ticks()
                     self.display_time = pg.time.get_ticks()
+                    M.enemyattack(self.attacks,self.little[self.attacks][1])
                     if stun not in M.enemy[self.little[self.attacks][0]][self.little[self.attacks][1]][4]:
                         M.enemy[self.little[self.attacks][0]][self.little[self.attacks][1]][6] = True
                     self.flop = True
@@ -2273,7 +2333,7 @@ class main():
                 if 2000 < current_time - self.enemy_damage and self.enemycanattack and self.flop:
                     
                     self.enemy_attck_time = pg.time.get_ticks()
-                    M.enemyattack(self.attacks,self.little[self.attacks][1])
+                    
                     self.attacks += 1
                     M.checkifdead()
                     self.flop = False
@@ -2284,12 +2344,14 @@ class main():
                         M.statuseffects(True)
                         M.checkifdead()
                         self.display_time_stop = pg.time.get_ticks()
-                        for x in M.enemy:
-                            for y in M.enemy[x]:
-                                y[5] = []
-                                y[3] = 0
+                        
                         if not len(M.actions) >= len(M.allies):
                             M.phase = 'Player'
+                        else:
+                            for x in M.enemy:
+                                for y in M.enemy[x]:
+                                    y[5] = []
+                                    y[3] = 0
                 if 2000 < current_time - self.display_time_start:
                     M.draw_damage()
                 M.draw_txt_attack()
@@ -3127,7 +3189,7 @@ class level():
             else:
                 self.make([],tier,x)
             if x.x == 28:
-                self.make([cbm,boulderine,boulderine],'battle',x)
+                self.make([cbm,magee,magee],'battle',x)
             self.display_costs.append(level)
             line += 1         
     def get_connections(self):
@@ -3514,7 +3576,7 @@ class ui():
             if self.musicvolbutton.collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)):
                 ll = pg.mixer.music.get_volume() + 0.2
                 if ll > 1:
-                    ll = 0.2
+                    ll = 0.0
                 pg.mixer.music.set_volume(ll)
                 
         else:    
@@ -4299,19 +4361,22 @@ class battle():
                 else:
                     if y == 0:
                         draw_text('miss',30,RED,self.allies[x][0].x*TILESIZE, self.allies[x][0].y*TILESIZE-170,align="bottomright")  
-                    damage += y
+                damage += y
             if x in self.allies:
                 draw_text(str(damage),30,RED,self.allies[x][0].x*TILESIZE, self.allies[x][0].y*TILESIZE-150,align="bottomright")  
     def draw_txt_attack(self):
         for x in self.enemy:
             lel = 0
+            add = 0
             for y in self.enemy[x]:
                 if y[3] != 0:
-                    draw_text(str(y[3]),30,RED,self.enemy[x][lel][0].x*TILESIZE, self.enemy[x][lel][0].y*TILESIZE-150,align="bottomright") 
-                lel += 1
-    def draw_attack(self):
-        self.selectedchar.draw_attack() #pffft over here you already made one
-        pass
+                    if type(y[3]) is list:
+                        for ww in range(0,len(y[3])):
+                            draw_text(str(y[3][ww]),30,RED,self.enemy[x][lel][0].x*TILESIZE, (self.enemy[x][lel][0].y-add)*TILESIZE-150,align="bottomright") 
+                            add += 1
+                    else:
+                        draw_text(str(y[3]),30,RED,self.enemy[x][lel][0].x*TILESIZE, self.enemy[x][lel][0].y*TILESIZE-150,align="bottomright") 
+                    lel += 1
     def draw_effects(self):
         for x in self.allies:
             if bleed in self.allies[x][4]:
@@ -4371,6 +4436,7 @@ class battle():
             self.loss = True
             main.endscreen_timer = pg.time.get_ticks()
             main.enemy_attck_time = 0
+            main.little = {}
             L.turns = 0
             L.border = 3
             L.barrier = []
@@ -4561,7 +4627,6 @@ class battle():
             else:
                 del self.enemy[x][ll][4][stun]
         else: 
-            
             x.thunk(ll)
     def workingattack(self,attack,effect):
         pass
