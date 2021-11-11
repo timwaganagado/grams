@@ -512,7 +512,7 @@ auras = [(1, 2), (0, 2), (-1, 2), (-2, 2), (-3, 2), (-3, 1), (-2, 1), (-1, 1), (
 archer.clickaura = []
 for aura in auras:
     archer.clickaura.append(vec(aura))
-archer.attacks = {'piercing arrow':[5,{pierce:1},False,1,5],'blunt arrow':[5,{},False,1,1],'miss':[0,{},False,1,2]}
+archer.attacks = {'piercing arrow':[5,{pierce:1},False,1,5],'blunt arrow':[5,{},False,1,1],'miss':[0,{},False,1,1]}
 archer.stagger = 10
 
 currentfiles = currentfileg + '\boulderine'
@@ -574,7 +574,7 @@ auras = [(1, 2), (0, 2), (-1, 2), (-2, 2), (-3, 2), (-3, 1), (-2, 1), (-1, 1), (
 rentoron.clickaura = []
 for aura in auras:
     rentoron.clickaura.append(vec(aura))
-rentoron.attacks = {'jump':[2,{charge:1},True,1,2],'smack':[5,{},False,1,4],'miss':[0,{},False,1,0]}
+rentoron.attacks = {'jump':[2,{charge:1},True,1,2],'smack':[5,{},False,1,4],'miss':[0,{},False,1,1]}
 rentoron.stagger = 13
 
 currentfiles = currentfileg + '\grosehund'
@@ -604,7 +604,7 @@ auras = [(1, 2), (0, 2), (-1, 2), (-2, 2), (-3, 2), (-3, 1), (-2, 1), (-1, 1), (
 grosehound.clickaura = []
 for aura in auras:
     grosehound.clickaura.append(vec(aura))
-grosehound.attacks = {'scracth':[3,{},False,1,4],'deep bite':[3,{bleed:1},False,1,1],'miss':[0,{},False,1,1]}
+grosehound.attacks = {'scracth':[3,{},False,1,4],'deep bite':[3,{bleed:1},False,1,2],'miss':[0,{},False,1,1]}
 grosehound.stagger = 5
 
 currentfiles = currentfileg + '/barrier'
@@ -867,7 +867,7 @@ selloquie.clickaura = []
 selloquie.turncounter = 0
 for aura in auras:
     cbm.clickaura.append(vec(aura))
-selloquie.attacks = {'Water Slash':[5,{},False,2,4,False],'Ice Slash':[15,{},False,1,3,False],'Steam Jet':[1,{fire:3},False,1,3,True],'Flooding Rain':[1,{stun:1},False,1,2,True],'Tystical Typhoon':[0,{},True,1,1,False],'miss':[0,{},False,1,1,True]}
+selloquie.attacks = {'Water Slash':[5,{},False,2,4,False],'Ice Slash':[15,{},False,1,3,False],'Steam Jet':[1,{fire:3},False,1,3,True],'Flooding Rain':[1,{stun:1},False,1,2,True],'Mystical Typhoon':[0,{},True,1,1,False],'miss':[0,{},False,1,1,True]}
 
 
 
