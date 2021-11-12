@@ -2091,7 +2091,7 @@ class shopkeeper():
             skarmorer.action()
     class cleric():
         def action(self):
-            if self.healone.collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)) and main.amountmoney >= 15:
+            if self.healone.collidepoint(int(mposraw.x),int(mposraw.y)) and main.amountmoney >= 15:
                 self.heal = True
             elif self.heal == True and M.selectedchar != 0:
                 M.allies[M.selectedchar][1] += 40
@@ -2099,14 +2099,14 @@ class shopkeeper():
                     M.allies[M.selectedchar][1] = M.selectedchar.health
                 self.heal = False
                 main.amountmoney -= 15
-            if self.healparty.collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)) and main.amountmoney >= 40:
+            if self.healparty.collidepoint(int(mposraw.x),int(mposraw.y)) and main.amountmoney >= 40:
                 for x in M.allies:
                     M.allies[x][1] += 40
                     if M.allies[x][1] >= x.health:
                         M.allies[x][1] = x.health
                 main.amountmoney -= 40
             
-            if self.resone.collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)) and main.amountmoney >= 100:
+            if self.resone.collidepoint(int(mposraw.x),int(mposraw.y)) and main.amountmoney >= 100:
                 for x in M.alliessave:
                     if x not in M.allies:
                         pos = x.vec
@@ -2148,7 +2148,7 @@ class shopkeeper():
             draw_text('100',20,WHITE,x2+5, y2)
     class armorer():
         def action(self):
-            if self.shieldquater.collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)) and main.amountmoney >= 25:
+            if self.shieldquater.collidepoint(int(mposraw.x),int(mposraw.y)) and main.amountmoney >= 25:
                 self.shield = True
             elif self.shield == True and M.selectedchar != 0:
                 M.allies[M.selectedchar][3] += M.selectedchar.health/4
@@ -2157,7 +2157,7 @@ class shopkeeper():
                 self.shield = False
                 self.shieldh = False
                 main.amountmoney -= 25
-            if self.shieldhalf.collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)) and main.amountmoney >= 50:
+            if self.shieldhalf.collidepoint(int(mposraw.x),int(mposraw.y)) and main.amountmoney >= 50:
                 self.shieldh = True
             elif self.shieldh == True and M.selectedchar != 0:
                 M.allies[M.selectedchar][3] += M.selectedchar.health/2
@@ -2166,7 +2166,7 @@ class shopkeeper():
                 self.shieldh = False
                 self.shield = False
                 main.amountmoney -= 50
-            if self.shieldparty.collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)) and main.amountmoney >= 100:
+            if self.shieldparty.collidepoint(int(mposraw.x),int(mposraw.y)) and main.amountmoney >= 100:
                 for x in M.allies:
                     M.allies[x][3] += 10
                     if M.allies[x][3] >= x.health:
@@ -4091,7 +4091,9 @@ class battle():
         if self.skills == False:
             if self.selectedchar != 0:
                 for k in self.selectedchar.abilities:
-                    if self.selectedchar.abilities[k][0].collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)) and k not in self.selectedchar.unlockedabilites:
+                    print(mpos.x*TILESIZE,mpos.y*TILESIZE)
+                    print(self.selectedchar.abilities[k][0])
+                    if self.selectedchar.abilities[k][0].collidepoint(int(mposraw.x),int(mposraw.y)) and k not in self.selectedchar.unlockedabilites:
                         if self.selectedability != 0 and k == self.selectedability and self.selectedchar.lvl > 0:
                             self.selectedchar.skill(k)
                             self.selectedchar.lvl -= 1
@@ -4881,6 +4883,7 @@ while ui.running:
             if event.button == 1:
                 if main.current_state == 'battle' or main.current_state == 'shop' or main.current_state == 'switch' or main.current_state == 'menu' or ui.pause:
                     mpos = vec(pg.mouse.get_pos()) // TILESIZE
+                    mposraw = vec(pg.mouse.get_pos())
                     create.append(mpos)
                 if main.current_state == 'creator' or main.current_state == 'map' or main.current_state == 'tutorial' or main.current_state == 'overmap' and not ui.pause:
                     mpos2 = vec(pg.mouse.get_pos()) // (TILESIZE*2)
