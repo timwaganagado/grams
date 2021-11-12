@@ -1000,12 +1000,12 @@ class ally():
             self.attack1 = 0
         def attack(self,target,attack):
             target,dup = target
-            blooddamage = int(M.allies[self][1])/int(self.health)+1+self.inc
+            blooddamage = int(M.allies[self][1])/int(self.health)+1
             if attack == self.attack1:
                 M.allies[self][1] -= 10
             if self.attack3 in self.unlockedabilites:
                 self.healdam += int((blooddamage * self.attacks[attack][0])/2)
-            damage = blooddamage * self.attacks[attack][0]
+            damage = blooddamage * self.attacks[attack][0] *(1+self.inc)
             damage = ally.checkattack(damage,self)
             self.passive()
             target.damage(dup,damage,self)
@@ -3450,7 +3450,7 @@ Q.savedone = 0
 Q.active = False
 Q.addevent(Cri,['There is a audible fight happening over the ridge','You approach and find a mage battling a large enemy'],[swordguy],'battle',60,background_fall)
 Q.addevent(Hap,[['You reach the entrance to an inn',"As you're about to enter some one flies through the door",'he picks him self up sighing "no one will help me"','Help you with what','A vendeta',"you take a second","I'll help, if you join me",'deal'],['There he is you ready',"As ready as i'll ever be"]],[swordguy],'hunt',40,background_fall)
-Q.addevent(nover,['empty','empty'],[[swordguy],[rentoron]],'gauntlet',200,background_dungeon)
+Q.addevent(nover,['empty','empty'],[[swordguy],[rentoron]],'gauntlet',40,background_dungeon)
 
 class ui():
     def __init__(self):
@@ -3810,9 +3810,13 @@ class blessings():
                 return amount
             def passive(self,amount,target):
                 M.allies[target][1] += 5
+                if M.allies[target][1] > target.health:
+                    M.allies[target][1] = target.health
                 return amount
             def endpassive(self,amount,target):
                 M.allies[target][1] += 5
+                if M.allies[target][1] > target.health:
+                    M.allies[target][1] = target.health
                 return amount
             def defend(self,amount,target,aimed,dup):
                 return amount
@@ -3873,7 +3877,7 @@ class blessings():
             def __init__(self):
                 self.vec = 0
             def attack(self,amount,target,aimed,dup):
-                amount += 10
+                amount *= 2
                 if bleed in M.enemy[aimed][dup][4]:
                     M.enemy[aimed][dup][4][bleed] += 1
                 else:
@@ -3889,7 +3893,7 @@ class blessings():
                 return amount
             def defend(self,amount,target,aimed,dup):
                 hit = random.choices([True,False],[30,70])
-                if hit:
+                if hit == True:
                     amount /= 2
                 return amount
 
