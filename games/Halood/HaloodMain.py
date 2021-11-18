@@ -153,12 +153,20 @@ swordguy2_img = pg.transform.scale(swordguy2_img, (256, 256))
 swordguy3_img = pg.image.load(os.path.join(currentfiles,'Layer 1_swordguy_combat3.png')).convert_alpha()
 swordguy3_img = pg.transform.scale(swordguy3_img, (256, 256))
 
+swordguy_attacking_img = pg.image.load(os.path.join(currentfiles,'swordguy_attacking0.png')).convert_alpha()
+swordguy_attacking_img = pg.transform.scale(swordguy_attacking_img, (256, 256))
+swordguy_attacking2_img = pg.image.load(os.path.join(currentfiles,'swordguy_attacking1.png')).convert_alpha()
+swordguy_attacking2_img = pg.transform.scale(swordguy_attacking2_img, (256, 256))
+swordguy_attacking3_img = pg.image.load(os.path.join(currentfiles,'swordguy_attacking2.png')).convert_alpha()
+swordguy_attacking3_img = pg.transform.scale(swordguy_attacking3_img, (256, 256))
+
 spsword = testenemy.spsword()
 
 spsword.vec = vec(43,20)
 spsword.health = 30
 spsword.immunities = []
 spsword.combat_animation = {1:swordguy_img,2:swordguy2_img,3:swordguy3_img}
+spsword.attack_animation = {1:swordguy_attacking_img,2:swordguy_attacking2_img,3:swordguy_attacking3_img}
 auras = [(1, 2), (0, 2), (-1, 2), (-2, 2), (-3, 2), (-3, 1), (-2, 1), (-1, 1), (0, 1), (1, 1), (1, 0), (0, 0), (-1, 0), (-2, 0), (-3, 0), (-3, -1), (-2, -1), (-1, -1), (0, -1), (1, -1), (1, -2), (0, -2), (-1, -2), (-2, -2), (-3, -2)]
 spsword.clickaura = []
 for aura in auras:
@@ -175,31 +183,99 @@ class enemy():
             attacks.append(y)
 
         attacking = random.choices(attacks,chance)[0]
-        M.enemy[target][ll][3] = attacking
+        
         damage = attack[attacking]
-        return damage
-    def defaultattack(initiated,dup,damage):
+        
+        able = damage[5]
+        pospos = damage[6]
+        poopee = M.unconversion[(M.enemy[target][ll][0].x,M.enemy[target][ll][0].y)]
+        checker = [vec(1,0),vec(0,1),vec(-1,0),vec(0,-1)]
+        checked = []
+        movement = target.movement +1
+        checked.append(vec(poopee))
+        for x in range(0,movement):
+            print(x)
+            if x == 1:
+                for x in checker:
+                    new = poopee+ x
+                    if 10 > new.x > 5 and 6 > new.y >= 2:
+                        checked.append(new)
+            else:
+                oldchecked = list(checked)
+                for y in oldchecked:
+                    for x in checker:
+                        new = y+ x
+                        if 10 > new.x > 5 and 6 > new.y >= 2:
+                            if new not in checked:
+                                checked.append(new)
+        
+        pot = []
         possible = []
-        dead = []
         agros = []
-        for x in M.spaces:
-            if x == 'front row':
-                for l in M.spaces[x]:
-                    if l[1] != 99:
-                        possible.append(l[1])
-                        agros.append(l[1].agro)
-                    else:
-                        dead.append(l[1])
-            if x == 'back row' and len(dead) == 2:
-                for j in M.spaces[x]:
-                    if j[1] != 99:
-                        possible.append(j[1])
-                        agros.append(j[1].agro)
-                    else:
-                        dead.append(j[1])
-        target = random.choices(possible,agros)[0]
-        for x in range(0,damage[3]):
-            target.damage(damage,initiated,dup)
+        potpos = {}
+        for x in checked:
+            if x in pospos:
+                pot.append(x)
+        if able == (0,99):
+            for x in pot:
+                x = vec(x)
+                start = vec(5,x.y)
+                while start.x > 1:
+                    start = (start.x,start.y)
+                    if M.allyspaces[start] != 0:
+                        possible.append(M.allyspaces[start])
+                        agros.append(M.allyspaces[start].agro)
+                        if M.allyspaces[start] in potpos:
+                            potpos[M.allyspaces[start]].append(x)
+                        else:
+                            potpos.update({M.allyspaces[start]:[x]})
+                        break
+                    start = vec(start)
+                    start.x -= 1
+        
+        
+        #for x in M.spaces:
+        #    if x == 'front row':
+        #        for l in M.spaces[x]:
+        #            if l[1] != 99:
+        #                possible.append(l[1])
+        #                agros.append(l[1].agro)
+        #            else:
+        #                dead.append(l[1])
+        #    if x == 'back row' and len(dead) == 2:
+        #        for j in M.spaces[x]:
+        #            if j[1] != 99:
+        #                possible.append(j[1])
+        #                agros.append(j[1].agro)
+        #            else:
+        #                dead.append(j[1])
+        char = target
+        print(pot)
+        print(possible)
+        if len(possible) != 0:
+            M.enemy[target][ll][6] = True
+            M.enemy[target][ll][3] = attacking
+            target = random.choices(possible,agros)[0]
+            print(M.unconversion[M.allies[target][0].x,M.allies[target][0].y])
+            newpos = random.choice(potpos[target])
+            M.enemyspaces[M.unconversion[(M.enemy[char][ll][0].x,M.enemy[char][ll][0].y)]] = 0
+            M.enemy[char][ll][0] = vec(M.conversion[newpos.x,newpos.y])
+            M.enemyspaces[M.conversion[newpos.x,newpos.y]] = 0
+            M.enemy[char][ll][2] = [M.enemy[char][ll][0]+ x for x in char.clickaura] 
+        else:
+            target = 0
+            print(checked)
+            newpos = vec(random.choice(checked))
+            print('pos',newpos)
+            M.enemyspaces[M.unconversion[(M.enemy[char][ll][0].x,M.enemy[char][ll][0].y)]] = 0
+            M.enemy[char][ll][0] = vec(M.conversion[newpos.x,newpos.y])
+            M.enemyspaces[M.conversion[newpos.x,newpos.y]] = 0
+            M.enemy[char][ll][2] = [M.enemy[char][ll][0]+ x for x in char.clickaura] 
+        return damage,target
+    def defaultattack(initiated,dup,damage,target):
+        if target != 0:
+            for x in range(0,damage[3]):
+                target.damage(damage,initiated,dup)
             
     def damage(target,dup,damage,inin):
         print(M.enemy[target][dup][4])
@@ -273,8 +349,8 @@ class enemy():
         def __init__(self):
             self.vec = 0
         def thunk(self,ll):
-            damage = enemy.decision(self,ll)
-            enemy.defaultattack(self,ll,damage)
+            damage,target = enemy.decision(self,ll)
+            enemy.defaultattack(self,ll,damage,target)
         def damage(self,dup,damage,inin):
             enemy.damage(self,dup,damage,inin)
     class archer():
@@ -473,13 +549,14 @@ enemy.list.append(swordguy)
 swordguy.vec = vec(43,20)
 swordguy.health = 30
 swordguy.immunities = []
+swordguy.movement = 2
 swordguy.combat_animation = {1:swordguy_img,2:swordguy2_img,3:swordguy3_img}
 swordguy.attack_animation = {1:swordguy_attacking_img,2:swordguy_attacking2_img,3:swordguy_attacking3_img}
 auras = [(1, 2), (0, 2), (-1, 2), (-2, 2), (-3, 2), (-3, 1), (-2, 1), (-1, 1), (0, 1), (1, 1), (1, 0), (0, 0), (-1, 0), (-2, 0), (-3, 0), (-3, -1), (-2, -1), (-1, -1), (0, -1), (1, -1), (1, -2), (0, -2), (-1, -2), (-2, -2), (-3, -2)]
 swordguy.clickaura = []
 for aura in auras:
     swordguy.clickaura.append(vec(aura))
-swordguy.attacks = {'blunt slash':[3,{},False,2,4],'slash':[3,{pierce:1},False,2,2],'miss':[0,{},False,1,1]}
+swordguy.attacks = {'blunt slash':[3,{},False,2,4,vec(0,99),[vec(6,2),vec(6,3),vec(6,4),vec(6,5),vec(7,2),vec(7,3),vec(7,4),vec(7,5)]],'slash':[3,{pierce:1},False,2,2,vec(0,99),[vec(6,2),vec(6,3),vec(6,4),vec(6,5),vec(7,2),vec(7,3),vec(7,4),vec(7,5)]],'miss':[0,{},False,1,1,vec(0,99),[vec(6,2),vec(6,3),vec(6,4),vec(6,5),vec(7,2),vec(7,3),vec(7,4),vec(7,5)]]}
 swordguy.stagger = 10
 
 home_img = pg.image.load(os.path.join(filename,cross)).convert_alpha()
@@ -604,7 +681,7 @@ auras = [(1, 2), (0, 2), (-1, 2), (-2, 2), (-3, 2), (-3, 1), (-2, 1), (-1, 1), (
 grosehound.clickaura = []
 for aura in auras:
     grosehound.clickaura.append(vec(aura))
-grosehound.attacks = {'scracth':[3,{},False,1,4],'deep bite':[3,{bleed:1},False,1,2],'miss':[0,{},False,1,1]}
+grosehound.attacks = {'scratch':[3,{},False,1,4],'deep bite':[3,{bleed:1},False,1,2],'miss':[0,{},False,1,1]}
 grosehound.stagger = 5
 
 currentfiles = currentfileg + '/barrier'
@@ -691,14 +768,11 @@ class boss():
             dead = []
             possible = []
             attacking = random.choices(attacks,chance)[0]
-            print(attacking)
-            print(M.enemy[self][ll][3])
             if attacking == 'slash' or attacking == 'heavy swing':
                 self.attack_animation = {1:cbm_attackingblunt_img,2:cbm_attackingblunt2_img,3:cbm_attackingblunt3_img}
             else:
                 self.attack_animation = {1:cbm_attackingmagic_img,2:cbm_attackingmagic2_img,3:cbm_attackingmagic3_img}
             M.enemy[self][ll][3].append(attacking)
-            print(M.enemy[self][ll][3])
             damage = self.attacks[attacking]
             if damage[5]:
                 for x in M.spaces:
@@ -756,14 +830,11 @@ class boss():
             dead = []
             possible = []
             attacking = random.choices(attacks,chance)[0]
-            print(attacking)
-            print(M.enemy[self][ll][3])
             if attacking == 'slash' or attacking == 'heavy swing':
                 self.attack_animation = {1:cbm_attackingblunt_img,2:cbm_attackingblunt2_img,3:cbm_attackingblunt3_img}
             else:
                 self.attack_animation = {1:cbm_attackingmagic_img,2:cbm_attackingmagic2_img,3:cbm_attackingmagic3_img}
             M.enemy[self][ll][3].append(attacking)
-            print(M.enemy[self][ll][3])
             damage = self.attacks[attacking]
             if damage[5]:
                 for x in M.spaces:
@@ -1693,6 +1764,16 @@ class ally():
 
 currentfileg =  filename +'/allies'                
                 
+secondrow = [vec(4,2),vec(4,3),vec(4,4),vec(4,5)]                
+firstrow = [vec(5,2),vec(5,3),vec(5,4),vec(5,5)]
+
+topcollumenemy = [vec(6,2),vec(7,2),vec(8,2),vec(9,2)]
+secondcollumenemy = [vec(6,3),vec(7,3),vec(8,3),vec(9,3)]
+thirdcollumenemy = [vec(6,4),vec(7,4),vec(8,4),vec(9,4)]
+bottomcollumenemy = [vec(6,5),vec(7,5),vec(8,5),vec(9,5)]
+
+collumcheck = {2:topcollumenemy,3:secondcollumenemy,4:thirdcollumenemy,5:bottomcollumenemy}
+
 ally = ally()
                     
 iconaura = [(2, 2), (2, 1), (2, 0), (2, -1), (2, -2), (1, -2), (1, -1), (1, 0), (1, 1), (1, 2), (0, 2), (0, 1), (0, 0), (0, -1), (0, -2), (-1, -2), (-1, -1), (-1, 0), (-1, 1), (-1, 2), (-2, 2), (-2, 1), (-2, 0), (-2, -1), (-2, -2)]            
@@ -1762,6 +1843,7 @@ fairum.vec = vec(20,15)
 fairum.health = 50
 fairum.shield = 0
 fairum.agro = 1
+fairum.movement = 2
 fairum.immunities = []
 fairum.plates = 1
 fairum.plateslimit = 10
@@ -1865,6 +1947,7 @@ H.vec = vec(20,15)
 H.health = 50
 H.shield = 0
 H.agro = 1
+H.movement = 2
 H.immunities = []
 H.healdam = 0
 H.inc = 0
@@ -1875,7 +1958,7 @@ H.exp = 0
 H.lvl = 0
 H.needtolvl = 10
 H.combat_animation = {1:heplane_combat_img,2:heplane_combat2_img,3:heplane_combat3_img}
-H.attacks = {H.attack1:[10,[{fire:1}],False,1,heplane_ability1_img,[vec(18,31) + a for a in iconaura]],H.attack2:[5,[0],False,1,heplane_ability2_img,[vec(23,31) + a for a in iconaura]],H.attack3:[0,[0],True,1,heplane_ability3_img,[vec(28,31)+ a for a in iconaura]],H.attack4:[20,[0],True,1,heplane_ability4_img,[vec(33,31)+ a for a in iconaura]]}
+H.attacks = {H.attack1:[10,[{fire:1}],False,1,heplane_ability1_img,[vec(18,31) + a for a in iconaura],vec(0,99),secondrow+firstrow],H.attack2:[5,[0],False,1,heplane_ability2_img,[vec(23,31) + a for a in iconaura],vec(0,99),secondrow+firstrow],H.attack3:[0,[0],True,1,heplane_ability3_img,[vec(28,31)+ a for a in iconaura],vec(0,0),False],H.attack4:[20,[0],True,1,heplane_ability4_img,[vec(33,31)+ a for a in iconaura],vec(0,0),False]}
 aura = [(1, 3), (0, 3), (-1, 3), (-1, 2), (0, 2), (1, 2), (1, 1), (0, 1), (-1, 1), (-1, 0), (0, 0), (1, 0), (1, -1), (0, -1), (-1, -1), (-1, -2), (0, -2), (1, -2), (1, -3), (0, -3), (-1, -3)]
 H.clickaura = []
 for x in aura:
@@ -2226,7 +2309,6 @@ class main():
     def checkstate(self):
         if self.savestate != self.current_state:
             self.savestate = self.current_state
-            print(self.savestate,self.current_state)
             if self.current_state == 'overmap' or self.current_state == 'map':
                 Bg.checkback()
     def draw_level(self):
@@ -2279,26 +2361,37 @@ class main():
             else:
                 if mpos in M.getaura() and M.selectedchar != 0 and M.selectedattack != 0:
                     if len(M.actions) != len(M.allies) and M.selectedchar not in M.actions:
-                        M.damage = {}
-                        if M.selectedchar.attacks[M.selectedattack][2] != False:
-                            for x in M.allies:
-                                if mpos in M.allies[x][2]:
+                        if M.unconversion[M.allies[M.selectedchar][0].x,M.allies[M.selectedchar][0].y] in M.selectedchar.attacks[M.selectedattack][7]:
+                            M.damage = {}
+                            M.allies[M.selectedchar][6] = False
+                            if M.selectedchar.attacks[M.selectedattack][2] != False:
+                                for x in M.allies:
+                                    if mpos in M.allies[x][2]:
+                                        M.actions.append(M.selectedchar)
+                                        M.selectedchar.support(x)
+                                        M.checkifdead()
+                            else:
+                                der,xxer = M.selectenemy()
+                                if der != 'pass':
                                     M.actions.append(M.selectedchar)
-                                    M.selectedchar.support(x)
-                                    M.checkifdead()
-                        else:
-                            der,xxer = M.selectenemy()
-                            if der != 'pass':
-                                M.actions.append(M.selectedchar)
-                                M.selectedchar.attack((der,xxer),M.selectedattack)
-                                M.checkifdead()  
-                    else:
-                        pass 
-                elif mpos not in M.getaura() and mpos not in M.selectingattack():
-                    M.selectedchar = 0
-                if mpos in M.selectingchar() :#and M.attackselect == False:
+                                    M.selectedchar.attack((der,xxer),M.selectedattack)
+                                    M.checkifdead()  
+                elif M.moving:
+                    print('move')
+                    if M.selectedchar not in M.actions:
+                        M.moveallies()
+                #elif mpos not in M.getaura() and mpos not in M.selectingattack():
+                #    M.selectedchar = 0
+                #    M.attackselect = False    
+
+                if mpos in M.selectingchar():#and M.attackselect == False:
+                    save = M.selectedchar
                     M.selectchar()
-                    M.selectedattack = 0
+                    M.moving = True
+                    if M.selectedchar != save:
+                        M.selectedattack = 0
+                    if M.allies[M.selectedchar][6] == False:
+                        M.allies[M.selectedchar][6] = M.allies[M.selectedchar][0] 
                 if mpos in M.selectingattack():
                     M.selectattack()
     def battlebottom(self):
@@ -2316,12 +2409,17 @@ class main():
             self.anim_timer = pg.time.get_ticks()
         if self.current_state == 'battle':
             Bg.draw_background()
+            M.draw_grid()
+            M.draw_movement()
             M.draw_allychar()
+            M.draw_healthbar()
             M.draw_enemychar()
             M.draw_icons()
+            
             M.draw_effects()
             M.draw_phase()
             M.draw_transition()
+
             if ui.pause:
                 M.draw_allychar()
                 M.draw_enemychar()
@@ -2383,7 +2481,8 @@ class main():
                         M.statuseffects(True)
                         M.checkifdead()
                         self.display_time_stop = pg.time.get_ticks()
-                        
+                        for x in M.allies:
+                            M.allies[x][6] = M.allies[x][0] 
                         if not len(M.actions) >= len(M.allies):
                             M.phase = 'Player'
                             for x in M.enemy:
@@ -2751,7 +2850,7 @@ for x in levels:
 
 main = main()
 
-main.current_state = 'menu'
+main.current_state = 'battle'
 main.savestate = 0
 main.amountmoney = 50
 main.enemy_attck_time = 0
@@ -4182,7 +4281,7 @@ class battle():
         self.enemy = {}
         self.l = []
         self.actions = []
-        self.alliessave = []
+        
         L.turns = 0
         L.border = 3
         L.barrier = []
@@ -4191,6 +4290,7 @@ class battle():
             x.exp = 0
             x.lvl = 0
             x.needtolvl = 10
+        self.alliessave = []
         O.crossvec = vec(3,8)
         O.get_connections()
         L.crossvec = vec(3,8)
@@ -4208,7 +4308,7 @@ class battle():
         pos = new.vec
         eat = new.health
         lean = new.shield
-        self.allies.update({new:[pos,eat,new.clickaura,lean,{},[]]})
+        self.allies.update({new:[pos,eat,new.clickaura,lean,{},[],False]})
         self.alliessave.append(new)
         self.numberofallies()
         ally.init_skilltree(new)
@@ -4216,7 +4316,8 @@ class battle():
         s.fill((255,255,255 ))           # this fills the entire surface
         screen.blit(s, (0,0))
     def start(self):
-        enemy,tier = L.getlevel()
+        #enemy,tier = L.getlevel()
+        enemy = [swordguy]
         self.savecost = enemy
         for x in enemy:
             if x in self.enemy:
@@ -4237,6 +4338,7 @@ class battle():
             ani = dict(x.combat_animation)
             pos = self.allies[x][0]
             cur = ani[self.current_animation]
+            #TILESIZE = 150
             goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))
             if x in self.actions:
                 cur = cur.copy( )
@@ -4249,6 +4351,8 @@ class battle():
                 lel[1] -=2
                 screen.blit(lol, lel)
             screen.blit(cur, cur.get_rect(center=goal_center))
+    def draw_healthbar(self):
+        for x in self.allies:
             pos = self.allies[x][0]
             heat = self.allies[x][1]
             if self.victory != True:
@@ -4289,6 +4393,14 @@ class battle():
                 draw_text(text, 20, BLACK, pos.x*TILESIZE - 10, pos.y*TILESIZE - 150)
                 rect = pg.Rect(int(pos.x*TILESIZE - 10), int(pos.y*TILESIZE - 120), int(heat), 20)
                 pg.draw.rect(screen,RED,rect)
+    def draw_grid(self):
+        for x in range(350, WIDTH-300, 150):
+            pg.draw.line(screen, BLACK, (x, 300), (x, HEIGHT-180))
+            if 1000 > x > 900:
+                pg.draw.line(screen, RED, (x, 300), (x, HEIGHT-180))
+        for y in range(300, HEIGHT-100, 150):
+            pg.draw.line(screen, BLACK, (350, y), (WIDTH-370, y))
+
     def draw_phase(self):
         if self.fancy:
             if self.phase == 'Enemy':
@@ -4395,7 +4507,58 @@ class battle():
                             pg.draw.rect(screen,WHITE,rect)
                         pos += vec(5,0)
                     
-                x.draw_icons()   
+                x.draw_icons() 
+                pos = vec(18,31)  
+                for x in M.selectedchar.attacks:
+                    if M.selectedchar.attacks[x][7] != False:
+                        if M.unconversion[M.allies[M.selectedchar][0].x,M.allies[M.selectedchar][0].y] not in M.selectedchar.attacks[x][7]:
+                            rect = pg.Surface((140, 160))
+                            rect.set_alpha(128)
+                            rect.fill(BLACK)
+                            screen.blit(rect,(int(pos.x*TILESIZE-55), int(pos.y*TILESIZE-55)))
+                            pos += vec(5,0)
+    def draw_movement(self):
+        for x in self.allies:
+            if self.selectedchar == x and self.allies[self.selectedchar][6] != False:
+                poopee = M.unconversion[(self.allies[self.selectedchar][6].x,self.allies[self.selectedchar][6].y)]
+                checker = [vec(1,0),vec(0,1),vec(-1,0),vec(0,-1)]
+                checked = []
+                movement = self.selectedchar.movement +1
+                for x in range(0,movement):
+                    if x == 1:
+                        for x in checker:
+                            new = poopee+ x
+                            if 5 >= new.x >= 2 and 6 > new.y >= 2:
+                                checked.append(new)
+                                rect = pg.Surface((150, 150))
+                                rect.set_alpha(64)
+                                rect.fill(WHITE)
+                                screen.blit(rect,(int(new.x*150+50),int(new.y*150)))  
+                    else:
+                        oldchecked = list(checked)
+                        for y in oldchecked:
+                            for x in checker:
+                                new = y+ x
+                                if new not in checked:
+                                    if 5 >= new.x >= 2 and 6 > new.y >= 2:
+                                        checked.append(new)
+                                        rect = pg.Surface((150, 150))
+                                        rect.set_alpha(64)
+                                        rect.fill(WHITE)
+                                        screen.blit(rect,(int(new.x*150+50),int(new.y*150)))
+                if self.selectedattack != 0:
+                    if self.selectedchar.attacks[self.selectedattack][7] != False:
+                        for new in self.selectedchar.attacks[self.selectedattack][7]:
+                            rect = pg.Surface((150, 150))
+                            rect.set_alpha(64)
+                            rect.fill(GREEN)
+                            screen.blit(rect,(int(new.x*150+50),int(new.y*150)))
+                    else:
+                        for new in M.allyspaces:
+                            rect = pg.Surface((150, 150))
+                            rect.set_alpha(64)
+                            rect.fill(GREEN)
+                            screen.blit(rect,(int(new.x*150+50),int(new.y*150)))
     def draw_damage(self):
         for x in self.damage:
             damage = 0
@@ -4453,7 +4616,6 @@ class battle():
     def checkifdead(self):
         test = dict(self.enemy)
         for x in test:
-            if self.dup:
                 for y in test[x]:
                     if int(y[1]) <= 0:
                         self.enemy[x].remove(y)
@@ -4461,10 +4623,10 @@ class battle():
                 if len(test[x]) <= 0:
                     del self.enemy[x]
                     self.killhistory.append(self.selectedchar)
-            else:
-                if test[x][0][1] <=0 :
-                    del self.enemy[x]
-                    self.killhistory.append(self.selectedchar)
+            #else:
+            #    if test[x][0][1] <=0 :
+            #        del self.enemy[x]
+            #        self.killhistory.append(self.selectedchar)
         test = dict(self.allies)
         for x in test:
             if test[x][1] <= 0:
@@ -4472,10 +4634,9 @@ class battle():
                 if x == self.selectedchar:
                     self.selectedchar = 0
                     self.selectedattack = 0
-                for w in self.spaces:
-                    for a in self.spaces[w]:
-                        if a[1] == x:
-                            a[1] = 99
+                for w in self.allyspaces:
+                    if self.allyspaces[w] == x:
+                        self.allyspaces[w] = 0
         if len(self.allies) <= 0:
             self.loss = True
             main.endscreen_timer = pg.time.get_ticks()
@@ -4561,55 +4722,91 @@ class battle():
 
             self.damage = {}
     def numberofenemy(self):
-        spaces = {'space1':[vec(37,20),99],'space2':[vec(43,25),99],'space3':[vec(43,15),99],'space4':[vec(47,18),99],'space5':[vec(47,22),99]}
-        taken = []
-        self.dup = False
-        number = 0
-        for y in self.enemy:
-            if len(self.enemy[y]) > 1:
-                lel = 0
-                for a in self.enemy[y]:  
-                    for x in spaces:
-                        for z in spaces:
-                            taken.append(spaces[z][1])
-                        if spaces[x][1] == 99:
-                            if number not in taken:
-                                spaces[x][1] = number
-                                self.enemy[y][lel][0] = spaces[x][0]
-                                self.enemy[y][lel][2] = [self.enemy[y][lel][0]+ x for x in self.enemy[y][lel][2]]
-                        taken = []
-                    lel+=1
-                    number += 1
-                self.dup = True
-            else:
-                for x in spaces:
-                    for z in spaces:
-                        taken.append(spaces[z][1])
-                    if spaces[x][1] == 99:
-                        if y not in taken:
-                            spaces[x][1] = y
-                            self.enemy[y][0][0] = spaces[x][0]
-                            self.enemy[y][0][2] = [self.enemy[y][0][0]+ x for x in self.enemy[y][0][2]]
-                    taken = []              
+        pot = []
+        for x in self.enemyspaces:
+            pot.append(x)
+        for x in self.enemy:
+            for y in self.enemy[x]:
+                cho = random.choice(pot)
+                while self.enemyspaces[cho] != 0:
+                    cho = random.choice(pot)
+                
+                self.enemyspaces[cho] = x
+                y[0] = vec(M.conversion[cho])
+                y[2] = [y[0]+ x for x in x.clickaura] 
     def numberofallies(self):
-        if len(self.allies) > 1:
-            self.spaces = {'front row':[[vec(20,12), 99],[vec(20,22),99]],'back row':[[vec(13,12),99],[vec(13,22),99]]}
-        else:
-            self.spaces = {'front row':[[vec(20,17), 99],[vec(20,22),99]],'back row':[[vec(13,12),99],[vec(13,22),99]]}
-        taken = []
-        self.dup = False
+        #vec(14,11) vec(19,11) vec(24,11) vec(29,11)
+        for x in self.allyspaces:
+            self.allyspaces[x] = 0
+        pot = []
+        for x in self.allyspaces:
+            pot.append(x)
         for y in self.allies:
-            for x in self.spaces:
-                for a in self.spaces[x]:
-                    for w in self.spaces:
-                        for mom in self.spaces[w]:
-                            taken.append(mom[1])
-                    if a[1] == 99:
-                        if y not in taken:
-                            a[1] = y
-                            self.allies[y][0] = a[0]
-                            self.allies[y][2] = [self.allies[y][0]+ x for x in y.clickaura]
-                    taken = []   
+            cho = random.choice(pot)
+            while self.allyspaces[cho] != 0:
+                cho = random.choice(pot)
+            
+            self.allyspaces[cho] = y
+            self.allies[y][0] = vec(M.conversion[cho])
+            self.allies[y][2] = [self.allies[y][0]+ x for x in y.clickaura]
+            print(cho)
+            print(self.allyspaces) 
+    def moveallies(self):
+        if (bigmpos.x,bigmpos.y) in M.allyspaces:
+            poopee = M.unconversion[(self.allies[self.selectedchar][6].x,self.allies[self.selectedchar][6].y)]
+            checker = [vec(1,0),vec(0,1),vec(-1,0),vec(0,-1)]
+            checked = []
+            movement = self.selectedchar.movement +1
+            for x in range(0,movement):
+                print(x)
+                if x == 1:
+                    for x in checker:
+                        new = poopee+ x
+                        if 5 >= new.x >= 2 and 6 > new.y >= 2:
+                            checked.append(new)
+                else:
+                    oldchecked = list(checked)
+                    for y in oldchecked:
+                        for x in checker:
+                            new = y+ x
+                            if new != checked:
+                                if 5 >= new.x >= 2 and 6 > new.y >= 2:
+                                    checked.append(new)
+            if (bigmpos.x,bigmpos.y) == M.unconversion[self.allies[self.selectedchar][0].x,self.allies[self.selectedchar][0].y]:
+                print('passed')
+                self.allies[self.selectedchar][0]
+                M.actions.append(self.selectedchar)
+                M.moving = False
+                M.attackselect = False
+            else:
+                if self.allyspaces[(bigmpos.x,bigmpos.y)] == 0 and bigmpos in checked: #and self.allies[self.selectedchar][6] == self.allies[self.selectedchar][0]:
+                    print('clicked on')
+                    self.allyspaces[M.unconversion[self.allies[self.selectedchar][0].x,self.allies[self.selectedchar][0].y]] = 0
+                    self.allies[self.selectedchar][0] = vec(M.conversion[(bigmpos.x,bigmpos.y)])
+                    self.allyspaces[(bigmpos.x,bigmpos.y)] = self.selectedchar
+                    self.allies[self.selectedchar][2] = [self.allies[self.selectedchar][0]+ x for x in self.selectedchar.clickaura] 
+                else:
+                    print('clicked off')
+                    self.allyspaces[M.unconversion[self.allies[self.selectedchar][0].x,self.allies[self.selectedchar][0].y]] = 0
+                    M.allies[M.selectedchar][0] = M.allies[M.selectedchar][6]
+                    self.allyspaces[M.unconversion[self.allies[self.selectedchar][0].x,self.allies[self.selectedchar][0].y]] = self.selectedchar
+                    M.allies[M.selectedchar][2] = [M.allies[M.selectedchar][0]+ x for x in M.selectedchar.clickaura] 
+                    self.selectedchar = 0
+                    self.selectedattack = 0
+                    M.moving = False
+                    M.attackselect = False
+            
+            print(self.allyspaces)
+        else:
+            if mpos not in self.selectingattack():
+                self.allyspaces[M.unconversion[self.allies[self.selectedchar][0].x,self.allies[self.selectedchar][0].y]] = 0
+                M.allies[M.selectedchar][0] = M.allies[M.selectedchar][6]
+                self.allyspaces[M.unconversion[self.allies[self.selectedchar][0].x,self.allies[self.selectedchar][0].y]] = self.selectedchar
+                M.allies[M.selectedchar][2] = [M.allies[M.selectedchar][0]+ x for x in M.selectedchar.clickaura] 
+                self.selectedchar = 0
+                self.selectedattack = 0
+                M.moving = False
+                M.attackselect = False
     def getaura(self):
         y = []
         for x in self.enemy:
@@ -4618,14 +4815,24 @@ class battle():
                     y += z[2]
             else:
                 y += self.enemy[x][0][2]
-        for x in self.allies:
-            y += self.allies[x][2]
+        #for x in self.allies:
+        #    y += self.allies[x][2]
         return y
     def selectingattack(self):
         y = []
         if self.selectedchar != 0:
-            for x in self.selectedchar.attacks:
-                y += self.selectedchar.attacks[x][5]
+            for w in self.selectedchar.attacks:
+                if w in self.selectedchar.abilities:
+                    if self.selectedchar.attack3 not in self.selectedchar.unlockedabilites:
+                        if w == self.selectedchar.attack3:
+                            continue
+                    try:
+                        if self.selectedchar.attack4 not in self.selectedchar.unlockedabilites:
+                            if w == self.selectedchar.attack4:
+                                continue
+                    except:
+                        pass
+                y += self.selectedchar.attacks[w][5]
         return y
     def selectingchar(self):
         y = []
@@ -4636,14 +4843,26 @@ class battle():
     def selectattack(self):
         for x in self.selectedchar.attacks:
             if mpos in self.selectedchar.attacks[x][5]:
+                if x in self.selectedchar.abilities:
+                    if self.selectedchar.attack3 not in self.selectedchar.unlockedabilites:
+                        if x == self.selectedchar.attack3:
+                            continue
+                    try:
+                        if self.selectedchar.attack4 not in self.selectedchar.unlockedabilites:
+                            if x == self.selectedchar.attack4:
+                                continue
+                    except:
+                        pass
+                save = self.selectedattack
                 self.selectedattack = x
                 self.attackselect = True
-
+                if save == self.selectedattack:
+                    self.selectedattack = 0
+                    self.attackselect = False
     def selectchar(self):
         for x in self.allies:
             if mpos in self.allies[x][2]:
                 self.selectedchar = x
-                self.charselect = True
                 self.selectedability = 0
     def selectenemy(self):
         cur_enemyspecific = 'pass'
@@ -4671,7 +4890,6 @@ class battle():
             else:
                 del self.enemy[x][ll][4][stun]
         else: 
-            M.enemy[x][ll][6] = True
             x.thunk(ll)
     def workingattack(self,attack,effect):
         pass
@@ -4740,6 +4958,33 @@ M = battle()
 M.tranrect = 1
 M.speed = 50
 M.trantime = 0
+
+M.alliessave = []
+
+M.allyspaces = {}
+M.enemyspaces = {}
+M.conversion = {}
+M.unconversion = {}
+first = vec(2,2) #vec(19,11) vec(24,11) vec(29,11)
+second = vec(14,11) 
+for x in range(0,32):
+    if first.x < 6:
+        M.allyspaces.update({(first.x,first.y):0})
+    else:
+        M.enemyspaces.update({(first.x,first.y):0})
+    M.conversion.update({(first.x,first.y):(second.x,second.y)})
+    M.unconversion.update({(second.x,second.y):(first.x,first.y)})
+    first.x += 1
+    second.x += 5
+    if first.x > 9:
+        first.x = 2
+        first.y += 1
+        second.x = 14
+        second.y += 5
+M.moving = False
+
+
+
 ''' = progress + done ' ' in the works - later
 Gameplay
 multiple enemies that attack +
@@ -4868,9 +5113,12 @@ mpos = vec(0,0)
 create = []
 lock = True
 
+M.start()
+Bg.checkback()
+
 pg.mixer.music.load(os.path.join(filename,'walking through.wav'))
 pg.mixer.music.play(2,0,2000)
-pg.mixer.music.set_volume(0.2)
+pg.mixer.music.set_volume(0.0)
 
 music = ['walking through.wav','rushed adventure.wav']
 
@@ -4889,6 +5137,8 @@ while ui.running:
                     mpos = vec(pg.mouse.get_pos()) // TILESIZE
                     mposraw = vec(pg.mouse.get_pos())
                     create.append(mpos)
+                    bigmpos = vec(pg.mouse.get_pos())
+                    bigmpos = vec(bigmpos.x-50,bigmpos.y)//150
                 if main.current_state == 'creator' or main.current_state == 'map' or main.current_state == 'tutorial' or main.current_state == 'overmap' and not ui.pause:
                     mpos2 = vec(pg.mouse.get_pos()) // (TILESIZE*2)
                     pos = pg.mouse.get_pos()
@@ -4992,7 +5242,7 @@ while ui.running:
         pg.mixer.music.unload()
         pg.mixer.music.load(os.path.join(filename,random.choice(music)))
         pg.mixer.music.play(2,0,2000)
-        pg.mixer.music.set_volume(0.2)
+        pg.mixer.music.set_volume(0.0)
         
     pg.display.flip() # dose the changes goto doccumentation for other ways
 
