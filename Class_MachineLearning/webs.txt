@@ -1,6 +1,0 @@
-https://medium.com/towards-artificial-intelligence/building-neural-networks-from-scratch-with-python-code-and-math-in-detail-i-536fae5d7bbf
-fix: https://www.kdnuggets.com/2018/10/simple-neural-network-python.html
-
-other neural network https://towardsdatascience.com/how-to-build-your-own-neural-network-from-scratch-in-python-68998a08e4f6 
-
-install pandas : https://www.w3schools.com/python/pandas/pandas_getting_started.asp

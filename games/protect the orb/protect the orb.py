@@ -3,10 +3,15 @@ from os import path
 from collections import deque
 import random
 import shelve
+import os , sys
+import math
 vec = pg.math.Vector2
 
-WIDTH = 900
-HEIGHT = 500
+TILESIZE = 30
+GRIDWIDTH = 9
+GRIDHEIGHT = 9
+WIDTH = 255
+HEIGHT = 255
 FPS = 30
 BROWN = (165,42,42)
 WHITE = (255, 255, 255)
@@ -33,48 +38,12 @@ pg.init()
 screen = pg.display.set_mode((WIDTH, HEIGHT))
 clock = pg.time.Clock()
 
-def start():
-    for x in range(0,10):
-        dots.append([vec(WIDTH/2,HEIGHT/2),vec(WIDTH/2+random.randint(-2,2),HEIGHT/2+random.randint(-2,2))])
-
-def draw_dots():
-    for target in dots:
-        rect = pg.Rect(target[0] , (10, 10))
-        pg.draw.rect(screen, BLACK, rect)
-
-def draw_average():
-    x = 0
-    y = 0
-    while y != HEIGHT:
-        if x+1 <= WIDTH and x-1 >= 0 and y+1 <= HEIGHT and y-1 >= 0:
-            if x != 899 and y != 499:
-                dc = screen.get_at((x+1, y))+screen.get_at((x-1, y))+screen.get_at((x, y+1))+screen.get_at((x, y-1))
-                total = 0
-                for z in dc:
-                    total += z
-                    if z != 255:
-                        print(z)
-                total /= 4
-                rect = pg.Rect((x,y) , (10, 10))
-                pg.draw.rect(screen, (total,total,total), rect)
-        
-        x += 1
-        if x > WIDTH:
-            
-            x = 0
-            y += 1
-    print('done')
-def border(target):
-    x,y = True
-    if 0 > target.x > WIDTH:
-        x = False
-    if 0 > target.y > HEIGHT:
-        y = False
-    return x,y
-dots = []
-pdots = []
-
-start()
+hw,hh = WIDTH/2,HEIGHT/2
+x,y = hw,hh
+pmx,pmy = x,y
+dx,dy = 0,0
+distance = 0
+speed = 3
 
 running = True
 while running:
@@ -82,21 +51,37 @@ while running:
     for event in pg.event.get(): # to find what this does print: event
         # write important things here 
         # duh
+        
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_ESCAPE:
                 running = False
                 pg.quit
-            
+        if event.type == pg.MOUSEBUTTONDOWN:
+            pmx,pmy = x,y
+            if event.button == 1:
+                mx,my = pg.mouse.get_pos()
+        
+                radians = math.atan2(my-pmy,mx-pmx)
+                distance = int(math.hypot(mx-pmx,my-pmy)/speed)
+
+                dx = math.cos(radians)*speed
+                dy = math.sin(radians)*speed
+
+                pmx,pmy = mx,my
                     
                 
         if event.type == pg.QUIT: # allows for quit when clicking on the X 
             running = False
             pg.quit() 
-    pg.display.set_caption("{:.2f}".format(clock.get_fps()))     # changes the name of the application
+    
+    
+    if distance:
+        distance -=1
+        x+=dx
+        y+=dy
     screen.fill(WHITE)
-    draw_dots()
-    #draw_average()
-    draw_dots()
-    # fills screnn with color
+    pg.draw.circle(screen,BLACK,(int(x),int(y)),25)
+    pg.display.set_caption("{:.2f}".format(clock.get_fps())) # changes the name of the application
+     # fills screnn with color
     # anything down here will be displayed ontop of anything above
     pg.display.flip() # dose the changes goto doccumentation for other ways

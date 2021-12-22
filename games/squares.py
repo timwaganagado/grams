@@ -498,7 +498,7 @@ G.playerorder = {name1:0, name2:0, name3:0, name4:0}
 G.players = {name1:vec(-1,-1), name2:vec(-1,-1),name3:vec(-1,-1),name4:vec(-1,-1)}
 G.playerspoints = {name1:5, name2:5,name3:5,name4:5}
 G.attack = {}
-G.playerclass = {name1:'player',name2:'player',name3:'ai',name4:'ai'}
+G.playerclass = {name1:'player',name2:'player',name3:'player',name4:'player'}
 
 G.turn = 'roll'
 G.subturn = 'go'

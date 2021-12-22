@@ -74,14 +74,13 @@ class map():
         
     def drawchar(self):   
        #print"draw",self.player)
-        if self.turn == 'enemy' or self.turn == 'all':
-            x,y = self.player
-            rect = pg.Rect(x * TILESIZE, y * TILESIZE, TILESIZE, TILESIZE)
-            pg.draw.rect(screen,WHITE,rect)
-        if self.turn == 'player' or self.turn == 'all':
-            x,y = self.enemy
-            rect = pg.Rect(x * TILESIZE, y * TILESIZE, TILESIZE, TILESIZE)
-            pg.draw.rect(screen,RED,rect)
+
+        x,y = self.player
+        rect = pg.Rect(x * TILESIZE, y * TILESIZE, TILESIZE, TILESIZE)
+        pg.draw.rect(screen,WHITE,rect)
+        x,y = self.enemy
+        rect = pg.Rect(x * TILESIZE, y * TILESIZE, TILESIZE, TILESIZE)
+        pg.draw.rect(screen,RED,rect)
         for test in self.test:
             rect = pg.Rect(test * TILESIZE, (TILESIZE, TILESIZE))
             pg.draw.rect(screen, YELLOW, rect)
