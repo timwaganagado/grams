@@ -1,33 +1,29 @@
+from turtle import Screen
 import pygame
 from network import Network
+import random
+vec = pygame.math.Vector2
+
+BLUE = (0,0,255)
+BROWN = (165,42,42)
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+CYAN = (0, 255, 255)
+MAGENTA = (255, 0, 255)
+YELLOW = (255, 255, 0)
+DARKGRAY = (40, 40, 40)
+MEDGRAY = (75, 75, 75)
+LIGHTGRAY = (140, 140, 140)
+GREY = (128,128,128)
+DARKBLUE = (0,0,139)
+MOMENTUMCOLOR = (166, 138, 178)
+PURPLE = (149, 53, 83)
+VIOLET = (127,0,255)
+ORANGE = (255, 165, 0)
 
 
-class Player():
-    width = height = 50
-
-    def __init__(self, startx, starty, color=(255,0,0)):
-        self.x = startx
-        self.y = starty
-        self.velocity = 2
-        self.color = color
-
-    def draw(self, g):
-        pygame.draw.rect(g, self.color ,(self.x, self.y, self.width, self.height), 0)
-
-    def move(self, dirn):
-        """
-        :param dirn: 0 - 3 (right, left, up, down)
-        :return: None
-        """
-
-        if dirn == 0:
-            self.x += self.velocity
-        elif dirn == 1:
-            self.x -= self.velocity
-        elif dirn == 2:
-            self.y -= self.velocity
-        else:
-            self.y += self.velocity
 
 
 class Game:
@@ -36,8 +32,10 @@ class Game:
         self.net = Network()
         self.width = w
         self.height = h
-        self.player = Player(50, 50)
-        self.player2 = Player(100,100)
+        self.phase = 'roll'
+        self.turnplayer = 1
+        self.players = {0:["player",vec(50,50)],1:['ai',vec(100,100)],2:['ai',vec(150,150)],3:['ai',vec(200,200)]}
+
         self.canvas = Canvas(self.width, self.height, "Testing...")
 
     def run(self):
@@ -52,32 +50,33 @@ class Game:
 
                 if event.type == pygame.K_ESCAPE:
                     run = False
-
+            #if self.phase == 'roll':
+            #    self.masterorder[self.turnplayer] = random.randint(1,6)
             keys = pygame.key.get_pressed()
 
             if keys[pygame.K_RIGHT]:
-                if self.player.x <= self.width - self.player.velocity:
-                    self.player.move(0)
+                if self.players[int(self.net.id)][1].x <= self.width - 50:
+                    self.players[int(self.net.id)][1].x += 2
 
             if keys[pygame.K_LEFT]:
-                if self.player.x >= self.player.velocity:
-                    self.player.move(1)
+                if self.players[int(self.net.id)][1].x >= 0:
+                    self.players[int(self.net.id)][1].x -= 2
 
             if keys[pygame.K_UP]:
-                if self.player.y >= self.player.velocity:
-                    self.player.move(2)
+                if self.players[int(self.net.id)][1].y >= 0:
+                    self.players[int(self.net.id)][1].y -= 2
 
             if keys[pygame.K_DOWN]:
-                if self.player.y <= self.height - self.player.velocity:
-                    self.player.move(3)
+                if self.players[int(self.net.id)][1].y <= self.height - 50:
+                    self.players[int(self.net.id)][1].y += 2
 
             # Send Network Stuff
-            self.player2.x, self.player2.y = self.parse_data(self.send_data())
+            self.parse_data(self.send_data())
 
             # Update Canvas
             self.canvas.draw_background()
-            self.player.draw(self.canvas.get_canvas())
-            self.player2.draw(self.canvas.get_canvas())
+            self.canvas.drawplayers()
+            self.canvas.draw_grid()
             self.canvas.update()
 
         pygame.quit()
@@ -87,17 +86,38 @@ class Game:
         Send position to server
         :return: None
         """
-        data = str(self.net.id) + ":" + str(self.player.x) + "," + str(self.player.y)
+        print(self.players)
+        data = str(self.net.id) + ":[" + str(self.players[int(self.net.id)][0]) + ',' +str(self.players[int(self.net.id)][1].x) + ',' + str(self.players[int(self.net.id)][1].y) + ']'
+        data = data.replace(' ','')
         reply = self.net.send(data)
         return reply
 
-    @staticmethod
-    def parse_data(data):
-        try:
-            d = data.split(":")[1].split(",")
-            return int(d[0]), int(d[1])
-        except:
-            return 0,0
+    def parse_data(self,data):
+        #try:
+
+            data = data.replace('"','')
+            data = data[1:-1]
+            data = data.split(', ')
+            
+            
+
+            
+            for x in data:
+                print('x',x)
+                x = x[1:-1]
+                x = x.split(':')
+                print(x[1])
+                
+                ww = x[1]
+                ww = ww[1:-1]
+                ww = ww.split(',')
+                print(ww)
+                
+                self.players.update({int(x[0]):[ww[0],vec(float(ww[1]),float(ww[2]))]})
+
+
+        #except:
+        #    pass
 
 
 class Canvas:
@@ -107,7 +127,12 @@ class Canvas:
         self.height = h
         self.screen = pygame.display.set_mode((w,h))
         pygame.display.set_caption(name)
-
+    def draw_grid(self):
+        for x in range(0, self.width, int(self.width/4)):
+            pygame.draw.line(self.screen, LIGHTGRAY, (x, 0), (x, self.height))
+        for y in range(0, self.height, int(self.height/4)):
+            pygame.draw.line(self.screen, LIGHTGRAY, (0, y), (self.width, y))
+        pass
     @staticmethod
     def update():
         pygame.display.update()
@@ -124,3 +149,14 @@ class Canvas:
 
     def draw_background(self):
         self.screen.fill((255,255,255))
+    
+    def drawplayers(self):
+        for x in g.players:
+            x = g.players[x]
+            pos = x[1]
+            pygame.draw.rect(self.screen, RED ,(pos.x, pos.y, 50, 50),0 )
+
+g = Game(500,500)
+g.run()
+
+

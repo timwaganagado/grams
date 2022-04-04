@@ -628,5 +628,5 @@ while running:
         if G.turn == 'end':
             text = str(G.winner) + ' is the winner'
             draw_text(text, 50,RED,DISPSIZE/2,DISPSIZE/7,align='topleft')
-    
+    print(G.players)
     pg.display.flip()
