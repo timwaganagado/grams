@@ -1261,7 +1261,7 @@ class ally():
         def support(self,target):
             attack = M.selectedattack
             if attack == self.attack2:
-                M.allies[target][3] += self.attacks[self.attack2][0][damage]
+                M.allies[target][3] += self.attacks[self.attack2][0][dealtdamage]
                 if M.allies[target][3] > target.health:
                     M.allies[target][3] = target.health
             elif attack == self.attack3:
@@ -2498,18 +2498,24 @@ class main():
                             else:
                                 M.damage = {}
                                 der,xxer = M.selectenemy()
-                                if M.selectedchar.attacks[M.selectedattack][0][typeofattack][1] != 0:
+                                if M.selectedchar.attacks[M.selectedattack][0][typeofattack][1] == 0:
                                     print('line2483',ccc,der,xxer)
                                     M.actions.append(M.selectedchar)
                                     M.selectedchar.attack((der,xxer),M.selectedattack)
                                     M.checkifdead()  
                                 else:
                                     M.actions.append(M.selectedchar)
+                                    pos = ccc[0]
                                     M.selectedchar.attack((der,xxer),M.selectedattack)
-                                    print(ccc)
-                                    for x in ccc:
-                                        if x != bigmpos:
-                                            M.selectedchar.attack((x[0],x[1]),M.selectedattack)  
+                                    for x in M.selectedchar.attacks[M.selectedattack][0][typeofattack][1]:
+                                        new = pos + x
+                                        new = (new.x,new.y)
+                                        if new in M.enemyspaces:
+                                            if M.enemyspaces[new] != 0:
+                                                new = M.conversion[new[0],new[1]]
+                                                der, xxer = M.areaselectenemy(new)
+                                                M.selectedchar.attack((der,xxer),M.selectedattack)
+                                             
                                     M.checkifdead()  
                         
                         
@@ -5542,6 +5548,7 @@ class battle():
             if len(self.enemy[x]) > 1:
                 lel = 0
                 for z in self.enemy[x]:
+                    print(mpos)
                     if mpos in self.enemy[x][lel][2]:
                         cur_enemyspecific = lel
                         cur_enemyclass = x
@@ -5560,6 +5567,36 @@ class battle():
                     lel += 1
             else:   
                 if mpos in self.obstacles[x][0][2]:
+                    cur_enemyspecific = 0
+                    cur_enemyclass = x
+        return cur_enemyclass,cur_enemyspecific
+    def areaselectenemy(self,pos):
+        cur_enemyspecific = 'pass'
+        cur_enemyclass = 'pass'
+        for x in self.enemy:
+            if len(self.enemy[x]) > 1:
+                lel = 0
+                for z in self.enemy[x]:
+                    print(pos,self.enemy[x][lel][0])
+                    if pos == self.enemy[x][lel][0]:
+                        cur_enemyspecific = lel
+                        cur_enemyclass = x
+                    lel += 1
+            else:   
+                if pos == self.enemy[x][0][0]:
+                    cur_enemyspecific = 0
+                    cur_enemyclass = x
+        for x in self.obstacles:
+            if len(self.obstacles[x]) > 1:
+                lel = 0
+                for z in self.obstacles[x]:
+                    print(pos,self.obstacles[x][lel][0])
+                    if pos == self.obstacles[x][lel][0]:
+                        cur_enemyspecific = lel
+                        cur_enemyclass = x
+                    lel += 1
+            else:   
+                if pos == self.obstacles[x][0][0]:
                     cur_enemyspecific = 0
                     cur_enemyclass = x
         return cur_enemyclass,cur_enemyspecific
