@@ -353,6 +353,7 @@ class enemy():
         if pierce in M.enemy[target][dup][4]:
             damage *= 1.5
         damage = ally.checkblessing('attacking',inin,damage,target,dup)
+        print(damage)
         M.enemy[target][dup][1] -= damage 
         M.enemy[target][dup][5].append(damage)
         total = 0
@@ -1110,7 +1111,7 @@ class ally():
     def defaultheavyattack(self,target):
         where = M.allies[target][4][heavy][0]
         what = M.allies[target][4][heavy][1]
-        if M.selectedchar.attacks[target][0][typeofattack][0] == sttatck: #straight attack
+        if target.attacks[0][typeofattack][0] == sttatck: #straight attack
             print(M.unconversion[M.allies[M.selectedchar][0].x,M.allies[M.selectedchar][0].y][1])
             ccc = []
             
@@ -1219,13 +1220,13 @@ class ally():
                 goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))
                 screen.blit(icon, icon.get_rect(center=goal_center))
                 if attack == self.attack1 or attack == self.attack2:
-                    text = str(round(int((M.allies[self][1]/self.health+1) * self.attacks[attack][0][damage])))
+                    text = str(round(int((M.allies[self][1]/self.health+1) * self.attacks[attack][0][dealtdamage])))
                     draw_text(text, 20, RED, pos.x*TILESIZE, pos.y*TILESIZE + 75)
                 if attack == self.attack3:
                     text = str(self.healdam)
                     draw_text(text, 20, GREEN, pos.x*TILESIZE, pos.y*TILESIZE + 75)
                 if attack == self.attack4:
-                    text = str(self.attacks[attack][0][damage])
+                    text = str(self.attacks[attack][0][dealtdamage])
                     draw_text(text, 20, BLUE, pos.x*TILESIZE, pos.y*TILESIZE + 75)
                 pos += vec(5,0)
         def draw_attack(self):
@@ -1252,7 +1253,7 @@ class ally():
             self.attack1 = 0
         def attack(self,target,attack):
             target,dup = target
-            damage = self.attacks[self.attack1][0]
+            damage = self.attacks[self.attack1][0][dealtdamage]
             damage = ally.checkattack(damage,self)
             target.damage(dup,damage,self)
             ally.applyeffects(target,dup,attack,self)
@@ -1294,7 +1295,7 @@ class ally():
         def draw_icons(self):
             cur = cri_stunicon_img
             goal_center = (int(M.allies[self][0].x * TILESIZE + TILESIZE / 2 + 80), int(M.allies[self][0].y * TILESIZE + TILESIZE / 2 - 50))
-            if self.attacks[self.attack1][0][damage] < self.stuncap:
+            if self.attacks[self.attack1][0][dealtdamage] < self.stuncap:
                 cur = cur.copy( )
                 cur.fill((105, 105, 105, 255),special_flags=pg.BLEND_RGB_MULT)            
             screen.blit(cur, cur.get_rect(center=goal_center))
@@ -1306,7 +1307,7 @@ class ally():
                 pg.draw.rect(screen,BLACK,rect)
                 goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))
                 screen.blit(icon, icon.get_rect(center=goal_center))
-                text = str(self.attacks[attack][0][damage])
+                text = str(self.attacks[attack][0][dealtdamage])
                 if attack == self.attack1:
                     draw_text(text, 20, RED, pos.x*TILESIZE, pos.y*TILESIZE + 75)
                 if attack == self.attack2:
@@ -1861,7 +1862,7 @@ currentfileg =  filename +'/allies'
                 
 sttatck = 'sttatck'
 anywhere = 'anywhere'
-damage = 'damage'
+dealtdamage = 'damage'
 effects = 'effects'
 support = 'support'
 hits = 'hits'
@@ -2055,7 +2056,7 @@ H.exp = 0
 H.lvl = 0
 H.needtolvl = 10
 H.combat_animation = {1:heplane_combat_img,2:heplane_combat2_img,3:heplane_combat3_img}
-H.attacks = {H.attack1:[{damage:10,effects:{fire:1},support:False,hits:1,typeofattack:[sttatck,0],whereattack:secondrow+firstrow,heavy:True},heplane_ability1_img,[vec(18,31) + a for a in iconaura]],H.attack2:[{damage:5,effects:{},support:False,hits:1,typeofattack:[sttatck,0],whereattack:secondrow+firstrow,heavy:False},heplane_ability2_img,[vec(18,31) + a for a in iconaura]],H.attack3:[{damage:0,effects:{},support:True,hits:1,typeofattack:[anywhere,0],whereattack:False,heavy:False},heplane_ability3_img,[vec(18,31) + a for a in iconaura]],H.attack4:[{damage:20,effects:{},support:True,hits:1,typeofattack:[anywhere,0],whereattack:False,heavy:False},heplane_ability4_img,[vec(18,31) + a for a in iconaura]]}
+H.attacks = {H.attack1:[{dealtdamage:10,effects:{fire:1},support:False,hits:1,typeofattack:[sttatck,0],whereattack:secondrow+firstrow,heavy:True},heplane_ability1_img,[vec(18,31) + a for a in iconaura]],H.attack2:[{dealtdamage:5,effects:{},support:False,hits:1,typeofattack:[sttatck,0],whereattack:secondrow+firstrow,heavy:False},heplane_ability2_img,[vec(18,31) + a for a in iconaura]],H.attack3:[{dealtdamage:0,effects:{},support:True,hits:1,typeofattack:[anywhere,0],whereattack:False,heavy:False},heplane_ability3_img,[vec(18,31) + a for a in iconaura]],H.attack4:[{dealtdamage:20,effects:{},support:True,hits:1,typeofattack:[anywhere,0],whereattack:False,heavy:False},heplane_ability4_img,[vec(18,31) + a for a in iconaura]]}
 aura = [(1, 3), (0, 3), (-1, 3), (-1, 2), (0, 2), (1, 2), (1, 1), (0, 1), (-1, 1), (-1, 0), (0, 0), (1, 0), (1, -1), (0, -1), (-1, -1), (-1, -2), (0, -2), (1, -2), (1, -3), (0, -3), (-1, -3)]
 H.clickaura = []
 for x in aura:
@@ -2098,7 +2099,7 @@ Cri.exp = 0
 Cri.lvl = 0
 Cri.needtolvl = 10
 Cri.combat_animation = {1:cri_combat_img,2:cri_combat2_img,3:cri_combat3_img}
-Cri.attacks = {Cri.attack1:[{damage:5,effects:{},support:False,hits:1,typeofattack:[sttatck,threebthree],whereattack:secondrow+firstrow,heavy:False},cri_ability1_img,[vec(18,31) + a for a in iconaura]],Cri.attack2:[{damage:2,effects:{},support:True,hits:1,typeofattack:[anywhere,0],whereattack:False,heavy:False},cri_ability3_img,[vec(18,31) + a for a in iconaura]],Cri.attack3:[{damage:2,effects:{},support:True,hits:1,typeofattack:[anywhere,0],whereattack:False,heavy:False},cri_ability2_img,[vec(18,31) + a for a in iconaura]]}
+Cri.attacks = {Cri.attack1:[{dealtdamage:5,effects:{},support:False,hits:1,typeofattack:[sttatck,threebthree],whereattack:secondrow+firstrow,heavy:False},cri_ability1_img,[vec(18,31) + a for a in iconaura]],Cri.attack2:[{dealtdamage:2,effects:{},support:True,hits:1,typeofattack:[anywhere,0],whereattack:False,heavy:False},cri_ability3_img,[vec(18,31) + a for a in iconaura]],Cri.attack3:[{dealtdamage:2,effects:{},support:True,hits:1,typeofattack:[anywhere,0],whereattack:False,heavy:False},cri_ability2_img,[vec(18,31) + a for a in iconaura]]}
 Cri.clickaura = []
 for x in aura:
     Cri.clickaura.append(vec(x))
@@ -2497,7 +2498,7 @@ class main():
                             else:
                                 M.damage = {}
                                 der,xxer = M.selectenemy()
-                                if der != 'pass' and len(ccc) == 1:
+                                if M.selectedchar.attacks[M.selectedattack][0][typeofattack][1] != 0:
                                     print('line2483',ccc,der,xxer)
                                     M.actions.append(M.selectedchar)
                                     M.selectedchar.attack((der,xxer),M.selectedattack)
