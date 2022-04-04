@@ -328,12 +328,13 @@ class enemy():
             M.enemy[initiated][dup][3] = M.enemy[initiated][dup][4]['heavy'][0] #draws the text of the attack
             M.enemyspaces[M.unconversion[(M.enemy[initiated][dup][0].x,M.enemy[initiated][dup][0].y)]] = 0
             M.enemy[initiated][dup][0] = vec(M.conversion[newpos.x,newpos.y])
-            M.enemyspaces[M.unconversion[(M.enemy[initiated][dup][0].x,M.enemy[initiated][dup][0].y)]] = initiated
-            M.enemy[initiated][dup][2] = [M.enemy[initiated][dup][0]+ x for x in initiated.clickaura] 
+            M.enemyspaces[M.unconversion[(M.enemy[initiated][dup][0].x,M.enemy[initiated][dup][0].y)]] = initiated#movement
+            M.enemy[initiated][dup][2] = [M.enemy[initiated][dup][0]+ x for x in initiated.clickaura] #updating other movement things
             if attack[5][0] == 'spec 1st column': #damage
                 targetpos = (5,attpos.y)
                 for ll in attack[5][1]:
                     new = targetpos+ ll
+                    print(M.allyspaces)
                     if M.allyspaces[new.x,new.y] != 0:
                         for q in range(0,attack[3]):
                             print(M.allyspaces[new.x,new.y])
@@ -345,7 +346,7 @@ class enemy():
                                     lel += 1
                             else:  
                                 if M.allyspaces[new.x,new.y] != 0:      
-                                    M.allyspaces[new.x,new.y].damage(attack,initiated,dup)
+                                    M.allyspaces[new.x,new.y].damage(attack,initiated,dup) #ally damage
         else:
             M.enemyspaces[M.unconversion[(M.enemy[initiated][dup][0].x,M.enemy[initiated][dup][0].y)]] = save
     def damage(target,dup,damage,inin):
@@ -1106,6 +1107,20 @@ class ally():
                     M.damage[target].append(damage)
                 else:
                     M.damage.update({target:[damage]})
+    def defaultheavyattack(self,target):
+        where = M.allies[target][4][heavy][0]
+        what = M.allies[target][4][heavy][1]
+        if M.selectedchar.attacks[target][0][typeofattack][0] == sttatck: #straight attack
+            print(M.unconversion[M.allies[M.selectedchar][0].x,M.allies[M.selectedchar][0].y][1])
+            ccc = []
+            
+            for x in collumcheck[M.unconversion[where.x,where.y]]:#check postions along column
+                print('line2446',x)
+                if M.enemyspaces[x.x,x.y] != 0:
+                    print('hell yeah')
+                    ccc = [x]
+                    break
+            print(x)
     def fixclick(self,target):
         pos = vec(18,31)
         for attack in target.attacks:
@@ -2450,25 +2465,36 @@ class main():
                 if mpos in M.getaura() and M.selectedchar != 0 and M.selectedattack != 0:
                     if len(M.actions) != len(M.allies) and M.selectedchar not in M.actions:
                         #print('line2439',M.selectedchar.attacks[M.selectedattack][8])
-                        if M.selectedchar.attacks[M.selectedattack][0][heavy] == False:
-                            if M.selectedchar.attacks[M.selectedattack][0][typeofattack][0] == sttatck: #straight attack
-                                print(M.unconversion[M.allies[M.selectedchar][0].x,M.allies[M.selectedchar][0].y][1])
-                                ccc = []
+                        
+                        if M.selectedchar.attacks[M.selectedattack][0][typeofattack][0] == sttatck: #straight attack
+                            print(M.unconversion[M.allies[M.selectedchar][0].x,M.allies[M.selectedchar][0].y][1])
+                            ccc = []
 
-                                for x in collumcheck[M.unconversion[M.allies[M.selectedchar][0].x,M.allies[M.selectedchar][0].y][1]]:#check postions along column
-                                    print('line2446',x)
-                                    if M.enemyspaces[x.x,x.y] != 0:
-                                        print('hell yeah')
-                                        ccc = [x]
-                                        break
-                                    
-                            if M.selectedchar.attacks[M.selectedattack][0][support] != False:
-                                for x in M.allies:
-                                    if mpos in M.allies[x][2]:
-                                        M.actions.append(M.selectedchar)
-                                        M.selectedchar.support(x)
-                                        M.checkifdead()
-                            elif M.unconversion[M.allies[M.selectedchar][0].x,M.allies[M.selectedchar][0].y] in M.selectedchar.attacks[M.selectedattack][0][whereattack] and bigmpos in ccc:
+                            for x in collumcheck[M.unconversion[M.allies[M.selectedchar][0].x,M.allies[M.selectedchar][0].y][1]]:#check postions along column
+                                print('line2446',x)
+                                if M.enemyspaces[x.x,x.y] != 0:
+                                    print('hell yeah')
+                                    ccc = [x]
+                                    break
+                                
+                        if M.selectedchar.attacks[M.selectedattack][0][support] != False:
+                            for x in M.allies:
+                                if mpos in M.allies[x][2]:
+                                    M.actions.append(M.selectedchar)
+                                    M.selectedchar.support(x)
+                                    M.checkifdead()
+                        elif M.unconversion[M.allies[M.selectedchar][0].x,M.allies[M.selectedchar][0].y] in M.selectedchar.attacks[M.selectedattack][0][whereattack] and bigmpos in ccc:
+                            print(M.selectedchar.attacks[M.selectedattack][0][heavy])
+                            if M.selectedchar.attacks[M.selectedattack][0][heavy]:
+                                M.actions.append(M.selectedchar)
+                                M.allies[M.selectedchar][4].update({heavy:[M.allies[M.selectedchar][6],M.selectedattack]})
+                                M.allyspaces[M.unconversion[M.allies[M.selectedchar][6].x,M.allies[M.selectedchar][6].y]] = M.selectedchar
+                                M.allies[M.selectedchar][6] = M.allies[M.selectedchar][0]
+                                M.allyspaces[M.unconversion[M.allies[M.selectedchar][0].x,M.allies[M.selectedchar][0].y]] = 0
+                                print('line 2493',M.allyspaces)
+                                self.allyheavys.append(M.selectedchar)
+                                print(M.allies[M.selectedchar])
+                            else:
                                 M.damage = {}
                                 der,xxer = M.selectenemy()
                                 if der != 'pass' and len(ccc) == 1:
@@ -2484,13 +2510,10 @@ class main():
                                         if x != bigmpos:
                                             M.selectedchar.attack((x[0],x[1]),M.selectedattack)  
                                     M.checkifdead()  
-                        else:
-                            M.allies[M.selectedchar][4].update({heavy:M.allies[M.selectedchar][0]})
-                            M.allies[M.selectedchar][0] = M.allies[M.selectedchar][6]
-                            
-                            print(M.allies[M.selectedchar])
-                            
-                            
+                        
+                        
+                        
+                        
                 elif M.moving:
                     print('move')
                     if M.selectedchar not in M.actions and M.selectedchar != 0:
@@ -2558,6 +2581,7 @@ class main():
             else:
                 if len(M.actions) >= len(M.allies) and self.playertrunover == False and len(M.allies) > 0:
                     M.statuseffects(False)
+                    print('line 2583',M.allyspaces)
                     self.enemy_attck_time = pg.time.get_ticks()
                     self.playertrunover = True
                     M.damage = {}
@@ -2615,6 +2639,10 @@ class main():
                         self.heavyattacks = 0
                         self.attackscanheavy = True
                         self.flop = False
+
+
+                        self.heavies += self.allyheavys
+                        
                         if self.heavyattacks >= len(self.heavies):
                             self.playertrunover = False
                             self.attackscanheavy = False
@@ -2751,6 +2779,7 @@ class main():
                     self.display_time_start = pg.time.get_ticks()  
                     self.heavy_enemy_damage = pg.time.get_ticks()
                     print('using a heavy')
+                    print('line 2754',self.heavies,self.heavyattacks)
                     M.enemyheavyattack(self.heavies[self.heavyattacks])
 
                     self.flop = True
@@ -3244,6 +3273,7 @@ main.amountmoney = 50
 main.enemy_attck_time = 0
 main.startheavy = 0
 main.enemycanattack = False
+main.allyheavys = []
 main.attackscanheavy = False
 main.playertrunover = False
 main.display_time = 0
@@ -4908,6 +4938,13 @@ class battle():
                 lel[1] -=2
                 screen.blit(lol, lel)
             screen.blit(cur, cur.get_rect(center=goal_center))
+            if heavy in self.allies[x][4]:
+                pos = self.allies[x][4][heavy][0]
+                cur = cur.copy( )
+                cur.fill((105, 105, 105, 100),special_flags=pg.BLEND_RGB_MULT)  
+                cur.set_alpha(100)
+                goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))
+                screen.blit(cur, cur.get_rect(center=goal_center))
     def draw_obstacles(self):
         for x in self.obstacles:   
             for y in self.obstacles[x]:
