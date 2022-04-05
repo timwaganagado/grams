@@ -1036,8 +1036,10 @@ class ally():
         draw_text(str(thing.lvl),50,BLACK,int(l.x * TILESIZE)-70,int(l.y * TILESIZE))
         draw_text(str(thing.exp)+'/'+str(thing.needtolvl),30,BLACK,int(l.x * TILESIZE)-90,int(l.y * TILESIZE+50))
     def applyeffects(self,target,dup,attack,ally):
-        M.allies[M.selectedchar][6] = False
+        M.allies[ally][6] = False
         for x in ally.attacks[attack][0][effects]:
+            print(ally.attacks[attack][0][effects])
+            print(x)
             if x == 0:
                 break
             for y in x:
@@ -1054,9 +1056,9 @@ class ally():
                                 M.enemy[target][dup][4].update({needle:[x[needle],2]})
                         else:
                             if y in M.enemy[target][dup][4]:
-                                M.enemy[target][dup][4][y] += x[y]
+                                M.enemy[target][dup][4][y] += ally.attacks[attack][0][effects][x]
                             else:
-                                M.enemy[target][dup][4].update({y:x[y]})
+                                M.enemy[target][dup][4].update({x:ally.attacks[attack][0][effects][x]})
     def damage(self,target,taken,initiated,ll):
         if taken == 'dodged':
             if target in M.damage:
@@ -1111,17 +1113,38 @@ class ally():
     def defaultheavyattack(self,target):
         where = M.allies[target][4][heavy][0]
         what = M.allies[target][4][heavy][1]
-        if target.attacks[0][typeofattack][0] == sttatck: #straight attack
-            print(M.unconversion[M.allies[M.selectedchar][0].x,M.allies[M.selectedchar][0].y][1])
+        del M.allies[target][4][heavy]
+        print(M.allies[target][4])
+        print(M.allyspaces)
+        print(M.unconversion[M.allies[target][6].x,M.allies[target][6].y])
+        print(M.unconversion[M.allies[target][0].x,M.allies[target][0].y])
+        print(where)
+        M.allyspaces[M.unconversion[where.x,where.y]] = target
+        if target.attacks[what][0][typeofattack][0] == sttatck: #straight attack
+            #print(M.unconversion[M.allies[M.selectedchar][0].x,M.allies[M.selectedchar][0].y][1])
             ccc = []
             
-            for x in collumcheck[M.unconversion[where.x,where.y]]:#check postions along column
+            for x in collumcheck[M.unconversion[where.x,where.y][1]]:#check postions along column
                 print('line2446',x)
                 if M.enemyspaces[x.x,x.y] != 0:
                     print('hell yeah')
                     ccc = [x]
                     break
-            print(x)
+            print(ccc)
+        if len(ccc) != 0:
+            pos = ccc[0]
+            new = M.conversion[pos[0],pos[1]]
+            der, xxer = M.areaselectenemy(new)
+            target.attack((der,xxer),what)
+            if target.attacks[what][0][typeofattack][1] != 0:
+                for x in target.attacks[what][0][typeofattack][1]:
+                    new = pos + x
+                    new = (new.x,new.y)
+                    if new in M.enemyspaces:
+                        if M.enemyspaces[new] != 0:
+                            new = M.conversion[new[0],new[1]]
+                            der, xxer = M.areaselectenemy(new)
+                            M.selectedchar.attack((der,xxer),what)
     def fixclick(self,target):
         pos = vec(18,31)
         for attack in target.attacks:
@@ -1265,7 +1288,7 @@ class ally():
                 if M.allies[target][3] > target.health:
                     M.allies[target][3] = target.health
             elif attack == self.attack3:
-                M.allies[target][1] += self.attacks[self.attack3][0]
+                M.allies[target][1] += self.attacks[self.attack3][0][dealtdamage]
                 if M.allies[target][1] > target.health:
                     M.allies[target][1] = target.health
                 if stun in M.allies[target][4]:
