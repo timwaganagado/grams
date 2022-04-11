@@ -5449,6 +5449,8 @@ class battle():
             self.allies[y][0] = vec(M.conversion[cho])
             self.allies[y][2] = [self.allies[y][0]+ x for x in y.clickaura]
     def moveallies(self):
+        print(bigmpos)
+        print(M.allyspaces)
         if (bigmpos.x,bigmpos.y) in M.allyspaces:
             poopee = M.unconversion[(self.allies[self.selectedchar][6].x,self.allies[self.selectedchar][6].y)]
             checker = [vec(1,0),vec(0,1),vec(-1,0),vec(0,-1)]
@@ -5897,7 +5899,9 @@ while ui.running:
                     mposraw = vec(pg.mouse.get_pos())
                     create.append(mpos)
                     bigmpos = vec(pg.mouse.get_pos())
+                    print(bigmpos)
                     bigmpos = vec(bigmpos.x-50,bigmpos.y)//150
+                    print(bigmpos)
                 if main.current_state == 'creator' or main.current_state == 'map' or main.current_state == 'tutorial' or main.current_state == 'overmap' and not ui.pause:
                     mpos2 = vec(pg.mouse.get_pos()) // (TILESIZE*2)
                     pos = pg.mouse.get_pos()
