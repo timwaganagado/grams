@@ -1,4 +1,5 @@
 
+from turtle import width
 import pygame as pg
 from os import path
 from collections import deque
@@ -11,11 +12,26 @@ import math
 from pygame import display
 vec = pg.math.Vector2
 
-TILESIZE = 30
-GRIDWIDTH = 64
-GRIDHEIGHT = 36
-WIDTH = TILESIZE * GRIDWIDTH
-HEIGHT = TILESIZE * GRIDHEIGHT
+#HEIGHTTILESIZE = 30
+
+
+
+#ipad 832 computer 1080
+HEIGHT = 832
+#ipad 23/16 computer 16/9
+WIDTH = int(HEIGHT*(23/16))
+print(WIDTH)
+GRIDWIDTH = WIDTH/30
+GRIDHEIGHT = HEIGHT/30
+imagescaledheight = int(HEIGHT/(4+(7/32)))
+imagescaledwidth = int(WIDTH/7.5) 
+obstaclesscaledheight = int(HEIGHT/(27/5))
+obstaclesscaledwidth = int(WIDTH/(48/5))
+abilityscaledheight = int(HEIGHT/(135/16))
+abilityscaledwidth = int(WIDTH/(15/1))
+WIDTHTILESIZE = int(WIDTH/(64/1))
+HEIGHTTILESIZE = int(HEIGHT/(36/1))
+print(WIDTHTILESIZE,HEIGHTTILESIZE)
 FPS = 30
 BLUE = (0,0,255)
 BROWN = (165,42,42)
@@ -46,9 +62,9 @@ displayspec = 0
 #    displayspec = int(displayspec)
 
 try:
-    screen = pg.display.set_mode((WIDTH, HEIGHT),pg.FULLSCREEN,display = displayspec)
+    screen = pg.display.set_mode((WIDTH, HEIGHT),display = displayspec)
 except:
-    screen = pg.display.set_mode((WIDTH, HEIGHT),pg.FULLSCREEN,display = 0)
+    screen = pg.display.set_mode((WIDTH, HEIGHT),pg.WINDOWED,display = 0)
 clock = pg.time.Clock()
 cross = 'cross-1.png.png'
 filename = os.path.dirname(sys.argv[0])
@@ -121,7 +137,7 @@ class testenemy():
             M.enemy[self][dup][1] -= damage
 
 home_img = pg.image.load(os.path.join(filename,cross)).convert_alpha()
-home_img = pg.transform.scale(home_img, (256, 256))
+home_img = pg.transform.scale(home_img, (imagescaledwidth, imagescaledheight))
 
 testenemy = testenemy()
 
@@ -131,11 +147,11 @@ currentfileg =  filename +'\enemies'
 
 currentfiles = currentfileg + '\swordguy'
 swordguy_img = pg.image.load(os.path.join(currentfiles,'Layer 1_swordguy_combat1.png')).convert_alpha()
-swordguy_img = pg.transform.scale(swordguy_img, (256, 256))
+swordguy_img = pg.transform.scale(swordguy_img, (imagescaledwidth, imagescaledheight))
 swordguy2_img = pg.image.load(os.path.join(currentfiles,'Layer 1_swordguy_combat2.png')).convert_alpha()
-swordguy2_img = pg.transform.scale(swordguy2_img, (256, 256))
+swordguy2_img = pg.transform.scale(swordguy2_img, (imagescaledwidth, imagescaledheight))
 swordguy3_img = pg.image.load(os.path.join(currentfiles,'Layer 1_swordguy_combat3.png')).convert_alpha()
-swordguy3_img = pg.transform.scale(swordguy3_img, (256, 256))
+swordguy3_img = pg.transform.scale(swordguy3_img, (imagescaledwidth, imagescaledheight))
 
 stunte.vec = vec(43,20)
 stunte.health = 25
@@ -161,18 +177,18 @@ for aura in auras:
 bleedte.attacks = {'constrict':[0,{bleed:1},False,1,1]}
 
 swordguy_img = pg.image.load(os.path.join(currentfiles,'Layer 1_swordguy_combat1.png')).convert_alpha()
-swordguy_img = pg.transform.scale(swordguy_img, (256, 256))
+swordguy_img = pg.transform.scale(swordguy_img, (imagescaledwidth, imagescaledheight))
 swordguy2_img = pg.image.load(os.path.join(currentfiles,'Layer 1_swordguy_combat2.png')).convert_alpha()
-swordguy2_img = pg.transform.scale(swordguy2_img, (256, 256))
+swordguy2_img = pg.transform.scale(swordguy2_img, (imagescaledwidth, imagescaledheight))
 swordguy3_img = pg.image.load(os.path.join(currentfiles,'Layer 1_swordguy_combat3.png')).convert_alpha()
-swordguy3_img = pg.transform.scale(swordguy3_img, (256, 256))
+swordguy3_img = pg.transform.scale(swordguy3_img, (imagescaledwidth, imagescaledheight))
 
 swordguy_attacking_img = pg.image.load(os.path.join(currentfiles,'swordguy_attacking0.png')).convert_alpha()
-swordguy_attacking_img = pg.transform.scale(swordguy_attacking_img, (256, 256))
+swordguy_attacking_img = pg.transform.scale(swordguy_attacking_img, (imagescaledwidth, imagescaledheight))
 swordguy_attacking2_img = pg.image.load(os.path.join(currentfiles,'swordguy_attacking1.png')).convert_alpha()
-swordguy_attacking2_img = pg.transform.scale(swordguy_attacking2_img, (256, 256))
+swordguy_attacking2_img = pg.transform.scale(swordguy_attacking2_img, (imagescaledwidth, imagescaledheight))
 swordguy_attacking3_img = pg.image.load(os.path.join(currentfiles,'swordguy_attacking2.png')).convert_alpha()
-swordguy_attacking3_img = pg.transform.scale(swordguy_attacking3_img, (256, 256))
+swordguy_attacking3_img = pg.transform.scale(swordguy_attacking3_img, (imagescaledwidth, imagescaledheight))
 
 spsword = testenemy.spsword()
 
@@ -548,18 +564,18 @@ enemy.list.append(stunte)
 currentfiles = currentfileg + '\conrift'
 
 conrift_combat_img = pg.image.load(os.path.join(currentfiles,'conrift_combat0.png')).convert_alpha()
-conrift_combat_img = pg.transform.scale(conrift_combat_img, (256, 256))
+conrift_combat_img = pg.transform.scale(conrift_combat_img, (imagescaledwidth, imagescaledheight))
 conrift_combat2_img = pg.image.load(os.path.join(currentfiles,'conrift_combat1.png')).convert_alpha()
-conrift_combat2_img = pg.transform.scale(conrift_combat2_img, (256, 256))
+conrift_combat2_img = pg.transform.scale(conrift_combat2_img, (imagescaledwidth, imagescaledheight))
 conrift_combat3_img = pg.image.load(os.path.join(currentfiles,'conrift_combat2.png')).convert_alpha()
-conrift_combat3_img = pg.transform.scale(conrift_combat3_img, (256, 256))
+conrift_combat3_img = pg.transform.scale(conrift_combat3_img, (imagescaledwidth, imagescaledheight))
 
 magee_attacking_img = pg.image.load(os.path.join(currentfiles,'conrift_attacking0.png')).convert_alpha()
-magee_attacking_img = pg.transform.scale(magee_attacking_img, (256, 256))
+magee_attacking_img = pg.transform.scale(magee_attacking_img, (imagescaledwidth, imagescaledheight))
 magee_attacking2_img = pg.image.load(os.path.join(currentfiles,'conrift_attacking1.png')).convert_alpha()
-magee_attacking2_img = pg.transform.scale(magee_attacking2_img, (256, 256))
+magee_attacking2_img = pg.transform.scale(magee_attacking2_img, (imagescaledwidth, imagescaledheight))
 magee_attacking3_img = pg.image.load(os.path.join(currentfiles,'conrift_attacking2.png')).convert_alpha()
-magee_attacking3_img = pg.transform.scale(magee_attacking3_img, (256, 256))
+magee_attacking3_img = pg.transform.scale(magee_attacking3_img, (imagescaledwidth, imagescaledheight))
 
 conrift = enemy.conrift()
 enemy.list.append(conrift)
@@ -575,18 +591,18 @@ conrift.stagger = 15
 currentfiles = currentfileg + '\magee'
 
 magee_combat_img = pg.image.load(os.path.join(currentfiles,'magee_combat0.png')).convert_alpha()
-magee_combat_img = pg.transform.scale(magee_combat_img, (256, 256))
+magee_combat_img = pg.transform.scale(magee_combat_img, (imagescaledwidth, imagescaledheight))
 magee_combat2_img = pg.image.load(os.path.join(currentfiles,'magee_combat1.png')).convert_alpha()
-magee_combat2_img = pg.transform.scale(magee_combat2_img, (256, 256))
+magee_combat2_img = pg.transform.scale(magee_combat2_img, (imagescaledwidth, imagescaledheight))
 magee_combat3_img = pg.image.load(os.path.join(currentfiles,'magee_combat2.png')).convert_alpha()
-magee_combat3_img = pg.transform.scale(magee_combat3_img, (256, 256))
+magee_combat3_img = pg.transform.scale(magee_combat3_img, (imagescaledwidth, imagescaledheight))
 
 magee_attacking_img = pg.image.load(os.path.join(currentfiles,'magee_attacking0.png')).convert_alpha()
-magee_attacking_img = pg.transform.scale(magee_attacking_img, (256, 256))
+magee_attacking_img = pg.transform.scale(magee_attacking_img, (imagescaledwidth, imagescaledheight))
 magee_attacking2_img = pg.image.load(os.path.join(currentfiles,'magee_attacking1.png')).convert_alpha()
-magee_attacking2_img = pg.transform.scale(magee_attacking2_img, (256, 256))
+magee_attacking2_img = pg.transform.scale(magee_attacking2_img, (imagescaledwidth, imagescaledheight))
 magee_attacking3_img = pg.image.load(os.path.join(currentfiles,'magee_attacking2.png')).convert_alpha()
-magee_attacking3_img = pg.transform.scale(magee_attacking3_img, (256, 256))
+magee_attacking3_img = pg.transform.scale(magee_attacking3_img, (imagescaledwidth, imagescaledheight))
 
 magee = enemy.magee()
 enemy.list.append(magee)
@@ -605,18 +621,18 @@ magee.stagger = 15
 currentfiles = currentfileg + '\swordguy'
 
 swordguy_img = pg.image.load(os.path.join(currentfiles,'Layer 1_swordguy_combat1.png')).convert_alpha()
-swordguy_img = pg.transform.scale(swordguy_img, (256, 256))
+swordguy_img = pg.transform.scale(swordguy_img, (imagescaledwidth, imagescaledheight))
 swordguy2_img = pg.image.load(os.path.join(currentfiles,'Layer 1_swordguy_combat2.png')).convert_alpha()
-swordguy2_img = pg.transform.scale(swordguy2_img, (256, 256))
+swordguy2_img = pg.transform.scale(swordguy2_img, (imagescaledwidth, imagescaledheight))
 swordguy3_img = pg.image.load(os.path.join(currentfiles,'Layer 1_swordguy_combat3.png')).convert_alpha()
-swordguy3_img = pg.transform.scale(swordguy3_img, (256, 256))
+swordguy3_img = pg.transform.scale(swordguy3_img, (imagescaledwidth, imagescaledheight))
 
 swordguy_attacking_img = pg.image.load(os.path.join(currentfiles,'swordguy_attacking0.png')).convert_alpha()
-swordguy_attacking_img = pg.transform.scale(swordguy_attacking_img, (256, 256))
+swordguy_attacking_img = pg.transform.scale(swordguy_attacking_img, (imagescaledwidth, imagescaledheight))
 swordguy_attacking2_img = pg.image.load(os.path.join(currentfiles,'swordguy_attacking1.png')).convert_alpha()
-swordguy_attacking2_img = pg.transform.scale(swordguy_attacking2_img, (256, 256))
+swordguy_attacking2_img = pg.transform.scale(swordguy_attacking2_img, (imagescaledwidth, imagescaledheight))
 swordguy_attacking3_img = pg.image.load(os.path.join(currentfiles,'swordguy_attacking2.png')).convert_alpha()
-swordguy_attacking3_img = pg.transform.scale(swordguy_attacking3_img, (256, 256))
+swordguy_attacking3_img = pg.transform.scale(swordguy_attacking3_img, (imagescaledwidth, imagescaledheight))
 
 swordguy = enemy.swordguy()
 enemy.list.append(swordguy)
@@ -635,23 +651,23 @@ swordguy.heavyattacks = {'wild flailing':[10,{bleed:1},False,2,1,['spec 1st colu
 swordguy.stagger = 10
 
 home_img = pg.image.load(os.path.join(filename,cross)).convert_alpha()
-home_img = pg.transform.scale(home_img, (256, 256))
+home_img = pg.transform.scale(home_img, (imagescaledwidth, imagescaledheight))
 
 currentfiles = currentfileg + "/archer"
 
 archer_img = pg.image.load(os.path.join(currentfiles,'archer_combat0.png')).convert_alpha()
-archer_img = pg.transform.scale(archer_img, (256, 256))
+archer_img = pg.transform.scale(archer_img, (imagescaledwidth, imagescaledheight))
 archer2_img = pg.image.load(os.path.join(currentfiles,'archer_combat1.png')).convert_alpha()
-archer2_img = pg.transform.scale(archer2_img, (256, 256))
+archer2_img = pg.transform.scale(archer2_img, (imagescaledwidth, imagescaledheight))
 archer3_img = pg.image.load(os.path.join(currentfiles,'archer_combat2.png')).convert_alpha()
-archer3_img = pg.transform.scale(archer3_img, (256, 256))
+archer3_img = pg.transform.scale(archer3_img, (imagescaledwidth, imagescaledheight))
 
 archer_attacking_img = pg.image.load(os.path.join(currentfiles,'archer_attacking0.png')).convert_alpha()
-archer_attacking_img = pg.transform.scale(archer_attacking_img, (256, 256))
+archer_attacking_img = pg.transform.scale(archer_attacking_img, (imagescaledwidth, imagescaledheight))
 archer_attacking2_img = pg.image.load(os.path.join(currentfiles,'archer_attacking1.png')).convert_alpha()
-archer_attacking2_img = pg.transform.scale(archer_attacking2_img, (256, 256))
+archer_attacking2_img = pg.transform.scale(archer_attacking2_img, (imagescaledwidth, imagescaledheight))
 archer_attacking3_img = pg.image.load(os.path.join(currentfiles,'archer_attacking2.png')).convert_alpha()
-archer_attacking3_img = pg.transform.scale(archer_attacking3_img, (256, 256))
+archer_attacking3_img = pg.transform.scale(archer_attacking3_img, (imagescaledwidth, imagescaledheight))
 
 archer = enemy.archer()
 enemy.list.append(archer)
@@ -702,18 +718,18 @@ hardboulderine.stagger = 20
 currentfiles = currentfileg + '/rentoron'
 
 rentoron_combat_img = pg.image.load(os.path.join(currentfiles,'rentoron_combat0.png')).convert_alpha()
-rentoron_combat_img = pg.transform.scale(rentoron_combat_img, (256, 256))
+rentoron_combat_img = pg.transform.scale(rentoron_combat_img, (imagescaledwidth, imagescaledheight))
 rentoron_combat2_img = pg.image.load(os.path.join(currentfiles,'rentoron_combat1.png')).convert_alpha()
-rentoron_combat2_img = pg.transform.scale(rentoron_combat2_img, (256, 256))
+rentoron_combat2_img = pg.transform.scale(rentoron_combat2_img, (imagescaledwidth, imagescaledheight))
 rentoron_combat3_img = pg.image.load(os.path.join(currentfiles,'rentoron_combat2.png')).convert_alpha()
-rentoron_combat3_img = pg.transform.scale(rentoron_combat3_img, (256, 256))
+rentoron_combat3_img = pg.transform.scale(rentoron_combat3_img, (imagescaledwidth, imagescaledheight))
 
 rentoron_attacking_img = pg.image.load(os.path.join(currentfiles,'rentoron_attacking0.png')).convert_alpha()
-rentoron_attacking_img = pg.transform.scale(rentoron_attacking_img, (256, 256))
+rentoron_attacking_img = pg.transform.scale(rentoron_attacking_img, (imagescaledwidth, imagescaledheight))
 rentoron_attacking2_img = pg.image.load(os.path.join(currentfiles,'rentoron_attacking1.png')).convert_alpha()
-rentoron_attacking2_img = pg.transform.scale(rentoron_attacking2_img, (256, 256))
+rentoron_attacking2_img = pg.transform.scale(rentoron_attacking2_img, (imagescaledwidth, imagescaledheight))
 rentoron_attacking3_img = pg.image.load(os.path.join(currentfiles,'rentoron_attacking2.png')).convert_alpha()
-rentoron_attacking3_img = pg.transform.scale(rentoron_attacking3_img, (256, 256))
+rentoron_attacking3_img = pg.transform.scale(rentoron_attacking3_img, (imagescaledwidth, imagescaledheight))
 
 rentoron = enemy.rentoron()
 enemy.list.append(rentoron)
@@ -732,18 +748,18 @@ rentoron.stagger = 13
 currentfiles = currentfileg + '\grosehund'
 
 grosehund_combat_img = pg.image.load(os.path.join(currentfiles,'grosehund_combat0.png')).convert_alpha()
-grosehund_combat_img = pg.transform.scale(grosehund_combat_img, (256, 256))
+grosehund_combat_img = pg.transform.scale(grosehund_combat_img, (imagescaledwidth, imagescaledheight))
 grosehund_combat2_img = pg.image.load(os.path.join(currentfiles,'grosehund_combat1.png')).convert_alpha()
-grosehund_combat2_img = pg.transform.scale(grosehund_combat2_img, (256, 256))
+grosehund_combat2_img = pg.transform.scale(grosehund_combat2_img, (imagescaledwidth, imagescaledheight))
 grosehund_combat3_img = pg.image.load(os.path.join(currentfiles,'grosehund_combat2.png')).convert_alpha()
-grosehund_combat3_img = pg.transform.scale(grosehund_combat3_img, (256, 256))
+grosehund_combat3_img = pg.transform.scale(grosehund_combat3_img, (imagescaledwidth, imagescaledheight))
 
 grosehund_attacking_img = pg.image.load(os.path.join(currentfiles,'grosehund_attacking0.png')).convert_alpha()
-grosehund_attacking_img = pg.transform.scale(grosehund_attacking_img, (256, 256))
+grosehund_attacking_img = pg.transform.scale(grosehund_attacking_img, (imagescaledwidth, imagescaledheight))
 grosehund_attacking2_img = pg.image.load(os.path.join(currentfiles,'grosehund_attacking1.png')).convert_alpha()
-grosehund_attacking2_img = pg.transform.scale(grosehund_attacking2_img, (256, 256))
+grosehund_attacking2_img = pg.transform.scale(grosehund_attacking2_img, (imagescaledwidth, imagescaledheight))
 grosehund_attacking3_img = pg.image.load(os.path.join(currentfiles,'grosehund_attacking2.png')).convert_alpha()
-grosehund_attacking3_img = pg.transform.scale(grosehund_attacking3_img, (256, 256))
+grosehund_attacking3_img = pg.transform.scale(grosehund_attacking3_img, (imagescaledwidth, imagescaledheight))
 
 grosehound = enemy.grosehound()
 enemy.list.append(grosehound)
@@ -810,7 +826,7 @@ dva.stagger = 20
 
 
 kcross = pg.image.load(os.path.join(filename,cross)).convert_alpha()
-kcross = pg.transform.scale(kcross, (128, 128))
+kcross = pg.transform.scale(kcross, (128, abilityscaledheight))
 
 class boss():
     class courptbattlemage():
@@ -1030,11 +1046,11 @@ class ally():
         current = current.copy()
         rect = pg.Rect(0,100,0,150)
         current = pg.transform.chop(current,rect)
-        current = pg.transform.scale(current,(300,128))
-        goal_center = (int(l.x * TILESIZE + TILESIZE / 2), int(l.y * TILESIZE + TILESIZE / 2))
+        current = pg.transform.scale(current,(300,abilityscaledheight))
+        goal_center = (int(l.x * WIDTHTILESIZE + WIDTHTILESIZE / 2), int(l.y * HEIGHTTILESIZE + HEIGHTTILESIZE / 2))
         screen.blit(current, current.get_rect(center=goal_center))
-        draw_text(str(thing.lvl),50,BLACK,int(l.x * TILESIZE)-70,int(l.y * TILESIZE))
-        draw_text(str(thing.exp)+'/'+str(thing.needtolvl),30,BLACK,int(l.x * TILESIZE)-90,int(l.y * TILESIZE+50))
+        draw_text(str(thing.lvl),50,BLACK,int(l.x * WIDTHTILESIZE)-70,int(l.y * HEIGHTTILESIZE))
+        draw_text(str(thing.exp)+'/'+str(thing.needtolvl),30,BLACK,int(l.x * WIDTHTILESIZE)-90,int(l.y * HEIGHTTILESIZE+50))
     def applyeffects(self,target,dup,attack,ally):
         M.allies[ally][6] = False
         for x in ally.attacks[attack][0][effects]:
@@ -1164,8 +1180,8 @@ class ally():
         ally.profile(target.combat_animation,target)
         for z in target.abilities:
             pos = target.abilities[z][1]
-            x = int(pos.x*TILESIZE-230)
-            y = int(pos.y*TILESIZE-35)
+            x = int(pos.x*WIDTHTILESIZE-230)
+            y = int(pos.y*HEIGHTTILESIZE-35)
             rect = pg.Rect(x, y, 50, 50)
             if z not in target.unlockedabilites:
                 pg.draw.rect(screen,GREEN,target.abilities[z][0])
@@ -1174,8 +1190,8 @@ class ally():
     def init_skilltree(self,target):
         for z in target.abilities:
             pos = target.abilities[z][1]
-            x = int(pos.x*TILESIZE-230)
-            y = int(pos.y*TILESIZE-35)
+            x = int(pos.x*WIDTHTILESIZE-230)
+            y = int(pos.y*HEIGHTTILESIZE-35)
             rect = pg.Rect(x, y, 50, 50)
             target.abilities[z][0] = rect
     def checkblessing(self,when,target,damage,aimed,dup):
@@ -1212,7 +1228,7 @@ class ally():
             if M.selectedattack == self.attack4:
                 if self.attack4 in self.unlockedabilites:
                     self.passive()
-                    M.allies[self][3] += self.attacks[self.attack4][0][damage]
+                    M.allies[self][3] += self.attacks[self.attack4][0][dealtdamage]
                     M.allies[self][1] -= 10
                     if M.allies[self][3] > 50:
                         M.allies[self][3] = 50
@@ -1238,19 +1254,19 @@ class ally():
                     if attack == self.attack4:
                         continue
                 icon = self.attacks[attack][1]
-                rect = pg.Rect(int(pos.x*TILESIZE-49), int(pos.y*TILESIZE-50), 128, 150)
+                rect = pg.Rect(int(pos.x*WIDTHTILESIZE-49), int(pos.y*HEIGHTTILESIZE-50), 128, 150)
                 pg.draw.rect(screen,BLACK,rect)
-                goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))
+                goal_center = (int(pos.x * WIDTHTILESIZE + WIDTHTILESIZE / 2), int(pos.y * HEIGHTTILESIZE + HEIGHTTILESIZE / 2))
                 screen.blit(icon, icon.get_rect(center=goal_center))
                 if attack == self.attack1 or attack == self.attack2:
                     text = str(round(int((M.allies[self][1]/self.health+1) * self.attacks[attack][0][dealtdamage])))
-                    draw_text(text, 20, RED, pos.x*TILESIZE, pos.y*TILESIZE + 75)
+                    draw_text(text, 20, RED, pos.x*WIDTHTILESIZE, pos.y*HEIGHTTILESIZE + 75)
                 if attack == self.attack3:
                     text = str(self.healdam)
-                    draw_text(text, 20, GREEN, pos.x*TILESIZE, pos.y*TILESIZE + 75)
+                    draw_text(text, 20, GREEN, pos.x*WIDTHTILESIZE, pos.y*HEIGHTTILESIZE + 75)
                 if attack == self.attack4:
                     text = str(self.attacks[attack][0][dealtdamage])
-                    draw_text(text, 20, BLUE, pos.x*TILESIZE, pos.y*TILESIZE + 75)
+                    draw_text(text, 20, BLUE, pos.x*WIDTHTILESIZE, pos.y*HEIGHTTILESIZE + 75)
                 pos += vec(5,0)
         def draw_attack(self):
             pass
@@ -1317,7 +1333,7 @@ class ally():
             ally.damage(self,taken,initiated,ll)
         def draw_icons(self):
             cur = cri_stunicon_img
-            goal_center = (int(M.allies[self][0].x * TILESIZE + TILESIZE / 2 + 80), int(M.allies[self][0].y * TILESIZE + TILESIZE / 2 - 50))
+            goal_center = (int(M.allies[self][0].x * WIDTHTILESIZE + WIDTHTILESIZE / 2 + 80), int(M.allies[self][0].y * HEIGHTTILESIZE + HEIGHTTILESIZE / 2 - 50))
             if self.attacks[self.attack1][0][dealtdamage] < self.stuncap:
                 cur = cur.copy( )
                 cur.fill((105, 105, 105, 255),special_flags=pg.BLEND_RGB_MULT)            
@@ -1326,17 +1342,17 @@ class ally():
             pos = vec(18,31)
             for attack in self.attacks:
                 icon = self.attacks[attack][1]
-                rect = pg.Rect(int(pos.x*TILESIZE-49), int(pos.y*TILESIZE-50), 128, 150)
+                rect = pg.Rect(int(pos.x*WIDTHTILESIZE-49), int(pos.y*HEIGHTTILESIZE-50), 128, 150)
                 pg.draw.rect(screen,BLACK,rect)
-                goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))
+                goal_center = (int(pos.x * WIDTHTILESIZE + WIDTHTILESIZE / 2), int(pos.y * HEIGHTTILESIZE + HEIGHTTILESIZE / 2))
                 screen.blit(icon, icon.get_rect(center=goal_center))
                 text = str(self.attacks[attack][0][dealtdamage])
                 if attack == self.attack1:
-                    draw_text(text, 20, RED, pos.x*TILESIZE, pos.y*TILESIZE + 75)
+                    draw_text(text, 20, RED, pos.x*WIDTHTILESIZE, pos.y*HEIGHTTILESIZE + 75)
                 if attack == self.attack2:
-                    draw_text(text, 20, BLUE, pos.x*TILESIZE, pos.y*TILESIZE + 75)
+                    draw_text(text, 20, BLUE, pos.x*WIDTHTILESIZE, pos.y*HEIGHTTILESIZE + 75)
                 if attack == self.attack3:
-                    draw_text(text, 20, GREEN, pos.x*TILESIZE, pos.y*TILESIZE + 75)
+                    draw_text(text, 20, GREEN, pos.x*WIDTHTILESIZE, pos.y*HEIGHTTILESIZE + 75)
                 pos += vec(5,0)
         def draw_attack(self):
             pass
@@ -1404,10 +1420,10 @@ class ally():
             else:
                 ally.damage(self,"dodged",initiated,ll)
         def draw_icons(self):
-            rect = pg.Rect(int(M.allies[self][0].x*TILESIZE+80), int(M.allies[self][0].y*TILESIZE-50), 20, 135)
+            rect = pg.Rect(int(M.allies[self][0].x*WIDTHTILESIZE+80), int(M.allies[self][0].y*HEIGHTTILESIZE-50), 20, 135)
             pg.draw.rect(screen,MOMENTUMCOLOR,rect)
             for y in range(0,self.momentum):
-                rect = pg.Rect(int(M.allies[self][0].x*TILESIZE+80), int(M.allies[self][0].y*TILESIZE+50-50*y), 20, 45)
+                rect = pg.Rect(int(M.allies[self][0].x*WIDTHTILESIZE+80), int(M.allies[self][0].y*HEIGHTTILESIZE+50-50*y), 20, 45)
                 pg.draw.rect(screen,WHITE,rect)
 
             pos = vec(18,31)
@@ -1416,15 +1432,15 @@ class ally():
                     if attack == self.attack3:
                         continue
                 icon = self.attacks[attack][4]
-                rect = pg.Rect(int(pos.x*TILESIZE-49), int(pos.y*TILESIZE-50), 128, 150)
+                rect = pg.Rect(int(pos.x*WIDTHTILESIZE-49), int(pos.y*HEIGHTTILESIZE-50), 128, 150)
                 pg.draw.rect(screen,BLACK,rect)
-                goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))
+                goal_center = (int(pos.x * WIDTHTILESIZE + WIDTHTILESIZE / 2), int(pos.y * HEIGHTTILESIZE + HEIGHTTILESIZE / 2))
                 screen.blit(icon, icon.get_rect(center=goal_center))
                 if attack != self.attack3:
                     text = str(self.attacks[attack][0])
                     if attack == self.attack1:
                         text = str((self.attacks[attack][0]+self.inc)*self.momentum)
-                    draw_text(text, 20, RED, pos.x*TILESIZE, pos.y*TILESIZE + 75)
+                    draw_text(text, 20, RED, pos.x*WIDTHTILESIZE, pos.y*HEIGHTTILESIZE + 75)
 
                 pos += vec(5,0)
         def skill(self,cur):
@@ -1499,18 +1515,18 @@ class ally():
                     if attack == self.attack4:
                         continue
                 icon = self.attacks[attack][4]
-                rect = pg.Rect(int(pos.x*TILESIZE-49), int(pos.y*TILESIZE-50), 128, 150)
+                rect = pg.Rect(int(pos.x*WIDTHTILESIZE-49), int(pos.y*HEIGHTTILESIZE-50), 128, 150)
                 pg.draw.rect(screen,BLACK,rect)
-                goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))
+                goal_center = (int(pos.x * WIDTHTILESIZE + WIDTHTILESIZE / 2), int(pos.y * HEIGHTTILESIZE + HEIGHTTILESIZE / 2))
                 screen.blit(icon, icon.get_rect(center=goal_center))
                 text = str(self.attacks[attack][0][0]+self.inc)
                 if attack != self.attack3:
-                    draw_text(text, 20, RED, pos.x*TILESIZE, pos.y*TILESIZE + 75)
+                    draw_text(text, 20, RED, pos.x*WIDTHTILESIZE, pos.y*HEIGHTTILESIZE + 75)
                     text = str(self.attacks[attack][0][1])
-                    draw_text(text, 50, VIOLET, pos.x*TILESIZE + 40, pos.y*TILESIZE - 50)
+                    draw_text(text, 50, VIOLET, pos.x*WIDTHTILESIZE + 40, pos.y*HEIGHTTILESIZE - 50)
                 else:
                     text = str(self.acts)
-                    draw_text(text, 50, VIOLET, pos.x*TILESIZE + 40, pos.y*TILESIZE - 50)
+                    draw_text(text, 50, VIOLET, pos.x*WIDTHTILESIZE + 40, pos.y*HEIGHTTILESIZE - 50)
 
                 pos += vec(5,0)
                 
@@ -1644,24 +1660,24 @@ class ally():
                         if attack == self.attack4:
                             continue
                     icon = self.attacks[attack][4]
-                    rect = pg.Rect(int(pos.x*TILESIZE-49), int(pos.y*TILESIZE-50), 128, 150)
+                    rect = pg.Rect(int(pos.x*WIDTHTILESIZE-49), int(pos.y*HEIGHTTILESIZE-50), 128, 150)
                     pg.draw.rect(screen,BLACK,rect)
-                    goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))
+                    goal_center = (int(pos.x * WIDTHTILESIZE + WIDTHTILESIZE / 2), int(pos.y * HEIGHTTILESIZE + HEIGHTTILESIZE / 2))
                     screen.blit(icon, icon.get_rect(center=goal_center))
                     if self.transformed:
                         text = str(self.attacks[attack][0]*3)
                     else:
                         text = str(self.attacks[attack][0]+self.inc)
                     if attack == self.attack1:
-                        draw_text(text, 20, BLUE, pos.x*TILESIZE, pos.y*TILESIZE + 75)
+                        draw_text(text, 20, BLUE, pos.x*WIDTHTILESIZE, pos.y*HEIGHTTILESIZE + 75)
                     elif attack == self.attack2:
-                        draw_text(text, 20, RED, pos.x*TILESIZE, pos.y*TILESIZE + 75)   
+                        draw_text(text, 20, RED, pos.x*WIDTHTILESIZE, pos.y*HEIGHTTILESIZE + 75)   
                     elif attack == self.attack3:
                         text = str(self.acts)
-                        draw_text(text, 50, VIOLET, pos.x*TILESIZE + 40, pos.y*TILESIZE - 50) 
+                        draw_text(text, 50, VIOLET, pos.x*WIDTHTILESIZE + 40, pos.y*HEIGHTTILESIZE - 50) 
                     elif attack == self.attack4:
                         text = str(self.actsmimic)
-                        draw_text(text, 50, VIOLET, pos.x*TILESIZE + 40, pos.y*TILESIZE - 50) 
+                        draw_text(text, 50, VIOLET, pos.x*WIDTHTILESIZE + 40, pos.y*HEIGHTTILESIZE - 50) 
                     pos += vec(5,0)
         def draw_attack(self):
             pass
@@ -1742,7 +1758,7 @@ class ally():
                 if y%5 == 0:
                     xdif += 1
                     ydif = 0
-                rect = pg.Rect(int(M.allies[self][0].x*TILESIZE+80+(20*xdif)), int(M.allies[self][0].y*TILESIZE+30-30*ydif), 10, 20)
+                rect = pg.Rect(int(M.allies[self][0].x*WIDTHTILESIZE+80+(20*xdif)), int(M.allies[self][0].y*HEIGHTTILESIZE+30-30*ydif), 10, 20)
                 pg.draw.rect(screen,WHITE,rect)
             pos = vec(18,31)
             for attack in self.attacks:
@@ -1753,13 +1769,13 @@ class ally():
                     if attack == self.attack4:
                         continue
                 icon = self.attacks[attack][4]
-                rect = pg.Rect(int(pos.x*TILESIZE-49), int(pos.y*TILESIZE-50), 128, 150)
+                rect = pg.Rect(int(pos.x*WIDTHTILESIZE-49), int(pos.y*HEIGHTTILESIZE-50), 128, 150)
                 pg.draw.rect(screen,BLACK,rect)
-                goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))
+                goal_center = (int(pos.x * WIDTHTILESIZE + WIDTHTILESIZE / 2), int(pos.y * HEIGHTTILESIZE + HEIGHTTILESIZE / 2))
                 screen.blit(icon, icon.get_rect(center=goal_center))
                 text = str(self.attacks[attack][0][0])
                 if attack != self.attack1 or attack != self.attack4:
-                    draw_text(text, 20, RED, pos.x*TILESIZE, pos.y*TILESIZE + 75)
+                    draw_text(text, 20, RED, pos.x*WIDTHTILESIZE, pos.y*HEIGHTTILESIZE + 75)
                 pos += vec(5,0)
         def draw_attack(self):
             pass
@@ -1847,13 +1863,13 @@ class ally():
                     if attack == self.attack4:
                         continue
                 icon = self.attacks[attack][4]
-                rect = pg.Rect(int(pos.x*TILESIZE-49), int(pos.y*TILESIZE-50), 128, 150)
+                rect = pg.Rect(int(pos.x*WIDTHTILESIZE-49), int(pos.y*HEIGHTTILESIZE-50), 128, 150)
                 pg.draw.rect(screen,BLACK,rect)
-                goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))
+                goal_center = (int(pos.x * WIDTHTILESIZE + WIDTHTILESIZE / 2), int(pos.y * HEIGHTTILESIZE + HEIGHTTILESIZE / 2))
                 screen.blit(icon, icon.get_rect(center=goal_center))
                 text = str(self.attacks[attack][0])
                 if attack != self.attack3:
-                    draw_text(text, 20, RED, pos.x*TILESIZE, pos.y*TILESIZE + 75)
+                    draw_text(text, 20, RED, pos.x*WIDTHTILESIZE, pos.y*WIDTHTILESIZE + 75)
                 pos += vec(5,0)
         def draw_attack(self):
             pass
@@ -1901,19 +1917,19 @@ currentfiles = currentfileg + '/zither'
 
 zither = ally.zither()
 zither_combat_img = pg.image.load(os.path.join(currentfiles,'zither_combat0.png')).convert_alpha()
-zither_combat_img = pg.transform.scale(zither_combat_img, (256, 256))
+zither_combat_img = pg.transform.scale(zither_combat_img, (imagescaledwidth, imagescaledheight))
 zither_combat2_img = pg.image.load(os.path.join(currentfiles,'zither_combat1.png')).convert_alpha()
-zither_combat2_img = pg.transform.scale(zither_combat2_img, (256, 256))
+zither_combat2_img = pg.transform.scale(zither_combat2_img, (imagescaledwidth, imagescaledheight))
 zither_combat3_img = pg.image.load(os.path.join(currentfiles,'zither_combat2.png')).convert_alpha()
-zither_combat3_img = pg.transform.scale(zither_combat3_img, (256, 256))
+zither_combat3_img = pg.transform.scale(zither_combat3_img, (imagescaledwidth, imagescaledheight))
 zither_ability1_img = pg.image.load(os.path.join(filename,'cross-1.png.png'))
-zither_ability1_img = pg.transform.scale(zither_ability1_img, (128, 128))
+zither_ability1_img = pg.transform.scale(zither_ability1_img, (128, abilityscaledheight))
 zither_ability2_img = pg.image.load(os.path.join(filename,'cross-1.png.png'))
-zither_ability2_img = pg.transform.scale(zither_ability2_img, (128, 128))
+zither_ability2_img = pg.transform.scale(zither_ability2_img, (128, abilityscaledheight))
 zither_ability3_img = pg.image.load(os.path.join(filename,'cross-1.png.png'))
-zither_ability3_img = pg.transform.scale(zither_ability3_img, (128, 128))
+zither_ability3_img = pg.transform.scale(zither_ability3_img, (128, abilityscaledheight))
 zither_ability4_img = pg.image.load(os.path.join(filename,'cross-1.png.png'))
-zither_ability4_img = pg.transform.scale(zither_ability4_img, (128, 128))
+zither_ability4_img = pg.transform.scale(zither_ability4_img, (128, abilityscaledheight))
 zither.attack1 = 'contort'
 zither.attack2 = 'annihilate'
 zither.attack3 = 'fanning'
@@ -1942,19 +1958,19 @@ currentfiles = currentfileg + '/fairum'
 
 fairum = ally.fairum()
 fairum_combat_img = pg.image.load(os.path.join(currentfiles,"fairum_combat0.png")).convert_alpha()
-fairum_combat_img = pg.transform.scale(fairum_combat_img, (256, 256))
+fairum_combat_img = pg.transform.scale(fairum_combat_img, (imagescaledwidth, imagescaledheight))
 fairum_combat2_img = pg.image.load(os.path.join(currentfiles,"fairum_combat1.png")).convert_alpha()
-fairum_combat2_img = pg.transform.scale(fairum_combat2_img, (256, 256))
+fairum_combat2_img = pg.transform.scale(fairum_combat2_img, (imagescaledwidth, imagescaledheight))
 fairum_combat3_img = pg.image.load(os.path.join(currentfiles,"fairum_combat2.png")).convert_alpha()
-fairum_combat3_img = pg.transform.scale(fairum_combat3_img, (256, 256))
+fairum_combat3_img = pg.transform.scale(fairum_combat3_img, (imagescaledwidth, imagescaledheight))
 fairum_ability1_img = pg.image.load(os.path.join(currentfiles,'fairum_abilites0.png'))
-fairum_ability1_img = pg.transform.scale(fairum_ability1_img, (128, 128))
+fairum_ability1_img = pg.transform.scale(fairum_ability1_img, (128, abilityscaledheight))
 fairum_ability2_img = pg.image.load(os.path.join(currentfiles,'fairum_abilites1.png'))
-fairum_ability2_img = pg.transform.scale(fairum_ability2_img, (128, 128))
+fairum_ability2_img = pg.transform.scale(fairum_ability2_img, (128, abilityscaledheight))
 fairum_ability3_img = pg.image.load(os.path.join(currentfiles,'fairum_abilites2.png'))
-fairum_ability3_img = pg.transform.scale(fairum_ability3_img, (128, 128))
+fairum_ability3_img = pg.transform.scale(fairum_ability3_img, (128, abilityscaledheight))
 fairum_ability4_img = pg.image.load(os.path.join(currentfiles,'fairum_abilites3.png'))
-fairum_ability4_img = pg.transform.scale(fairum_ability4_img, (128, 128))
+fairum_ability4_img = pg.transform.scale(fairum_ability4_img, (128, abilityscaledheight))
 fairum.attack1 = 'plate push'
 fairum.attack2 = 'construct'
 fairum.attack3 = 'project'
@@ -1984,33 +2000,33 @@ currentfiles = currentfileg + '/nover'
 
 nover = ally.noverence()
 nover_combat_img = pg.image.load(os.path.join(currentfiles,'Layer 1_nover_combat1.png')).convert_alpha()
-nover_combat_img = pg.transform.scale(nover_combat_img, (256, 256))
+nover_combat_img = pg.transform.scale(nover_combat_img, (imagescaledwidth, imagescaledheight))
 nover_combat2_img = pg.image.load(os.path.join(currentfiles,'Layer 1_nover_combat2.png')).convert_alpha()
-nover_combat2_img = pg.transform.scale(nover_combat2_img, (256, 256))
+nover_combat2_img = pg.transform.scale(nover_combat2_img, (imagescaledwidth, imagescaledheight))
 nover_combat3_img = pg.image.load(os.path.join(currentfiles,'Layer 1_nover_combat3.png')).convert_alpha()
-nover_combat3_img = pg.transform.scale(nover_combat3_img, (256, 256))
+nover_combat3_img = pg.transform.scale(nover_combat3_img, (imagescaledwidth, imagescaledheight))
 
 nover_transformed_img = pg.image.load(os.path.join(currentfiles,'nover_transformed.png')).convert_alpha()
-nover_transformed_img = pg.transform.scale(nover_transformed_img, (256, 256))
+nover_transformed_img = pg.transform.scale(nover_transformed_img, (imagescaledwidth, imagescaledheight))
 
 nover_mimic_img = pg.image.load(os.path.join(currentfiles,'Layer 1_nover_mimic1.png')).convert_alpha()
-nover_mimic_img = pg.transform.scale(nover_mimic_img, (256, 256))
+nover_mimic_img = pg.transform.scale(nover_mimic_img, (imagescaledwidth, imagescaledheight))
 nover_mimic2_img = pg.image.load(os.path.join(currentfiles,'Layer 1_nover_mimic2.png')).convert_alpha()
-nover_mimic2_img = pg.transform.scale(nover_mimic2_img, (256, 256))
+nover_mimic2_img = pg.transform.scale(nover_mimic2_img, (imagescaledwidth, imagescaledheight))
 nover_mimic3_img = pg.image.load(os.path.join(currentfiles,'Layer 1_nover_mimic3.png')).convert_alpha()
-nover_mimic3_img = pg.transform.scale(nover_mimic3_img, (256, 256))
+nover_mimic3_img = pg.transform.scale(nover_mimic3_img, (imagescaledwidth, imagescaledheight))
 
 nover_block_img = pg.image.load(os.path.join(currentfiles,'nover_combat_alternate.png')).convert_alpha()
-nover_block_img = pg.transform.scale(nover_block_img, (256, 256))
+nover_block_img = pg.transform.scale(nover_block_img, (imagescaledwidth, imagescaledheight))
 
 nover_ability1_img = pg.image.load(os.path.join(currentfiles,"nover_abilites0.png"))
-nover_ability1_img = pg.transform.scale(nover_ability1_img, (128, 128))
+nover_ability1_img = pg.transform.scale(nover_ability1_img, (128, abilityscaledheight))
 nover_ability2_img = pg.image.load(os.path.join(currentfiles,"nover_abilites1.png"))
-nover_ability2_img = pg.transform.scale(nover_ability2_img, (128, 128))
+nover_ability2_img = pg.transform.scale(nover_ability2_img, (128, abilityscaledheight))
 nover_ability3_img = pg.image.load(os.path.join(currentfiles,"nover_abilites2.png"))
-nover_ability3_img = pg.transform.scale(nover_ability3_img, (128, 128))
+nover_ability3_img = pg.transform.scale(nover_ability3_img, (128, abilityscaledheight))
 nover_ability4_img = pg.image.load(os.path.join(currentfiles,"nover_abilites3.png"))
-nover_ability4_img = pg.transform.scale(nover_ability4_img, (128, 128))
+nover_ability4_img = pg.transform.scale(nover_ability4_img, (128, abilityscaledheight))
 nover.attack1 = 'block'
 nover.attack2 = 'leech'
 nover.attack3 = 'transform'
@@ -2047,19 +2063,19 @@ currentfiles = currentfileg + '/heplane'
 
 H = ally.heplane()
 heplane_combat_img = pg.image.load(os.path.join(currentfiles,'Layer 1_heplane_combat1.png')).convert_alpha()
-heplane_combat_img = pg.transform.scale(heplane_combat_img, (256, 256))
+heplane_combat_img = pg.transform.scale(heplane_combat_img, (imagescaledwidth, imagescaledheight))
 heplane_combat2_img = pg.image.load(os.path.join(currentfiles,'Layer 1_heplane_combat2.png')).convert_alpha()
-heplane_combat2_img = pg.transform.scale(heplane_combat2_img, (256, 256))
+heplane_combat2_img = pg.transform.scale(heplane_combat2_img, (imagescaledwidth, imagescaledheight))
 heplane_combat3_img = pg.image.load(os.path.join(currentfiles,'Layer 1_heplane_combat3.png')).convert_alpha()
-heplane_combat3_img = pg.transform.scale(heplane_combat3_img, (256, 256))
+heplane_combat3_img = pg.transform.scale(heplane_combat3_img, (imagescaledwidth, imagescaledheight))
 heplane_ability1_img = pg.image.load(os.path.join(currentfiles,'heplane_abilites0.png'))
-heplane_ability1_img = pg.transform.scale(heplane_ability1_img, (128, 128))
+heplane_ability1_img = pg.transform.scale(heplane_ability1_img, (abilityscaledwidth, abilityscaledheight))
 heplane_ability2_img = pg.image.load(os.path.join(currentfiles,'heplane_abilites1.png'))
-heplane_ability2_img = pg.transform.scale(heplane_ability2_img, (128, 128))
+heplane_ability2_img = pg.transform.scale(heplane_ability2_img, (128, abilityscaledheight))
 heplane_ability3_img = pg.image.load(os.path.join(currentfiles,'heplane_abilites2.png'))
-heplane_ability3_img = pg.transform.scale(heplane_ability3_img, (128, 128))
+heplane_ability3_img = pg.transform.scale(heplane_ability3_img, (128, abilityscaledheight))
 heplane_ability4_img = pg.image.load(os.path.join(currentfiles,'heplane_abilites3.png')).convert_alpha()
-heplane_ability4_img = pg.transform.scale(heplane_ability4_img, (128, 128))
+heplane_ability4_img = pg.transform.scale(heplane_ability4_img, (128, abilityscaledheight))
 H.attack1 = 'coilent'
 H.attack2 = 'punch'
 H.attack3 = 'blood heal'
@@ -2091,19 +2107,19 @@ currentfiles = currentfileg + '/cri'
 
 Cri = ally.cri()
 cri_combat_img = pg.image.load(os.path.join(currentfiles,'cri_combat0.png')).convert_alpha()
-cri_combat_img = pg.transform.scale(cri_combat_img, (256, 256))
+cri_combat_img = pg.transform.scale(cri_combat_img, (imagescaledwidth, imagescaledheight))
 cri_combat2_img = pg.image.load(os.path.join(currentfiles,'cri_combat1.png')).convert_alpha()
-cri_combat2_img = pg.transform.scale(cri_combat2_img, (256, 256))
+cri_combat2_img = pg.transform.scale(cri_combat2_img, (imagescaledwidth, imagescaledheight))
 cri_combat3_img = pg.image.load(os.path.join(currentfiles,'cri_combat2.png')).convert_alpha()
-cri_combat3_img = pg.transform.scale(cri_combat3_img, (256, 256))
+cri_combat3_img = pg.transform.scale(cri_combat3_img, (imagescaledwidth, imagescaledheight))
 cri_ability1_img = pg.image.load(os.path.join(currentfiles,'crystal_icons-2.png.png'))
-cri_ability1_img = pg.transform.scale(cri_ability1_img, (128, 128))
+cri_ability1_img = pg.transform.scale(cri_ability1_img, (128, abilityscaledheight))
 cri_ability2_img = pg.image.load(os.path.join(currentfiles,'crystal_icons-3.png.png'))
-cri_ability2_img = pg.transform.scale(cri_ability2_img, (128, 128))
+cri_ability2_img = pg.transform.scale(cri_ability2_img, (128, abilityscaledheight))
 cri_ability3_img = pg.image.load(os.path.join(currentfiles,'crystal_icons-1.png.png'))
-cri_ability3_img = pg.transform.scale(cri_ability3_img, (128, 128))
+cri_ability3_img = pg.transform.scale(cri_ability3_img, (128, abilityscaledheight))
 cri_stunicon_img = pg.image.load(os.path.join(currentfiles,'sri_stun-1.png.png'))
-cri_stunicon_img = pg.transform.scale(cri_stunicon_img, (128, 128))
+cri_stunicon_img = pg.transform.scale(cri_stunicon_img, (128, abilityscaledheight))
 Cri.attack1 = 'flash and crash'
 Cri.attack2 = 'crystal glass'
 Cri.attack3 = 'karen and her healing balony'
@@ -2134,17 +2150,17 @@ currentfiles = currentfileg + '/haptic'
     
 Hap = ally.haptic()
 haptic_combat_img = pg.image.load(os.path.join(currentfiles,'Layer 1_haptic_combat1.png')).convert_alpha()
-haptic_combat_img = pg.transform.scale(haptic_combat_img, (256, 256))
+haptic_combat_img = pg.transform.scale(haptic_combat_img, (imagescaledwidth, imagescaledheight))
 haptic_combat2_img = pg.image.load(os.path.join(currentfiles,'Layer 1_haptic_combat2.png')).convert_alpha()
-haptic_combat2_img = pg.transform.scale(haptic_combat2_img, (256, 256))
+haptic_combat2_img = pg.transform.scale(haptic_combat2_img, (imagescaledwidth, imagescaledheight))
 haptic_combat3_img = pg.image.load(os.path.join(currentfiles,'Layer 1_haptic_combat3.png')).convert_alpha()
-haptic_combat3_img = pg.transform.scale(haptic_combat3_img, (256, 256))
+haptic_combat3_img = pg.transform.scale(haptic_combat3_img, (imagescaledwidth, imagescaledheight))
 haptic_ability1_img = pg.image.load(os.path.join(currentfiles,'haptic_abilites1.png'))
-haptic_ability1_img = pg.transform.scale(haptic_ability1_img, (128, 128))
+haptic_ability1_img = pg.transform.scale(haptic_ability1_img, (128, abilityscaledheight))
 haptic_ability2_img = pg.image.load(os.path.join(currentfiles,'haptic_abilites0.png'))
-haptic_ability2_img = pg.transform.scale(haptic_ability2_img, (128, 128))
+haptic_ability2_img = pg.transform.scale(haptic_ability2_img, (128, abilityscaledheight))
 haptic_ability3_img = pg.image.load(os.path.join(currentfiles,'haptic_abilites2.png'))
-haptic_ability3_img = pg.transform.scale(haptic_ability3_img, (128, 128))
+haptic_ability3_img = pg.transform.scale(haptic_ability3_img, (128, abilityscaledheight))
 Hap.attack1 = 'accumulation'
 Hap.attack2 = 'flailing'
 Hap.attack3 = 'acceleration'
@@ -2173,19 +2189,19 @@ currentfiles = currentfileg + '/sillid'
 
 sillid = ally.sillid()
 sillid_combat_img = pg.image.load(os.path.join(currentfiles,'Layer 1_sillid_combat1.png')).convert_alpha()
-sillid_combat_img = pg.transform.scale(sillid_combat_img, (256, 256))
+sillid_combat_img = pg.transform.scale(sillid_combat_img, (imagescaledwidth, imagescaledheight))
 sillid_combat2_img = pg.image.load(os.path.join(currentfiles,'Layer 1_sillid_combat2.png')).convert_alpha()
-sillid_combat2_img = pg.transform.scale(sillid_combat2_img, (256, 256))
+sillid_combat2_img = pg.transform.scale(sillid_combat2_img, (imagescaledwidth, imagescaledheight))
 sillid_combat3_img = pg.image.load(os.path.join(currentfiles,'Layer 1_sillid_combat3.png')).convert_alpha()
-sillid_combat3_img = pg.transform.scale(sillid_combat3_img, (256, 256))
+sillid_combat3_img = pg.transform.scale(sillid_combat3_img, (imagescaledwidth, imagescaledheight))
 sillid_ability1_img = pg.image.load(os.path.join(currentfiles,'sillid_abilites1.png'))
-sillid_ability1_img = pg.transform.scale(sillid_ability1_img, (128, 128))
+sillid_ability1_img = pg.transform.scale(sillid_ability1_img, (128, abilityscaledheight))
 sillid_ability2_img = pg.image.load(os.path.join(currentfiles,'sillid_abilites0.png'))
-sillid_ability2_img = pg.transform.scale(sillid_ability2_img, (128, 128))
+sillid_ability2_img = pg.transform.scale(sillid_ability2_img, (128, abilityscaledheight))
 sillid_ability3_img = pg.image.load(os.path.join(currentfiles,'sillid_abilites2.png'))
-sillid_ability3_img = pg.transform.scale(sillid_ability3_img, (128, 128))
+sillid_ability3_img = pg.transform.scale(sillid_ability3_img, (128, abilityscaledheight))
 sillid_ability4_img = pg.image.load(os.path.join(currentfiles,'sillid_abilites3.png'))
-sillid_ability4_img = pg.transform.scale(sillid_ability4_img, (128, 128))
+sillid_ability4_img = pg.transform.scale(sillid_ability4_img, (128, abilityscaledheight))
 sillid.attack1 = 'iron arrow'
 sillid.attack2 = 'dirt arrow'
 sillid.attack3 = 'restock'
@@ -2258,8 +2274,8 @@ class shopkeeper():
     def __init__(self):
         self.selectedshop = 0
         pos = vec(20,10)
-        x = int(pos.x*TILESIZE-230)
-        y = int(pos.y*TILESIZE-35)
+        x = int(pos.x*WIDTHTILESIZE-230)
+        y = int(pos.y*HEIGHTTILESIZE-35)
         rect = pg.Rect(x, y, 135, 30)
         self.exitbutton = pg.draw.rect(screen,BLACK,rect)
         self.exittext = ['Map',20,WHITE,x+5, y]
@@ -2268,12 +2284,12 @@ class shopkeeper():
     def draw_shopkeeps(self):
         pos = self.clericvec
         img = self.cleric_img
-        goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))    
+        goal_center = (int(pos.x * WIDTHTILESIZE + WIDTHTILESIZE / 2), int(pos.y * HEIGHTTILESIZE + HEIGHTTILESIZE / 2))    
         self.b = screen.blit(img, img.get_rect(center=goal_center))
         
         pos = self.armorervec
         img = self.armorer_img
-        goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))    
+        goal_center = (int(pos.x * WIDTHTILESIZE + WIDTHTILESIZE / 2), int(pos.y * HEIGHTTILESIZE + HEIGHTTILESIZE / 2))    
         self.a = screen.blit(img, img.get_rect(center=goal_center))
         
         
@@ -2287,11 +2303,11 @@ class shopkeeper():
         if self.selectedshop == 'armorer':
             skarmorer.draw_actions()
     def selectingshop(self):
-        if self.exitbutton.collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)):
+        if self.exitbutton.collidepoint(int(mpos.x*WIDTHTILESIZE),int(mpos.y*HEIGHTTILESIZE)):
             main.current_state = 'map'
-        if self.b.collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)):
+        if self.b.collidepoint(int(mpos.x*WIDTHTILESIZE),int(mpos.y*HEIGHTTILESIZE)):
             self.selectedshop = 'cleric'
-        if self.a.collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)):
+        if self.a.collidepoint(int(mpos.x*WIDTHTILESIZE),int(mpos.y*HEIGHTTILESIZE)):
             self.selectedshop = 'armorer'
     def selectingshopaction(self):
         if self.selectedshop == 'cleric':
@@ -2327,31 +2343,31 @@ class shopkeeper():
                 M.numberofallies()
         def draw_actions(self):
             pos = shop.clericvec
-            x = int(pos.x*TILESIZE-250)
-            y = int(pos.y*TILESIZE-70)
+            x = int(pos.x*WIDTHTILESIZE-250)
+            y = int(pos.y*HEIGHTTILESIZE-70)
             rect = pg.Rect(x, y, 135, 45)
             self.healparty = pg.draw.rect(screen,BLACK,rect)
             draw_text('heal party',20,WHITE,x+5, y)
-            x2 = int(pos.x*TILESIZE-300)
-            y2 = int(pos.y*TILESIZE-70)
+            x2 = int(pos.x*WIDTHTILESIZE-300)
+            y2 = int(pos.y*HEIGHTTILESIZE-70)
             rect = pg.Rect(x2, y2, 40, 45)
             pg.draw.rect(screen,BLACK,rect)
             draw_text('40',20,WHITE,x2+5, y2)
             
-            y = int(pos.y*TILESIZE-10)
+            y = int(pos.y*HEIGHTTILESIZE-10)
             rect = pg.Rect(x, y, 135, 45)
             self.healone = pg.draw.rect(screen,BLACK,rect)
             draw_text('heal individual',20,WHITE,x+5, y)
-            y2 = int(pos.y*TILESIZE-10)
+            y2 = int(pos.y*HEIGHTTILESIZE-10)
             rect = pg.Rect(x2, y2, 40, 45)
             pg.draw.rect(screen,BLACK,rect)
             draw_text('15',20,WHITE,x2+5, y2)
 
-            y = int(pos.y*TILESIZE+50)
+            y = int(pos.y*HEIGHTTILESIZE+50)
             rect = pg.Rect(x, y, 135, 45)
             self.resone = pg.draw.rect(screen,BLACK,rect)
             draw_text('res individual',20,WHITE,x+5, y)
-            y2 = int(pos.y*TILESIZE+50)
+            y2 = int(pos.y*HEIGHTTILESIZE+50)
             rect = pg.Rect(x2, y2, 40, 45)
             pg.draw.rect(screen,BLACK,rect)
             draw_text('100',20,WHITE,x2+5, y2)
@@ -2384,31 +2400,31 @@ class shopkeeper():
 
         def draw_actions(self):
             pos = shop.armorervec
-            x = int(pos.x*TILESIZE-250)
-            y = int(pos.y*TILESIZE-70)
+            x = int(pos.x*WIDTHTILESIZE-250)
+            y = int(pos.y*HEIGHTTILESIZE-70)
             rect = pg.Rect(x, y, 135, 45)
             self.shieldquater = pg.draw.rect(screen,BLACK,rect)
             draw_text('shield quater',20,WHITE,x+5, y)
-            x2 = int(pos.x*TILESIZE-300)
-            y2 = int(pos.y*TILESIZE-70)
+            x2 = int(pos.x*WIDTHTILESIZE-300)
+            y2 = int(pos.y*HEIGHTTILESIZE-70)
             rect = pg.Rect(x2, y2, 40, 45)
             pg.draw.rect(screen,BLACK,rect)
             draw_text('25',20,WHITE,x2+5, y2)
             
-            y = int(pos.y*TILESIZE-10)
+            y = int(pos.y*HEIGHTTILESIZE-10)
             rect = pg.Rect(x, y, 135, 45)
             self.shieldhalf = pg.draw.rect(screen,BLACK,rect)
             draw_text('shield half',20,WHITE,x+5, y)
-            y2 = int(pos.y*TILESIZE-10)
+            y2 = int(pos.y*HEIGHTTILESIZE-10)
             rect = pg.Rect(x2, y2, 40, 45)
             pg.draw.rect(screen,BLACK,rect)
             draw_text('50',20,WHITE,x2+5, y2)
 
-            y = int(pos.y*TILESIZE+50)
+            y = int(pos.y*HEIGHTTILESIZE+50)
             rect = pg.Rect(x, y, 135, 45)
             self.shieldparty = pg.draw.rect(screen,BLACK,rect)
             draw_text('shield party',20,WHITE,x+5, y)
-            y2 = int(pos.y*TILESIZE+50)
+            y2 = int(pos.y*HEIGHTTILESIZE+50)
             rect = pg.Rect(x2, y2, 40, 45)
             pg.draw.rect(screen,BLACK,rect)
             draw_text('100',20,WHITE,x2+5, y2)
@@ -2418,14 +2434,14 @@ skcleric = shopkeeper.cleric()
 skcleric.heal = False
 shop.clericvec = vec(37,20)
 shop.cleric_img = pg.image.load(os.path.join(filename,'cleric-1.png.png')).convert_alpha()
-shop.cleric_img = pg.transform.scale(shop.cleric_img, (256, 256))
+shop.cleric_img = pg.transform.scale(shop.cleric_img, (imagescaledwidth, imagescaledheight))
 
 skarmorer = shopkeeper.armorer()
 skarmorer.shield = False
 skarmorer.shieldh = False
 shop.armorervec = vec(43,10)
 shop.armorer_img = pg.image.load(os.path.join(filename,'cleric-1.png.png')).convert_alpha()
-shop.armorer_img = pg.transform.scale(shop.armorer_img, (256, 256))
+shop.armorer_img = pg.transform.scale(shop.armorer_img, (imagescaledwidth, imagescaledheight))
 
 shop.shopstart()
 
@@ -2507,7 +2523,7 @@ class main():
                                     M.actions.append(M.selectedchar)
                                     M.selectedchar.support(x)
                                     M.checkifdead()
-                        elif M.unconversion[M.allies[M.selectedchar][0].x,M.allies[M.selectedchar][0].y] in M.selectedchar.attacks[M.selectedattack][0][whereattack] and bigmpos in ccc:
+                        elif M.unconversion[M.allies[M.selectedchar][0].x,M.allies[M.selectedchar][0].y] in M.selectedchar.attacks[M.selectedattack][0][whereattack] and mpos in ccc:
                             print(M.selectedchar.attacks[M.selectedattack][0][heavy])
                             if M.selectedchar.attacks[M.selectedattack][0][heavy]:
                                 M.actions.append(M.selectedchar)
@@ -2605,7 +2621,7 @@ class main():
                     for x in M.savelevel:
                         if M.savelevel[x] != 0:
                             pos = M.allies[x][0]
-                            draw_text_center('LEVEL UP',40,YELLOW,pos.x*TILESIZE,pos.y*TILESIZE+150)
+                            draw_text_center('LEVEL UP',40,YELLOW,pos.x*WIDTHTILESIZE,pos.y*HEIGHTTILESIZE+150)
                     draw_text_center('Victory',40,YELLOW,int(WIDTH/2),int(HEIGHT/2-200))
                     
             else:
@@ -2945,7 +2961,7 @@ class main():
                     for x in M.savelevel:
                         if M.savelevel[x] != 0:
                             pos = M.allies[x][0]
-                            draw_text_center('LEVEL UP',40,YELLOW,pos.x*TILESIZE,pos.y*TILESIZE+150)
+                            draw_text_center('LEVEL UP',40,YELLOW,pos.x*WIDTHTILESIZE,pos.y*HEIGHTTILESIZE+150)
                     draw_text_center('Victory',40,YELLOW,int(WIDTH/2),int(HEIGHT/2-200))
                     if current_time - self.endscreen_timer > 10000:
                         M.tran = True
@@ -3082,7 +3098,7 @@ class tutorial():
         if self.done == 12:
             if M.selectedchar != 0:
                 for k in M.selectedchar.abilities:
-                    if M.selectedchar.abilities[k][0].collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)) and M.selectedchar.abilities[k][2]:
+                    if M.selectedchar.abilities[k][0].collidepoint(int(mpos.x*WIDTHTILESIZE),int(mpos.y*HEIGHTTILESIZE)) and M.selectedchar.abilities[k][2]:
                         if M.selectedability != 0 and k == M.selectedability and M.selectedchar.lvl > 0:
                             x = True
                             self.done += 1
@@ -3317,14 +3333,14 @@ main.endscreen_timer = 0
 main.flop = False
 
 def draw_grid():
-    for x in range(0, WIDTH, TILESIZE):
+    for x in range(0, WIDTH, HEIGHTTILESIZE):
         pg.draw.line(screen, LIGHTGRAY, (x, 0), (x, HEIGHT))
-    for y in range(0, HEIGHT, TILESIZE):
+    for y in range(0, HEIGHT, HEIGHTTILESIZE):
         pg.draw.line(screen, LIGHTGRAY, (0, y), (WIDTH, y))
 def draw_biggrid():
-    for x in range(0, WIDTH, TILESIZE*2):
+    for x in range(0, WIDTH, HEIGHTTILESIZE*2):
         pg.draw.line(screen, LIGHTGRAY, (x, 0), (x, HEIGHT))
-    for y in range(0, HEIGHT, TILESIZE*2 ):
+    for y in range(0, HEIGHT, HEIGHTTILESIZE*2 ):
         pg.draw.line(screen, LIGHTGRAY, (0, y), (WIDTH, y))
         
 class background():
@@ -3350,17 +3366,17 @@ Bg.menuback = []
 
         
 background_fall = pg.image.load(os.path.join(filename,'backgorunds-2.png.png'))
-background_fall = pg.transform.scale(background_fall, (1920, 1080))
+background_fall = pg.transform.scale(background_fall, (WIDTH, HEIGHT))
 background_dungeon = pg.image.load(os.path.join(filename,'dungeon.png'))
-background_dungeon = pg.transform.scale(background_dungeon, (1920, 1080))
+background_dungeon = pg.transform.scale(background_dungeon, (WIDTH, HEIGHT))
 landscape_mountain = pg.image.load(os.path.join(filename,'landscape_mountain.png'))
-landscape_mountain = pg.transform.scale(landscape_mountain, (1920, 1080))
+landscape_mountain = pg.transform.scale(landscape_mountain, (WIDTH, HEIGHT))
 Bg.menuback.append(landscape_mountain)
 map_rica = pg.image.load(os.path.join(filename,'rica_map.png'))
-map_rica = pg.transform.scale(map_rica, (1920, 1080))
+map_rica = pg.transform.scale(map_rica, (WIDTH, HEIGHT))
 Bg.menuback.append(map_rica)
 map_default = pg.image.load(os.path.join(filename,'defaultmap.png'))
-map_default = pg.transform.scale(map_default, (1920, 1080))
+map_default = pg.transform.scale(map_default, (WIDTH, HEIGHT))
 
 
 Bg.background_current = random.choice(Bg.menuback)
@@ -3410,45 +3426,45 @@ class overmap():
         s.fill((100,100,100 ))           # this fills the entire surface
         screen.blit(s, (0,0)) 
         pos = self.crossvec
-        goal_center = (int(pos.x * TILESIZE*2 + TILESIZE*2 / 2), int(pos.y * TILESIZE*2 + TILESIZE*2 / 2))
+        goal_center = (int(pos.x * WIDTHTILESIZE*2 + WIDTHTILESIZE*2 / 2), int(pos.y * HEIGHTTILESIZE*2 + HEIGHTTILESIZE*2 / 2))
         screen.blit(cross, cross.get_rect(center=goal_center))
         for x in self.maps:
-            pg.draw.circle(screen,WHITE,(int(x.x*TILESIZE*2+TILESIZE*2/2),int(x.y*TILESIZE*2+TILESIZE*2/2)),10)
-            pg.draw.circle(screen,BLACK,(int(x.x*TILESIZE*2+TILESIZE*2/2),int(x.y*TILESIZE*2+TILESIZE*2/2)),5)
+            pg.draw.circle(screen,WHITE,(int(x.x*WIDTHTILESIZE*2+WIDTHTILESIZE*2/2),int(x.y*HEIGHTTILESIZE*2+HEIGHTTILESIZE*2/2)),10)
+            pg.draw.circle(screen,BLACK,(int(x.x*WIDTHTILESIZE*2+WIDTHTILESIZE*2/2),int(x.y*HEIGHTTILESIZE*2+HEIGHTTILESIZE*2/2)),5)
         for x in self.connections:
-            pg.draw.line(screen, BLUE, (int(self.crossvec.x*TILESIZE*2+TILESIZE*2/2),int(self.crossvec.y*TILESIZE*2+TILESIZE*2/2)), (int(x.x*TILESIZE*2+TILESIZE*2/2),int(x.y*TILESIZE*2+TILESIZE*2/2)))
+            pg.draw.line(screen, BLUE, (int(self.crossvec.x*WIDTHTILESIZE*2+WIDTHTILESIZE*2/2),int(self.crossvec.y*HEIGHTTILESIZE*2+HEIGHTTILESIZE*2/2)), (int(x.x*WIDTHTILESIZE*2+WIDTHTILESIZE*2/2),int(x.y*HEIGHTTILESIZE*2+HEIGHTTILESIZE*2/2)))
     def draw_mapedit(self):
         if self.creating:
             if self.removal:
-                draw_text('r',40,BLUE,7*TILESIZE*2,15*TILESIZE*2)
+                draw_text('r',40,BLUE,7*WIDTHTILESIZE*2,15*HEIGHTTILESIZE*2)
             else:
-                draw_text('r',40,BLACK,7*TILESIZE*2,15*TILESIZE*2)
-            draw_text(str(int((self.crossvec.x-2)/2)),40,BLUE,10*TILESIZE*2,2*TILESIZE*2)
-            draw_text("+",40,BLACK,11*TILESIZE*2,2*TILESIZE*2)
-            draw_text("-",40,BLACK,12*TILESIZE*2,2*TILESIZE*2)
+                draw_text('r',40,BLACK,7*WIDTHTILESIZE*2,15*HEIGHTTILESIZE*2)
+            draw_text(str(int((self.crossvec.x-2)/2)),40,BLUE,10*WIDTHTILESIZE*2,2*HEIGHTTILESIZE*2)
+            draw_text("+",40,BLACK,11*WIDTHTILESIZE*2,2*HEIGHTTILESIZE*2)
+            draw_text("-",40,BLACK,12*WIDTHTILESIZE*2,2*HEIGHTTILESIZE*2)
             y=0
             for ll in range(0,19):
-                draw_text(str(ll),10,BLACK,0*TILESIZE*2,y*TILESIZE*2)
+                draw_text(str(ll),10,BLACK,0*WIDTHTILESIZE*2,y*HEIGHTTILESIZE*2)
                 y+=1
             x = 5
             y = 3
             for ll in L.levelmaster:
                 if ll == self.selectedlevel:
-                    draw_text(str(ll),10,BLUE,x*TILESIZE*2,y*TILESIZE*2)
+                    draw_text(str(ll),10,BLUE,x*WIDTHTILESIZE*2,y*HEIGHTTILESIZE*2)
                 else:   
-                    draw_text(str(ll),10,BLACK,x*TILESIZE*2,y*TILESIZE*2)
+                    draw_text(str(ll),10,BLACK,x*WIDTHTILESIZE*2,y*HEIGHTTILESIZE*2)
                 x += 1
                 if x == 16:
                     y += 1
                     x = 5
             if self.selectedlevel != -1:
-                draw_text('+',10,BLACK,6*TILESIZE*2,10*TILESIZE*2)
-                draw_text('-',10,BLACK,7*TILESIZE*2,10*TILESIZE*2)
-                draw_text(str(L.levelmaster[self.selectedlevel]),10,BLACK,8*TILESIZE*2,10*TILESIZE*2)
+                draw_text('+',10,BLACK,6*WIDTHTILESIZE*2,10*HEIGHTTILESIZE*2)
+                draw_text('-',10,BLACK,7*WIDTHTILESIZE*2,10*HEIGHTTILESIZE*2)
+                draw_text(str(L.levelmaster[self.selectedlevel]),10,BLACK,8*WIDTHTILESIZE*2,10*HEIGHTTILESIZE*2)
                 x = 5
                 y = 12
                 for ll in enemy.list:
-                    draw_text(str(ll),10,BLACK,x*TILESIZE*2,y*TILESIZE*2)
+                    draw_text(str(ll),10,BLACK,x*WIDTHTILESIZE*2,y*HEIGHTTILESIZE*2)
                     x += 5
                     if x >= 25:
                         y += 1
@@ -3595,8 +3611,8 @@ class level():
             main.current_state = 'switch'
     def create_icons(self):
         pos = vec(20,30)
-        x = int(pos.x*TILESIZE-230)
-        y = int(pos.y*TILESIZE-35)
+        x = int(pos.x*WIDTHTILESIZE-230)
+        y = int(pos.y*HEIGHTTILESIZE-35)
         rect = pg.Rect(x, y, 135, 30)
         self.switchbutton = pg.draw.rect(screen,BLACK,rect)
         self.switchtext = ['Party',20,WHITE,x+5, y]
@@ -3606,13 +3622,13 @@ class level():
         draw_text(a[0],a[1],a[2],a[3], a[4])
     def draw_currentposition(self):
         pos = self.crossvec
-        goal_center = (int(pos.x * TILESIZE*2 + TILESIZE*2 / 2), int(pos.y * TILESIZE*2 + TILESIZE*2 / 2))
+        goal_center = (int(pos.x * WIDTHTILESIZE*2 + WIDTHTILESIZE*2 / 2), int(pos.y * HEIGHTTILESIZE*2 + HEIGHTTILESIZE*2 / 2))
         screen.blit(cross, cross.get_rect(center=goal_center))
         ll =  0
         for x in self.levelid:
             loc = vec(x)
             #try:
-                #draw_text(str(self.display_costs[ll]),20,BLACK,loc.x*TILESIZE*2,loc.y*TILESIZE*2)
+                #draw_text(str(self.display_costs[ll]),20,BLACK,loc.x*HEIGHTTILESIZE*2,loc.y*HEIGHTTILESIZE*2)
                 #print(self.display_costs[ll],'ll',ll)
                 #print(len(self.levelid))
             #except:
@@ -3620,20 +3636,20 @@ class level():
             
             ll += 1
             if x in self.barrier:
-                pg.draw.circle(screen,RED,(int(loc.x*TILESIZE*2+TILESIZE*2/2),int(loc.y*TILESIZE*2+TILESIZE*2/2)),5)
+                pg.draw.circle(screen,RED,(int(loc.x*WIDTHTILESIZE*2+WIDTHTILESIZE*2/2),int(loc.y*HEIGHTTILESIZE*2+HEIGHTTILESIZE*2/2)),5)
             elif self.levelid[x][1] == 'shop':
-                pg.draw.circle(screen,BLUE,(int(loc.x*TILESIZE*2+TILESIZE*2/2),int(loc.y*TILESIZE*2+TILESIZE*2/2)),5)
+                pg.draw.circle(screen,BLUE,(int(loc.x*WIDTHTILESIZE*2+WIDTHTILESIZE*2/2),int(loc.y*HEIGHTTILESIZE*2+HEIGHTTILESIZE*2/2)),5)
             elif x == self.tierasiquest or x == self.tiersecq and Q.active == True:
-                pg.draw.circle(screen,YELLOW,(int(loc.x*TILESIZE*2+TILESIZE*2/2),int(loc.y*TILESIZE*2+TILESIZE*2/2)),5)
+                pg.draw.circle(screen,YELLOW,(int(loc.x*WIDTHTILESIZE*2+WIDTHTILESIZE*2/2),int(loc.y*HEIGHTTILESIZE*2+HEIGHTTILESIZE*2/2)),5)
             else:
-                pg.draw.circle(screen,BLACK,(int(loc.x*TILESIZE*2+TILESIZE*2/2),int(loc.y*TILESIZE*2+TILESIZE*2/2)),5)
+                pg.draw.circle(screen,BLACK,(int(loc.x*WIDTHTILESIZE*2+WIDTHTILESIZE*2/2),int(loc.y*HEIGHTTILESIZE*2+HEIGHTTILESIZE*2/2)),5)
     def draw_linestoconnections(self):
         if not M.tutorial:
             for x in self.connections:
-                pg.draw.line(screen, BLUE, (int(self.crossvec.x*TILESIZE*2+TILESIZE*2/2),int(self.crossvec.y*TILESIZE*2+TILESIZE*2/2)), (int(x.x*TILESIZE*2+TILESIZE*2/2),int(x.y*TILESIZE*2+TILESIZE*2/2)))
+                pg.draw.line(screen, BLUE, (int(self.crossvec.x*WIDTHTILESIZE*2+WIDTHTILESIZE*2/2),int(self.crossvec.y*HEIGHTTILESIZE*2+HEIGHTTILESIZE*2/2)), (int(x.x*WIDTHTILESIZE*2+WIDTHTILESIZE*2/2),int(x.y*HEIGHTTILESIZE*2+HEIGHTTILESIZE*2/2)))
         #a,b = self.finddis(self.crossvec)
         #print(a ** random.choice([1.5,1.55,1.6]))
-        #pg.draw.line(screen, BLUE, (int(self.crossvec.x*TILESIZE*2+TILESIZE*2/2),int(self.crossvec.y*TILESIZE*2+TILESIZE*2/2)), (int(b.x*TILESIZE*2+TILESIZE*2/2),int(b.y*TILESIZE*2+TILESIZE*2/2)))
+        #pg.draw.line(screen, BLUE, (int(self.crossvec.x*HEIGHTTILESIZE*2+HEIGHTTILESIZE*2/2),int(self.crossvec.y*HEIGHTTILESIZE*2+HEIGHTTILESIZE*2/2)), (int(b.x*HEIGHTTILESIZE*2+HEIGHTTILESIZE*2/2),int(b.y*HEIGHTTILESIZE*2+HEIGHTTILESIZE*2/2)))
         for x in self.drawdis:
             x2 = int(x)
             y = self.tierasi[x]
@@ -3642,23 +3658,23 @@ class level():
             once = True
             while dis > 0:
                 if dis <= dis2/2 and once:
-                    pg.draw.line(screen, BLUE, (int(x*TILESIZE*2+TILESIZE*2/2),int(y*TILESIZE*2+TILESIZE*2/2)), (int((x+2)*TILESIZE*2+TILESIZE*2/2),int(y*TILESIZE*2+TILESIZE*2/2)))
+                    pg.draw.line(screen, BLUE, (int(x*WIDTHTILESIZE*2+WIDTHTILESIZE*2/2),int(y*HEIGHTTILESIZE*2+HEIGHTTILESIZE*2/2)), (int((x+2)*WIDTHTILESIZE*2+WIDTHTILESIZE*2/2),int(y*HEIGHTTILESIZE*2+HEIGHTTILESIZE*2/2)))
                     x += 2
                     once = False
-                pg.draw.line(screen, BLUE, (int(x*TILESIZE*2+TILESIZE*2/2),int(y*TILESIZE*2+TILESIZE*2/2)), (int(x*TILESIZE*2+TILESIZE*2/2),int((y-1)*TILESIZE*2+TILESIZE*2/2)))
+                pg.draw.line(screen, BLUE, (int(x*WIDTHTILESIZE*2+WIDTHTILESIZE*2/2),int(y*HEIGHTTILESIZE*2+HEIGHTTILESIZE*2/2)), (int(x*WIDTHTILESIZE*2+WIDTHTILESIZE*2/2),int((y-1)*HEIGHTTILESIZE*2+HEIGHTTILESIZE*2/2)))
                 y -= 1
                 dis -= 1
                 
             while dis < 0:
                 if dis >= dis2/2 and once:
-                    pg.draw.line(screen, BLUE, (int(x*TILESIZE*2+TILESIZE*2/2),int(y*TILESIZE*2+TILESIZE*2/2)), (int((x+2)*TILESIZE*2+TILESIZE*2/2),int(y*TILESIZE*2+TILESIZE*2/2)))
+                    pg.draw.line(screen, BLUE, (int(x*WIDTHTILESIZE*2+WIDTHTILESIZE*2/2),int(y*HEIGHTTILESIZE*2+HEIGHTTILESIZE*2/2)), (int((x+2)*WIDTHTILESIZE*2+WIDTHTILESIZE*2/2),int(y*HEIGHTTILESIZE*2+HEIGHTTILESIZE*2/2)))
                     x += 2
                     once = False
-                pg.draw.line(screen, BLUE, (int(x*TILESIZE*2+TILESIZE*2/2),int(y*TILESIZE*2+TILESIZE*2/2)), (int(x*TILESIZE*2+TILESIZE*2/2),int((y+1)*TILESIZE*2+TILESIZE*2/2)))
+                pg.draw.line(screen, BLUE, (int(x*WIDTHTILESIZE*2+WIDTHTILESIZE*2/2),int(y*HEIGHTTILESIZE*2+HEIGHTTILESIZE*2/2)), (int(x*WIDTHTILESIZE*2+WIDTHTILESIZE*2/2),int((y+1)*HEIGHTTILESIZE*2+HEIGHTTILESIZE*2/2)))
                 y += 1
                 dis += 1
             while x != x2 + 4:
-                pg.draw.line(screen, BLUE, (int(x*TILESIZE*2+TILESIZE*2/2),int(y*TILESIZE*2+TILESIZE*2/2)), (int((x+1)*TILESIZE*2+TILESIZE*2/2),int(y*TILESIZE*2+TILESIZE*2/2)))
+                pg.draw.line(screen, BLUE, (int(x*WIDTHTILESIZE*2+WIDTHTILESIZE*2/2),int(y*HEIGHTTILESIZE*2+HEIGHTTILESIZE*2/2)), (int((x+1)*WIDTHTILESIZE*2+WIDTHTILESIZE*2/2),int(y*HEIGHTTILESIZE*2+HEIGHTTILESIZE*2/2)))
                 x += 1
     def create_map(self):
         self.levelid = {}
@@ -3711,26 +3727,26 @@ class level():
             once = True
             while dis > 0:
                 if dis <= dis2/2 and once:
-                    pg.draw.line(screen, BLUE, (int(x*TILESIZE*2+TILESIZE*2/2),int(y*TILESIZE*2+TILESIZE*2/2)), (int((x+1)*TILESIZE*2+TILESIZE*2/2),int(y*TILESIZE*2+TILESIZE*2/2)))
+                    pg.draw.line(screen, BLUE, (int(x*WIDTHTILESIZE*2+WIDTHTILESIZE*2/2),int(y*HEIGHTTILESIZE*2+HEIGHTTILESIZE*2/2)), (int((x+1)*WIDTHTILESIZE*2+WIDTHTILESIZE*2/2),int(y*HEIGHTTILESIZE*2+HEIGHTTILESIZE*2/2)))
                     x += 2
                     once = False
                     self.pathloc.append(vec(x,y))
-                pg.draw.line(screen, BLUE, (int(x*TILESIZE*2+TILESIZE*2/2),int(y*TILESIZE*2+TILESIZE*2/2)), (int(x*TILESIZE*2+TILESIZE*2/2),int((y-1)*TILESIZE*2+TILESIZE*2/2)))
+                pg.draw.line(screen, BLUE, (int(x*WIDTHTILESIZE*2+WIDTHTILESIZE*2/2),int(y*HEIGHTTILESIZE*2+HEIGHTTILESIZE*2/2)), (int(x*WIDTHTILESIZE*2+WIDTHTILESIZE*2/2),int((y-1)*HEIGHTTILESIZE*2+HEIGHTTILESIZE*2/2)))
                 y -= 1
                 dis -= 1
                 self.pathloc.append(vec(x,y))
             while dis < 0:
                 if dis >= dis2/2 and once:
-                    pg.draw.line(screen, BLUE, (int(x*TILESIZE*2+TILESIZE*2/2),int(y*TILESIZE*2+TILESIZE*2/2)), (int((x+1)*TILESIZE*2+TILESIZE*2/2),int(y*TILESIZE*2+TILESIZE*2/2)))
+                    pg.draw.line(screen, BLUE, (int(x*WIDTHTILESIZE*2+WIDTHTILESIZE*2/2),int(y*HEIGHTTILESIZE*2+HEIGHTTILESIZE*2/2)), (int((x+1)*WIDTHTILESIZE*2+WIDTHTILESIZE*2/2),int(y*HEIGHTTILESIZE*2+HEIGHTTILESIZE*2/2)))
                     x += 2
                     once = False
                     self.pathloc.append(vec(x,y))
-                pg.draw.line(screen, BLUE, (int(x*TILESIZE*2+TILESIZE*2/2),int(y*TILESIZE*2+TILESIZE*2/2)), (int(x*TILESIZE*2+TILESIZE*2/2),int((y+1)*TILESIZE*2+TILESIZE*2/2)))
+                pg.draw.line(screen, BLUE, (int(x*WIDTHTILESIZE*2+WIDTHTILESIZE*2/2),int(y*HEIGHTTILESIZE*2+HEIGHTTILESIZE*2/2)), (int(x*WIDTHTILESIZE*2+WIDTHTILESIZE*2/2),int((y+1)*HEIGHTTILESIZE*2+HEIGHTTILESIZE*2/2)))
                 y += 1
                 dis += 1
                 self.pathloc.append(vec(x,y))
             while x != x2 + 4:
-                pg.draw.line(screen, BLUE, (int(x*TILESIZE*2+TILESIZE*2/2),int(y*TILESIZE*2+TILESIZE*2/2)), (int((x+1)*TILESIZE*2+TILESIZE*2/2),int(y*TILESIZE*2+TILESIZE*2/2)))
+                pg.draw.line(screen, BLUE, (int(x*WIDTHTILESIZE*2+WIDTHTILESIZE*2/2),int(y*HEIGHTTILESIZE*2+HEIGHTTILESIZE*2/2)), (int((x+1)*WIDTHTILESIZE*2+WIDTHTILESIZE*2/2),int(y*HEIGHTTILESIZE*2+HEIGHTTILESIZE*2/2)))
                 x += 1
                 self.pathloc.append(vec(x,y))
         save = 0
@@ -3890,7 +3906,7 @@ class level():
 
 
 cross = pg.image.load(os.path.join(filename,'cross-1.png.png'))
-cross = pg.transform.scale(cross, (TILESIZE*2, TILESIZE*2))
+cross = pg.transform.scale(cross, (WIDTHTILESIZE*2, HEIGHTTILESIZE*2))
 
 L = level()
 L.level = 0
@@ -4144,28 +4160,28 @@ class ui():
         self.drawbuttons()
     def buttons(self):
         if self.pause:
-            if self.play.collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)):
+            if self.play.collidepoint(int(mpos.x*WIDTHTILESIZE),int(mpos.y*HEIGHTTILESIZE)):
                 self.pause = False
-            if self.menubutton.collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)):
+            if self.menubutton.collidepoint(int(mpos.x*WIDTHTILESIZE),int(mpos.y*HEIGHTTILESIZE)):
                 self.save_state = main.current_state
                 main.current_state = 'menu'
                 self.pause = False
         elif self.settings:
-            if self.donebutton.collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)):
+            if self.donebutton.collidepoint(int(mpos.x*WIDTHTILESIZE),int(mpos.y*HEIGHTTILESIZE)):
                 self.settings = False
-            if self.fancybutton.collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)):
+            if self.fancybutton.collidepoint(int(mpos.x*WIDTHTILESIZE),int(mpos.y*HEIGHTTILESIZE)):
                 if M.fancy:
                     M.fancy = False
                 else:
                     M.fancy = True
-            if self.musicvolbutton.collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)):
+            if self.musicvolbutton.collidepoint(int(mpos.x*WIDTHTILESIZE),int(mpos.y*HEIGHTTILESIZE)):
                 ll = pg.mixer.music.get_volume() + 0.2
                 if ll > 1:
                     ll = 0.0
                 pg.mixer.music.set_volume(ll)
                 
         else:    
-            if self.play.collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)):
+            if self.play.collidepoint(int(mpos.x*WIDTHTILESIZE),int(mpos.y*HEIGHTTILESIZE)):
                 main.current_state = 'map'
                 L.levelmaster = O.mapmaster[-1]
                 tut.create_map()
@@ -4174,12 +4190,12 @@ class ui():
                 tut.tutorial_restart()
                 H.exp = 9
                 M.tutorial = True
-            if self.continuebutton.collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)):
+            if self.continuebutton.collidepoint(int(mpos.x*WIDTHTILESIZE),int(mpos.y*HEIGHTTILESIZE)):
                 main.current_state = self.save_state
-            if self.setbutton.collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)):
+            if self.setbutton.collidepoint(int(mpos.x*WIDTHTILESIZE),int(mpos.y*HEIGHTTILESIZE)):
                 self.settings = True
 
-        if self.quit.collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)):
+        if self.quit.collidepoint(int(mpos.x*WIDTHTILESIZE),int(mpos.y*HEIGHTTILESIZE)):
             self.running = False
             pg.quit
         
@@ -4274,8 +4290,8 @@ class blessings():
     def init_inventory(self):
         for z in self.inventory:
             pos = self.inventory[z][1]
-            x = int(pos.x*TILESIZE-230)
-            y = int(pos.y*TILESIZE-35)
+            x = int(pos.x*WIDTHTILESIZE-230)
+            y = int(pos.y*HEIGHTTILESIZE-35)
             rect = pg.Rect(x, y, 50, 50)
             self.inventory[z][0] = rect
     def addblessing(self,thing,less,norm,great,ultra,chan):
@@ -4561,11 +4577,11 @@ obstacles.allothem = []
 
 tree = obstacles.tree()
 tree_img = pg.image.load(os.path.join(filename,'tree0.png')).convert_alpha()
-tree_img = pg.transform.scale(tree_img, (200, 200))
+tree_img = pg.transform.scale(tree_img, (obstaclesscaledwidth, obstaclesscaledheight))
 tree_img2 = pg.image.load(os.path.join(filename,'tree0.png')).convert_alpha()
-tree_img2 = pg.transform.scale(tree_img2, (200, 200))
+tree_img2 = pg.transform.scale(tree_img2, (obstaclesscaledwidth, obstaclesscaledheight))
 tree_img3 = pg.image.load(os.path.join(filename,'tree0.png')).convert_alpha()
-tree_img3 = pg.transform.scale(tree_img3, (200, 200))
+tree_img3 = pg.transform.scale(tree_img3, (obstaclesscaledwidth, obstaclesscaledheight))
 tree.combat_animation = {1:tree_img,2:tree_img2,3:tree_img3}
 tree.health = 3
 tree.agro = 1
@@ -4585,23 +4601,23 @@ class battle():
         self.damage = 0
         
         pos = vec(25,30)
-        x = int(pos.x*TILESIZE-230)
-        y = int(pos.y*TILESIZE-35)
+        x = int(pos.x*WIDTHTILESIZE-230)
+        y = int(pos.y*HEIGHTTILESIZE-35)
         self.swapbutton = pg.Rect(x, y, 135, 30)
         pg.draw.rect(screen,BLACK,self.swapbutton)
         self.swaptext = [0,20,WHITE,x+5, y]
         
         pos = vec(20,30)
-        x = int(pos.x*TILESIZE-230)
-        y = int(pos.y*TILESIZE-35)
+        x = int(pos.x*WIDTHTILESIZE-230)
+        y = int(pos.y*HEIGHTTILESIZE-35)
         self.exitbutton = pg.Rect(x, y, 135, 30)
         pg.draw.rect(screen,BLACK,self.exitbutton)
         text = 'map'
         self.exittext = [text,20,WHITE,x+5, y]
         
         pos = vec(30,30)
-        x = int(pos.x*TILESIZE-230)
-        y = int(pos.y*TILESIZE-35)
+        x = int(pos.x*WIDTHTILESIZE-230)
+        y = int(pos.y*HEIGHTTILESIZE-35)
         self.blessingbutton = pg.Rect(x, y, 135, 30)
         pg.draw.rect(screen,BLACK,self.blessingbutton)
         self.blessingtext = [0,20,WHITE,x+5, y]
@@ -4630,13 +4646,13 @@ class battle():
             if self.selectedchar != 0:
                 ally.draw_skilltree(self.selectedchar)
                 if self.selectedability != 0:
-                    draw_text(self.selectedchar.abilities[self.selectedability][2],20,BLACK,(self.selectedchar.abilities[self.selectedability][1].x-5)*TILESIZE,self.selectedchar.abilities[self.selectedability][1].y*TILESIZE)
+                    draw_text(self.selectedchar.abilities[self.selectedability][2],20,BLACK,(self.selectedchar.abilities[self.selectedability][1].x-5)*WIDTHTILESIZE,self.selectedchar.abilities[self.selectedability][1].y*HEIGHTTILESIZE)
         else:
             pos = vec(18,4)
             for k in B.inventory:
                 cur = B.inventory[k][1].img.copy()
                 
-                goal_center = (int(pos.x * TILESIZE*2 + TILESIZE*2 / 2), int(pos.y * TILESIZE*2 + TILESIZE*2 / 2))
+                goal_center = (int(pos.x * WIDTHTILESIZE*2 + WIDTHTILESIZE*2 / 2), int(pos.y * HEIGHTTILESIZE*2 + HEIGHTTILESIZE*2 / 2))
                 
                 for x in M.allies:
                     if x.blessing == k:
@@ -4650,9 +4666,9 @@ class battle():
             for k in B.inventory:
                 if k == self.selectedblessing:  
                     if pos.x < 24:
-                        rect = pg.Rect(pos.x* TILESIZE*2 + TILESIZE*2 / 2+40,pos.y* TILESIZE*2 + TILESIZE*2 / 2 - 80, 500, 200)
+                        rect = pg.Rect(pos.x* WIDTHTILESIZE*2 + WIDTHTILESIZE*2 / 2+40,pos.y* HEIGHTTILESIZE*2 + HEIGHTTILESIZE*2 / 2 - 80, 500, 200)
                         pg.draw.rect(screen,BLACK,rect)
-                        draw_text(B.inventory[k][1].text,30,WHITE,pos.x* TILESIZE*2 + TILESIZE*2 / 2+45,pos.y* TILESIZE*2 + TILESIZE*2 / 2 - 80)
+                        draw_text(B.inventory[k][1].text,30,WHITE,pos.x* WIDTHTILESIZE*2 + WIDTHTILESIZE*2 / 2+45,pos.y* HEIGHTTILESIZE*2 + HEIGHTTILESIZE*2 / 2 - 80)
                         olim = 0
                         lim = 50
                         amo = 0
@@ -4662,16 +4678,16 @@ class battle():
                             while B.inventory[k][1].txt[lic] != ' ':
                                 lic -= 1
                             lic += 1
-                            draw_text(B.inventory[k][1].txt[olim:lic],20,WHITE,pos.x* TILESIZE*2 + TILESIZE*2 / 2+45,pos.y* TILESIZE*2 + TILESIZE*2 / 2 - 40+20*amo)
+                            draw_text(B.inventory[k][1].txt[olim:lic],20,WHITE,pos.x* WIDTHTILESIZE*2 + WIDTHTILESIZE*2 / 2+45,pos.y* HEIGHTTILESIZE*2 + HEIGHTTILESIZE*2 / 2 - 40+20*amo)
                             olim = lic
                             amo += 1
 
-                        draw_text(B.inventory[k][1].txt[olim:],20,WHITE,pos.x* TILESIZE*2 + TILESIZE*2 / 2+45,pos.y* TILESIZE*2 + TILESIZE*2 / 2 - 40+20*amo)
+                        draw_text(B.inventory[k][1].txt[olim:],20,WHITE,pos.x* WIDTHTILESIZE*2 + WIDTHTILESIZE*2 / 2+45,pos.y* HEIGHTTILESIZE*2 + HEIGHTTILESIZE*2 / 2 - 40+20*amo)
                     else:
                         locate = 580
-                        rect = pg.Rect(pos.x* TILESIZE*2 + TILESIZE*2 / 2+40-locate,pos.y* TILESIZE*2 + TILESIZE*2 / 2 - 80, 500, 200)
+                        rect = pg.Rect(pos.x* WIDTHTILESIZE*2 + WIDTHTILESIZE*2 / 2+40-locate,pos.y* HEIGHTTILESIZE*2 + HEIGHTTILESIZE*2 / 2 - 80, 500, 200)
                         pg.draw.rect(screen,BLACK,rect)
-                        draw_text(B.inventory[k][1].text,30,WHITE,pos.x* TILESIZE*2 + TILESIZE*2 / 2+45-locate,pos.y* TILESIZE*2 + TILESIZE*2 / 2 - 80)
+                        draw_text(B.inventory[k][1].text,30,WHITE,pos.x* WIDTHTILESIZE*2 + WIDTHTILESIZE*2 / 2+45-locate,pos.y* HEIGHTTILESIZE*2 + HEIGHTTILESIZE*2 / 2 - 80)
                         olim = 0
                         lim = 50
                         amo = 0
@@ -4681,11 +4697,11 @@ class battle():
                             while B.inventory[k][1].txt[lic] != ' ':
                                 lic -= 1
                             lic += 1
-                            draw_text(B.inventory[k][1].txt[olim:lic],20,WHITE,pos.x* TILESIZE*2 + TILESIZE*2 / 2+45-locate,pos.y* TILESIZE*2 + TILESIZE*2 / 2 - 40+20*amo)
+                            draw_text(B.inventory[k][1].txt[olim:lic],20,WHITE,pos.x* WIDTHTILESIZE*2 + WIDTHTILESIZE*2 / 2+45-locate,pos.y* HEIGHTTILESIZE*2 + HEIGHTTILESIZE*2 / 2 - 40+20*amo)
                             olim = lic
                             amo += 1
 
-                        draw_text(B.inventory[k][1].txt[olim:],20,WHITE,pos.x* TILESIZE*2 + TILESIZE*2 / 2+45-locate,pos.y* TILESIZE*2 + TILESIZE*2 / 2 - 40+20*amo)
+                        draw_text(B.inventory[k][1].txt[olim:],20,WHITE,pos.x* WIDTHTILESIZE*2 + WIDTHTILESIZE*2 / 2+45-locate,pos.y* HEIGHTTILESIZE*2 + HEIGHTTILESIZE*2 / 2 - 40+20*amo)
                 pos += (2,0)
                 if pos.x > 26:
                     pos.x = 18
@@ -4724,20 +4740,20 @@ class battle():
         
             
                     
-        if self.swapbutton.collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)):
+        if self.swapbutton.collidepoint(int(mpos.x*WIDTHTILESIZE),int(mpos.y*HEIGHTTILESIZE)):
             if self.swap == False:
                 self.swap = True
             elif self.swap == True:
                 self.swap = False
         
-        if self.blessingbutton.collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)):
+        if self.blessingbutton.collidepoint(int(mpos.x*WIDTHTILESIZE),int(mpos.y*HEIGHTTILESIZE)):
             self.selectedchar = 0
             if self.skills == False:
                 self.skills = True
             elif self.skills == True:
                 self.skills = False
         
-        if self.exitbutton.collidepoint(int(mpos.x*TILESIZE),int(mpos.y*TILESIZE)):
+        if self.exitbutton.collidepoint(int(mpos.x*WIDTHTILESIZE),int(mpos.y*HEIGHTTILESIZE)):
             main.current_state = 'map'
             L.create_icons()
             
@@ -4955,12 +4971,13 @@ class battle():
             ani = dict(x.combat_animation)
             pos = self.allies[x][0]
             cur = ani[self.current_animation]
-            #TILESIZE = 150
-            goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))
+            #HEIGHTTILESIZE = 150
+            goal_center = (int(pos.x * WIDTHTILESIZE + WIDTHTILESIZE / 2), int(pos.y * HEIGHTTILESIZE + HEIGHTTILESIZE / 2))
             if x in self.actions:
                 cur = cur.copy( )
                 cur.fill((105, 105, 105, 255),special_flags=pg.BLEND_RGB_MULT)            
             if x == self.selectedchar:
+
                 lol = cur.copy()
                 lol = pg.transform.scale(lol, (300, 275))
                 lol.fill((0, 0, 0),special_flags=pg.BLEND_RGB_MULT)
@@ -4973,14 +4990,14 @@ class battle():
                 cur = cur.copy( )
                 cur.fill((105, 105, 105, 100),special_flags=pg.BLEND_RGB_MULT)  
                 cur.set_alpha(100)
-                goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))
+                goal_center = (int(pos.x * WIDTHTILESIZE + WIDTHTILESIZE / 2), int(pos.y * HEIGHTTILESIZE + HEIGHTTILESIZE / 2))
                 screen.blit(cur, cur.get_rect(center=goal_center))
     def draw_obstacles(self):
         for x in self.obstacles:   
             for y in self.obstacles[x]:
                 ani = x.combat_animation
                 pos = y[0]
-                goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))
+                goal_center = (int(pos.x * WIDTHTILESIZE + WIDTHTILESIZE / 2), int(pos.y * HEIGHTTILESIZE + HEIGHTTILESIZE / 2))
                 screen.blit(ani[self.current_animation], ani[self.current_animation].get_rect(center=goal_center))
     def draw_heavy(self):
         for x in range(0,main.k):
@@ -4994,10 +5011,10 @@ class battle():
                     targetpos = (5,attpos.y)
                     for ll in attack[5][1]:
                         new = targetpos+ ll
-                        rect = pg.Surface((150, 150))
+                        rect = pg.Surface((int(WIDTH/(64/5)), int(HEIGHT/(36/5))))
                         rect.set_alpha(64)
                         rect.fill(WHITE)
-                        screen.blit(rect,(int(new.x*150+50),int(new.y*150)))  
+                        screen.blit(rect,(int(new.x*(WIDTH/(64/5))+(WIDTH/(32/1))),int(new.y*(HEIGHT/(36/5)))))  
                         
                 
                 
@@ -5006,40 +5023,40 @@ class battle():
             pos = self.allies[x][0]
             heat = self.allies[x][1]
             if self.victory != True:
-                rect = pg.Rect(int(pos.x*TILESIZE - 10), int(pos.y*TILESIZE - 120), int(heat), 20)
+                rect = pg.Rect(int(pos.x*WIDTHTILESIZE - 10), int(pos.y*HEIGHTTILESIZE - 120), int(heat), 20)
                 pg.draw.rect(screen,RED,rect)
                 if self.allies[x][3] > 0:
                     text = '+'+str(self.allies[x][3])
-                    draw_text(text, 20,BLUE , pos.x*TILESIZE + 40, pos.y*TILESIZE - 150)
-                    rect = pg.Rect(int(pos.x*TILESIZE - 10), int(pos.y*TILESIZE - 120), int(self.allies[x][3]   ), 20)
+                    draw_text(text, 20,BLUE , pos.x*WIDTHTILESIZE + 40, pos.y*HEIGHTTILESIZE - 150)
+                    rect = pg.Rect(int(pos.x*WIDTHTILESIZE - 10), int(pos.y*HEIGHTTILESIZE - 120), int(self.allies[x][3]   ), 20)
                     pg.draw.rect(screen,BLUE,rect)
 
                 text = str(heat)+'/'+str(x.health)
-                draw_text(text, 20, BLACK, pos.x*TILESIZE - 10, pos.y*TILESIZE - 150)
+                draw_text(text, 20, BLACK, pos.x*WIDTHTILESIZE - 10, pos.y*HEIGHTTILESIZE - 150)
             else:
                 
-                rect = pg.Rect(int(pos.x*TILESIZE - 10), int(pos.y*TILESIZE - 120), int(50), 20)
+                rect = pg.Rect(int(pos.x*WIDTHTILESIZE - 10), int(pos.y*HEIGHTTILESIZE - 120), int(50), 20)
                 pg.draw.rect(screen,BLACK,rect)
                 proport = 50/x.needtolvl
-                rect = pg.Rect(int(pos.x*TILESIZE - 10), int(pos.y*TILESIZE - 120), int(x.exp*proport), 20)
+                rect = pg.Rect(int(pos.x*WIDTHTILESIZE - 10), int(pos.y*HEIGHTTILESIZE - 120), int(x.exp*proport), 20)
                 pg.draw.rect(screen,YELLOW,rect)
                 text = str(x.exp)+'/'+str(x.needtolvl)
-                draw_text(text, 20, BLACK, pos.x*TILESIZE - 10, pos.y*TILESIZE - 150)
+                draw_text(text, 20, BLACK, pos.x*WIDTHTILESIZE - 10, pos.y*HEIGHTTILESIZE - 150)
         for x in self.enemy:
             for y in self.enemy[x]:
                 pos = y[0]
                 heat = y[1] 
                 text = str(round(heat))+'/'+str(x.health)
-                draw_text(text, 20, BLACK, pos.x*TILESIZE - 10, pos.y*TILESIZE - 150)
-                rect = pg.Rect(int(pos.x*TILESIZE - 10), int(pos.y*TILESIZE - 120), int(heat), 20)
+                draw_text(text, 20, BLACK, pos.x*WIDTHTILESIZE - 10, pos.y*HEIGHTTILESIZE - 150)
+                rect = pg.Rect(int(pos.x*WIDTHTILESIZE - 10), int(pos.y*HEIGHTTILESIZE - 120), int(heat), 20)
                 pg.draw.rect(screen,RED,rect)
         for x in self.obstacles:
             for y in self.obstacles[x]:
                 pos = y[0]
                 heat = y[1] 
                 text = str(round(heat))+'/'+str(x.health)
-                draw_text(text, 20, BLACK, pos.x*TILESIZE - 10, pos.y*TILESIZE - 150)
-                rect = pg.Rect(int(pos.x*TILESIZE - 10), int(pos.y*TILESIZE - 120), int(heat/x.health*50), 20)
+                draw_text(text, 20, BLACK, pos.x*WIDTHTILESIZE - 10, pos.y*HEIGHTTILESIZE - 150)
+                rect = pg.Rect(int(pos.x*WIDTHTILESIZE - 10), int(pos.y*HEIGHTTILESIZE - 120), int(heat/x.health*50), 20)
                 pg.draw.rect(screen,RED,rect)
     def draw_enemychar(self):
         for x in self.enemy:   
@@ -5047,21 +5064,22 @@ class battle():
                 if y[6]:
                     ani = x.attack_animation
                     pos = y[0]
-                    goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))
+                    goal_center = (int(pos.x * WIDTHTILESIZE + WIDTHTILESIZE / 2), int(pos.y * HEIGHTTILESIZE + HEIGHTTILESIZE / 2))
                     screen.blit(ani[y[7]], ani[y[7]].get_rect(center=goal_center))
                 else:
                     ani = x.combat_animation
                     pos = y[0]
-                    goal_center = (int(pos.x * TILESIZE + TILESIZE / 2), int(pos.y * TILESIZE + TILESIZE / 2))
+                    goal_center = (int(pos.x * WIDTHTILESIZE + WIDTHTILESIZE / 2), int(pos.y * HEIGHTTILESIZE + HEIGHTTILESIZE / 2))
                     screen.blit(ani[self.current_animation], ani[self.current_animation].get_rect(center=goal_center))
                 
     def draw_grid(self):
-        for x in range(350, WIDTH-300, 150):
-            pg.draw.line(screen, BLACK, (x, 300), (x, HEIGHT-180))
-            if 1000 > x > 900:
-                pg.draw.line(screen, RED, (x, 300), (x, HEIGHT-180))
-        for y in range(300, HEIGHT-100, 150):
-            pg.draw.line(screen, BLACK, (350, y), (WIDTH-370, y))
+        for x in range(int(WIDTH/(16/3)), int(WIDTH/(1920/1561)), int(WIDTH/(64/5))):
+            pg.draw.line(screen, BLACK, (x, int(HEIGHT/((18/5)))), (x, int(HEIGHT/(6/5))))
+            if int(WIDTH/(48/25)) > x > int(WIDTH/(32/15)):
+
+                pg.draw.line(screen, RED, (x, int(HEIGHT/((18/5)))), (x, int(HEIGHT/(6/5))))
+        for y in range(int(HEIGHT/(18/5)), int(HEIGHT/(1080/901)), int(HEIGHT/(36/5))):
+            pg.draw.line(screen, BLACK, (int(WIDTH/(16/3)), y), (int(WIDTH/(1920/1560)), y))
 
     def draw_phase(self):
         if self.fancy:
@@ -5165,7 +5183,7 @@ class battle():
                         except:
                             pass
                         if attack == self.selectedattack:
-                            rect = pg.Rect(int(pos.x*TILESIZE-55), int(pos.y*TILESIZE-55),140, 160)
+                            rect = pg.Rect(int(pos.x*WIDTHTILESIZE-55), int(pos.y*HEIGHTTILESIZE-55),140, 160)
                             pg.draw.rect(screen,WHITE,rect)
                         pos += vec(5,0)
                     
@@ -5177,7 +5195,7 @@ class battle():
                             rect = pg.Surface((140, 160))
                             rect.set_alpha(128)
                             rect.fill(BLACK)
-                            screen.blit(rect,(int(pos.x*TILESIZE-55), int(pos.y*TILESIZE-55)))
+                            screen.blit(rect,(int(pos.x*WIDTHTILESIZE-55), int(pos.y*HEIGHTTILESIZE-55)))
                     pos += vec(5,0)
     def draw_movement(self):
         for x in self.allies:
@@ -5192,10 +5210,10 @@ class battle():
                             new = poopee+ x
                             if 5 >= new.x >= 2 and 6 > new.y >= 2:
                                 checked.append(new)
-                                rect = pg.Surface((150, 150))
+                                rect = pg.Surface((int(WIDTH/(64/5)), int(HEIGHT/(36/5))))
                                 rect.set_alpha(64)
                                 rect.fill(WHITE)
-                                screen.blit(rect,(int(new.x*150+50),int(new.y*150)))  
+                                screen.blit(rect,(int(new.x*(WIDTH/(64/5))+(WIDTH/(32/1))),int(new.y*int(HEIGHT/(36/5)))))  
                     else:
                         oldchecked = list(checked)
                         for y in oldchecked:
@@ -5204,10 +5222,12 @@ class battle():
                                 if new not in checked:
                                     if 5 >= new.x >= 2 and 6 > new.y >= 2:
                                         checked.append(new)
-                                        rect = pg.Surface((150, 150))
+                                        bbb = int(WIDTH/(64/5))
+                                        aaa = int(HEIGHT/(36/5))
+                                        rect = pg.Surface((bbb,aaa))
                                         rect.set_alpha(64)
                                         rect.fill(WHITE)
-                                        screen.blit(rect,(int(new.x*150+50),int(new.y*150)))
+                                        screen.blit(rect,(int(new.x*(WIDTH/(64/5))+(WIDTH/(32/1))),int(new.y*int(HEIGHT/(36/5)))))
                 if self.selectedattack != 0:
                     if self.selectedchar.attacks[self.selectedattack][0][whereattack] != False:
                         for new in self.selectedchar.attacks[self.selectedattack][0][whereattack]:
@@ -5227,13 +5247,13 @@ class battle():
             damage = 0
             for y in self.damage[x]:
                 if y == 'dodged':
-                    draw_text('dodged',30,RED,self.allies[x][0].x*TILESIZE, self.allies[x][0].y*TILESIZE-130,align="bottomright") 
+                    draw_text('dodged',30,RED,self.allies[x][0].x*WIDTHTILESIZE, self.allies[x][0].y*HEIGHTTILESIZE-130,align="bottomright") 
                 else:
                     if y == 0:
-                        draw_text('miss',30,RED,self.allies[x][0].x*TILESIZE, self.allies[x][0].y*TILESIZE-170,align="bottomright")  
+                        draw_text('miss',30,RED,self.allies[x][0].x*WIDTHTILESIZE, self.allies[x][0].y*HEIGHTTILESIZE-170,align="bottomright")  
                     damage += y
             if x in self.allies:
-                draw_text(str(damage),30,RED,self.allies[x][0].x*TILESIZE, self.allies[x][0].y*TILESIZE-150,align="bottomright")  
+                draw_text(str(damage),30,RED,self.allies[x][0].x*WIDTHTILESIZE, self.allies[x][0].y*HEIGHTTILESIZE-150,align="bottomright")  
     def draw_txt_attack(self):
         for x in self.enemy:
             lel = 0
@@ -5242,41 +5262,41 @@ class battle():
                 if y[3] != 0:
                     if type(y[3]) is list:
                         for ww in range(0,len(y[3])):
-                            draw_text(str(y[3][ww]),30,RED,self.enemy[x][lel][0].x*TILESIZE, (self.enemy[x][lel][0].y-add)*TILESIZE-150,align="bottomright") 
+                            draw_text(str(y[3][ww]),30,RED,self.enemy[x][lel][0].x*WIDTHTILESIZE, (self.enemy[x][lel][0].y-add)*HEIGHTTILESIZE-150,align="bottomright") 
                             add += 1
                     else:
-                        draw_text(str(y[3]),30,RED,self.enemy[x][lel][0].x*TILESIZE, self.enemy[x][lel][0].y*TILESIZE-150,align="bottomright") 
+                        draw_text(str(y[3]),30,RED,self.enemy[x][lel][0].x*WIDTHTILESIZE, self.enemy[x][lel][0].y*HEIGHTTILESIZE-150,align="bottomright") 
                 lel += 1
     def draw_effects(self):
         for x in self.allies:
             if bleed in self.allies[x][4]:
-                draw_text('bleed',10, RED, self.allies[x][0].x*TILESIZE + 25, self.allies[x][0].y*TILESIZE-10,align="bottomright")
+                draw_text('bleed',10, RED, self.allies[x][0].x*WIDTHTILESIZE + 25, self.allies[x][0].y*HEIGHTTILESIZE-10,align="bottomright")
             if fire in self.allies[x][4]:
-                draw_text('fire',10, YELLOW, self.allies[x][0].x*TILESIZE + 25, self.allies[x][0].y*TILESIZE,align="bottomright")
+                draw_text('fire',10, YELLOW, self.allies[x][0].x*WIDTHTILESIZE + 25, self.allies[x][0].y*HEIGHTTILESIZE,align="bottomright")
             if stun in self.allies[x][4]:
-                draw_text('stun',10, YELLOW, self.allies[x][0].x*TILESIZE + 25, self.allies[x][0].y*TILESIZE+10,align="bottomright")
+                draw_text('stun',10, YELLOW, self.allies[x][0].x*WIDTHTILESIZE + 25, self.allies[x][0].y*HEIGHTTILESIZE+10,align="bottomright")
             if pierce in self.allies[x][4]:
-                draw_text('pierce',10, ORANGE, self.allies[x][0].x*TILESIZE + 25, self.allies[x][0].y*TILESIZE+20,align="bottomright")
+                draw_text('pierce',10, ORANGE, self.allies[x][0].x*WIDTHTILESIZE + 25, self.allies[x][0].y*HEIGHTTILESIZE+20,align="bottomright")
         for x in self.enemy:
             lel = 0
             for ll in self.enemy[x]:
                 if x == dva:
                     if 'weapon' in M.enemy[x][lel][4]:
                         txt = str(dva.weapons[M.enemy[x][lel][4]['weapon']])
-                        draw_text(txt,10, BLACK, self.enemy[x][lel][0].x*TILESIZE + 25, self.enemy[x][lel][0].y*TILESIZE-10,align="bottomright")
+                        draw_text(txt,10, BLACK, self.enemy[x][lel][0].x*WIDTHTILESIZE + 25, self.enemy[x][lel][0].y*HEIGHTTILESIZE-10,align="bottomright")
                 if bleed in self.enemy[x][lel][4]:
-                    draw_text('bleed',10, RED, self.enemy[x][lel][0].x*TILESIZE + 25, self.enemy[x][lel][0].y*TILESIZE-10,align="bottomright")
+                    draw_text('bleed',10, RED, self.enemy[x][lel][0].x*WIDTHTILESIZE + 25, self.enemy[x][lel][0].y*HEIGHTTILESIZE-10,align="bottomright")
                 if fire in self.enemy[x][lel][4]:
-                    draw_text('fire',10, YELLOW, self.enemy[x][lel][0].x*TILESIZE + 25, self.enemy[x][lel][0].y*TILESIZE,align="bottomright")
+                    draw_text('fire',10, YELLOW, self.enemy[x][lel][0].x*WIDTHTILESIZE + 25, self.enemy[x][lel][0].y*HEIGHTTILESIZE,align="bottomright")
                 if stun in self.enemy[x][lel][4]:
-                    draw_text('stun',10, YELLOW, self.enemy[x][lel][0].x*TILESIZE + 25, self.enemy[x][lel][0].y*TILESIZE-10,align="bottomright")
+                    draw_text('stun',10, YELLOW, self.enemy[x][lel][0].x*WIDTHTILESIZE + 25, self.enemy[x][lel][0].y*HEIGHTTILESIZE-10,align="bottomright")
                 if pierce in self.enemy[x][lel][4]:
-                    draw_text('pierce',10, ORANGE, self.enemy[x][lel][0].x*TILESIZE + 25, self.enemy[x][lel][0].y*TILESIZE-20,align="bottomright")
+                    draw_text('pierce',10, ORANGE, self.enemy[x][lel][0].x*WIDTHTILESIZE + 25, self.enemy[x][lel][0].y*HEIGHTTILESIZE-20,align="bottomright")
                 if needle in self.enemy[x][lel][4]:
                     ahe = 'needle'+ str(self.enemy[x][lel][4][needle][0])+str(self.enemy[x][lel][4][needle][1])
-                    draw_text(ahe,10, PURPLE, self.enemy[x][lel][0].x*TILESIZE + 25, self.enemy[x][lel][0].y*TILESIZE-30,align="bottomright")
+                    draw_text(ahe,10, PURPLE, self.enemy[x][lel][0].x*WIDTHTILESIZE + 25, self.enemy[x][lel][0].y*HEIGHTTILESIZE-30,align="bottomright")
                 if 'heavy' in self.enemy[x][lel][4]:
-                    draw_text('yes',10, BLACK, self.enemy[x][lel][0].x*TILESIZE + 25, self.enemy[x][lel][0].y*TILESIZE-30,align="bottomright")
+                    draw_text('yes',10, BLACK, self.enemy[x][lel][0].x*WIDTHTILESIZE + 25, self.enemy[x][lel][0].y*HEIGHTTILESIZE-30,align="bottomright")
                 lel += 1
     def checkifdead(self):
         test = dict(self.enemy)
@@ -5726,7 +5746,12 @@ M.spaces = []
 M.conversion = {}
 M.unconversion = {}
 first = vec(2,2) #vec(19,11) vec(24,11) vec(29,11)
-second = vec(14,11) 
+funnywidth = round(WIDTH/(32/7)/WIDTHTILESIZE) #14
+print(funnywidth)
+print(HEIGHT/(36/11)/HEIGHTTILESIZE) #11
+print(WIDTH/(64/5)/WIDTHTILESIZE) #5 width
+print(HEIGHT/(36/5)/HEIGHTTILESIZE) #5 height
+second = vec(int(funnywidth),int(HEIGHT/(36/11)/HEIGHTTILESIZE)) 
 for x in range(0,32):
     M.spaces.append((first.x,first.y))
     if first.x < 6:
@@ -5736,12 +5761,12 @@ for x in range(0,32):
     M.conversion.update({(first.x,first.y):(second.x,second.y)})
     M.unconversion.update({(second.x,second.y):(first.x,first.y)})
     first.x += 1
-    second.x += 5
+    second.x += int(WIDTH/(64/5)/WIDTHTILESIZE)
     if first.x > 9:
         first.x = 2
         first.y += 1
-        second.x = 14
-        second.y += 5
+        second.x = funnywidth
+        second.y += int(HEIGHT/(36/5)/HEIGHTTILESIZE)
 M.moving = False
 
 M.obstacles = {}
@@ -5891,20 +5916,30 @@ while ui.running:
         # write important things here 
         # duh
         if main.current_state == 'switch':
-            mpos = vec(pg.mouse.get_pos()) // TILESIZE
+            print(pg.mouse.get_pos())
+            mpos = vec(pg.mouse.get_pos()) #// HEIGHTTILESIZE
+            mpos = vec(int(mpos.x/WIDTHTILESIZE),int(mpos.y/HEIGHTTILESIZE))
+            print(mpos)
         if event.type == pg.MOUSEBUTTONDOWN:
             if event.button == 1:
                 if main.current_state == 'battle' or main.current_state == 'shop' or main.current_state == 'switch' or main.current_state == 'menu' or ui.pause:
-                    mpos = vec(pg.mouse.get_pos()) // TILESIZE
+                    print(pg.mouse.get_pos())
+                    mpos = vec(pg.mouse.get_pos()) #// HEIGHTTILESIZE
+                    mpos = vec(int(mpos.x/WIDTHTILESIZE),int(mpos.y/HEIGHTTILESIZE))
+                    print(mpos)
                     mposraw = vec(pg.mouse.get_pos())
                     create.append(mpos)
                     bigmpos = vec(pg.mouse.get_pos())
-                    print(bigmpos)
-                    bigmpos = vec(bigmpos.x-50,bigmpos.y)//150
+                    print('bigmpos',bigmpos,HEIGHT/(64/5))
+                    bigmpos = vec(int(int(bigmpos.x-int(WIDTH/(108/5)))/(WIDTH/(64/5))),int(bigmpos.y/(HEIGHT/(36/5))))
                     print(bigmpos)
                 if main.current_state == 'creator' or main.current_state == 'map' or main.current_state == 'tutorial' or main.current_state == 'overmap' and not ui.pause:
-                    mpos2 = vec(pg.mouse.get_pos()) // (TILESIZE*2)
+                    print(pg.mouse.get_pos())
+                    mpos2 = vec(pg.mouse.get_pos()) #// (HEIGHTTILESIZE*2)
+                    mpos = vec(int(mpos.x/(WIDTHTILESIZE*2)),int(mpos.y/HEIGHTTILESIZE*2))
+                    print(mpos2)
                     pos = pg.mouse.get_pos()
+                    pos = vec(pos.x/WIDTHTILESIZE,pos.y/30)
                     L.click = True
                 #L.crossvec =  mpos2
                 #O.maps.append(vec(mpos2))
