@@ -17,9 +17,9 @@ vec = pg.math.Vector2
 
 
 #ipad 832 computer 1080
-HEIGHT = 832
+HEIGHT = 1080
 #ipad 23/16 computer 16/9
-WIDTH = int(HEIGHT*(23/16))
+WIDTH = int(HEIGHT*(16/9))
 print(WIDTH)
 GRIDWIDTH = WIDTH/30
 GRIDHEIGHT = HEIGHT/30
@@ -290,10 +290,7 @@ class enemy():
             M.enemy[target][ll][3] = attacking
             target = random.choices(possible,agros)[0]
             target = hitmult[target]
-            print('target',target)
             newpos = random.choice(potpos[target[1]])
-            print(potpos[target[1]])
-            print(newpos)
             M.enemyspaces[M.unconversion[(M.enemy[char][ll][0].x,M.enemy[char][ll][0].y)]] = 0
             M.enemy[char][ll][0] = vec(M.conversion[newpos.x,newpos.y])
             M.enemyspaces[M.unconversion[(M.enemy[char][ll][0].x,M.enemy[char][ll][0].y)]] = char
@@ -307,8 +304,6 @@ class enemy():
             M.enemy[char][ll][2] = [M.enemy[char][ll][0]+ x for x in char.clickaura] 
         return damage,target
     def defaultattack(initiated,dup,damage,target):
-        print(M.obstacles)
-        print(M.allyspaces)
         if target != 0:
             pot = []
             for x in M.obstacles:
@@ -332,12 +327,10 @@ class enemy():
         attpos = M.enemy[initiated][dup][4]['heavy'][1]
         attack = initiated.heavyattacks[attack[0]]
         
-        print(attack)
 
         
         newpos = attpos
         save = M.enemyspaces[M.unconversion[(M.enemy[initiated][dup][0].x,M.enemy[initiated][dup][0].y)]]
-        print(save)
         M.enemyspaces[M.unconversion[(M.enemy[initiated][dup][0].x,M.enemy[initiated][dup][0].y)]] = 0
         if M.enemyspaces[newpos.x,newpos.y] == 0: # movement
             M.enemy[initiated][dup][6] = True #attack animation
@@ -350,10 +343,8 @@ class enemy():
                 targetpos = (5,attpos.y)
                 for ll in attack[5][1]:
                     new = targetpos+ ll
-                    print(M.allyspaces)
                     if M.allyspaces[new.x,new.y] != 0:
                         for q in range(0,attack[3]):
-                            print(M.allyspaces[new.x,new.y])
                             if M.allyspaces[new.x,new.y] in obstacles.allothem:
                                 lel = 0
                                 for y in M.obstacles[M.allyspaces[new.x,new.y]]:
@@ -369,7 +360,6 @@ class enemy():
         if pierce in M.enemy[target][dup][4]:
             damage *= 1.5
         damage = ally.checkblessing('attacking',inin,damage,target,dup)
-        print(damage)
         M.enemy[target][dup][1] -= damage 
         M.enemy[target][dup][5].append(damage)
         total = 0
@@ -640,6 +630,7 @@ swordguy.vec = vec(43,20)
 swordguy.health = 30
 swordguy.immunities = []
 swordguy.movement = 2
+swordguy.speed = 50
 swordguy.combat_animation = {1:swordguy_img,2:swordguy2_img,3:swordguy3_img}
 swordguy.attack_animation = {1:swordguy_attacking_img,2:swordguy_attacking2_img,3:swordguy_attacking3_img}
 auras = [(1, 2), (0, 2), (-1, 2), (-2, 2), (-3, 2), (-3, 1), (-2, 1), (-1, 1), (0, 1), (1, 1), (1, 0), (0, 0), (-1, 0), (-2, 0), (-3, 0), (-3, -1), (-2, -1), (-1, -1), (0, -1), (1, -1), (1, -2), (0, -2), (-1, -2), (-2, -2), (-3, -2)]
@@ -1054,8 +1045,6 @@ class ally():
     def applyeffects(self,target,dup,attack,ally):
         M.allies[ally][6] = False
         for x in ally.attacks[attack][0][effects]:
-            print(ally.attacks[attack][0][effects])
-            print(x)
             if x == 0:
                 break
             for y in x:
@@ -1130,23 +1119,15 @@ class ally():
         where = M.allies[target][4][heavy][0]
         what = M.allies[target][4][heavy][1]
         del M.allies[target][4][heavy]
-        print(M.allies[target][4])
-        print(M.allyspaces)
-        print(M.unconversion[M.allies[target][6].x,M.allies[target][6].y])
-        print(M.unconversion[M.allies[target][0].x,M.allies[target][0].y])
-        print(where)
         M.allyspaces[M.unconversion[where.x,where.y]] = target
         if target.attacks[what][0][typeofattack][0] == sttatck: #straight attack
             #print(M.unconversion[M.allies[M.selectedchar][0].x,M.allies[M.selectedchar][0].y][1])
             ccc = []
             
             for x in collumcheck[M.unconversion[where.x,where.y][1]]:#check postions along column
-                print('line2446',x)
                 if M.enemyspaces[x.x,x.y] != 0:
-                    print('hell yeah')
                     ccc = [x]
                     break
-            print(ccc)
         if len(ccc) != 0:
             pos = ccc[0]
             new = M.conversion[pos[0],pos[1]]
@@ -1894,7 +1875,104 @@ class ally():
                 self.lvl += 1
                 self.exp -= self.needtolvl
                 self.needtolvl *= 2
-                
+    class maxine():
+        def __init__(self):
+            self.attack1 = 0
+        def attack(self,target,attack):
+            target,dup = target
+            damage = 0
+            self.passive(0)
+            if attack == self.attack1:
+                damage = self.attacks[self.attack1][0]
+            if attack == self.attack2:
+                if needle in M.enemy[target][dup][4]:
+                    del M.enemy[target][dup][4][needle]
+                    damage = self.attacks[self.attack2][0]
+            if needle in M.enemy[target][dup][4]:
+                stacks = M.enemy[target][dup][4][needle][0]
+                damage *= -0.25*stacks*stacks+1.75*stacks-0.5
+            ally.applyeffects(target,dup,attack,self)
+            
+            target.damage(dup,damage,self)
+            self.passive(attack)
+            #M.actions.remove(self)
+        def support(self,target):
+            self.passive(0)
+            if M.selectedattack == self.attack3:
+                self.agro = 10
+            if M.selectedattack == self.attack4:
+                stacks = 0
+                for ww in M.enemy:
+                    lel = 0
+                    for x in M.enemy[ww]:
+                        if needle in x[4]:
+                            if needle in M.enemy[ww][lel][4]:
+                                stacks += M.enemy[ww][lel][4][needle][0]
+                                del M.enemy[ww][lel][4][needle]
+                        lel += 1
+                stacks *= 5
+                M.allies[self][3] += stacks
+        def passive(self,used):
+            damage = ally.checkblessing('passive',self,0,0,0)
+            if self.agro >= 1:
+                self.agro = 1
+        def passive_endturn(self):
+            damage = ally.checkblessing('endpassive',self,0,0,0)
+        def damage(self,taken,initiated,ll):
+            if needle in M.enemy[initiated][ll][4]:
+                stacks = M.enemy[initiated][ll][4][needle][0]
+                chance = 100/stacks
+                otherchance = 100-chance
+                hit = random.choices([True,False],[otherchance,chance])[0]
+            else:
+                chance = 0.3*self.dodgeskill
+                otherchance = 100-chance
+                hit = random.choices([True,False],[otherchance,chance])[0]
+            if hit:
+                ally.damage(self,taken,initiated,ll)
+            else:
+                ally.damage(self,"dodged",initiated,ll)
+        def draw_icons(self):
+            pos = vec(18,31)
+            for attack in self.attacks:
+                if self.attack3 not in self.unlockedabilites:
+                    if attack == self.attack3:
+                        continue
+                if self.attack4 not in self.unlockedabilites:
+                    if attack == self.attack4:
+                        continue
+                icon = self.attacks[attack][4]
+                rect = pg.Rect(int(pos.x*WIDTHTILESIZE-49), int(pos.y*HEIGHTTILESIZE-50), 128, 150)
+                pg.draw.rect(screen,BLACK,rect)
+                goal_center = (int(pos.x * WIDTHTILESIZE + WIDTHTILESIZE / 2), int(pos.y * HEIGHTTILESIZE + HEIGHTTILESIZE / 2))
+                screen.blit(icon, icon.get_rect(center=goal_center))
+                text = str(self.attacks[attack][0])
+                if attack != self.attack3:
+                    draw_text(text, 20, RED, pos.x*WIDTHTILESIZE, pos.y*WIDTHTILESIZE + 75)
+                pos += vec(5,0)
+        def draw_attack(self):
+            pass
+        def skill(self,cur):
+            if cur == self.attack4:
+                self.abilities[cur][2] = False
+                self.unlockedabilites.append(cur)
+            if cur == 'annihilation':
+                self.abilities[cur][2] = False
+                self.unlockedabilites.append(cur)
+                self.attacks[self.attack2][0] += 2
+            if cur == self.attack3:
+                self.abilities[cur][2] = False
+                self.unlockedabilites.append(cur)
+            if cur == 'light feet':
+                self.abilities[cur][2] = False
+                self.unlockedabilites.append(cur)
+                self.dodgeskill += 1
+            ally.fixclick(self)
+        def checklevel(self):
+            if self.exp >= self.needtolvl:
+                self.lvl += 1
+                self.exp -= self.needtolvl
+                self.needtolvl *= 2
                 
 
 currentfileg =  filename +'/allies'                
@@ -1912,6 +1990,47 @@ heavy = 'is the attack heavy'
 ally = ally()
                     
 iconaura = [(2, 2), (2, 1), (2, 0), (2, -1), (2, -2), (1, -2), (1, -1), (1, 0), (1, 1), (1, 2), (0, 2), (0, 1), (0, 0), (0, -1), (0, -2), (-1, -2), (-1, -1), (-1, 0), (-1, 1), (-1, 2), (-2, 2), (-2, 1), (-2, 0), (-2, -1), (-2, -2)]            
+
+currentfiles = currentfileg + '/zither'
+
+maxine = ally.maxine()
+maxine_combat_img = pg.image.load(os.path.join(currentfiles,'zither_combat0.png')).convert_alpha()
+maxine_combat_img = pg.transform.scale(maxine_combat_img, (imagescaledwidth, imagescaledheight))
+maxine_combat2_img = pg.image.load(os.path.join(currentfiles,'zither_combat1.png')).convert_alpha()
+maxine_combat2_img = pg.transform.scale(maxine_combat2_img, (imagescaledwidth, imagescaledheight))
+maxine_combat3_img = pg.image.load(os.path.join(currentfiles,'zither_combat2.png')).convert_alpha()
+maxine_combat3_img = pg.transform.scale(maxine_combat3_img, (imagescaledwidth, imagescaledheight))
+maxine_ability1_img = pg.image.load(os.path.join(filename,'cross-1.png.png'))
+maxine_ability1_img = pg.transform.scale(maxine_ability1_img, (128, abilityscaledheight))
+maxine_ability2_img = pg.image.load(os.path.join(filename,'cross-1.png.png'))
+maxine_ability2_img = pg.transform.scale(maxine_ability2_img, (128, abilityscaledheight))
+maxine_ability3_img = pg.image.load(os.path.join(filename,'cross-1.png.png'))
+maxine_ability3_img = pg.transform.scale(maxine_ability3_img, (128, abilityscaledheight))
+maxine_ability4_img = pg.image.load(os.path.join(filename,'cross-1.png.png'))
+maxine_ability4_img = pg.transform.scale(maxine_ability4_img, (128, abilityscaledheight))
+maxine.attack1 = 'naradait'
+maxine.attack2 = 'annihilate'
+maxine.attack3 = 'fanning'
+maxine.attack4 = 'rein it in'
+maxine.vec = vec(20,15)
+maxine.health = 50
+maxine.shield = 0
+maxine.agro = 1
+maxine.movement = 3
+maxine.immunities = []
+maxine.abilities = {maxine.attack3:[0,vec(47,17),'Intemidate the enemies making it more likely to attack zither'],maxine.attack4:[0,vec(47,20),'zither will retract her needles and convert them to shield'],'annihilation':[0,vec(47,23),'Annihilate will deal more damage'],'light feet':[0,vec(47,26),"Zither can dodge attacks even when enemies don't have needles"]}
+maxine.unlockedabilites = []
+maxine.blessing = -1
+maxine.dodgeskill = 0
+maxine.exp = 0
+maxine.lvl = 0
+maxine.needtolvl = 10
+maxine.combat_animation = {1:maxine_combat_img,2:maxine_combat2_img,3:maxine_combat3_img}
+maxine.attacks = {maxine.attack1:[10,[{needle:1}],False,1,maxine_ability1_img,[vec(18,31) + a for a in iconaura],[sttatck,0],secondrow+firstrow],maxine.attack2:[14,[0],False,1,maxine_ability2_img,[vec(23,31) + a for a in iconaura],[sttatck,0],firstrow],maxine.attack3:[0,[0],True,1,maxine_ability3_img,[vec(28,31)+a for a in iconaura],[vec(0,0),0],False],maxine.attack4:[0,[0],True,1,maxine_ability4_img,[vec(33,31) + a for a in iconaura],[vec(0,0),0],False]}
+maxine.clickaura = []
+aura = [(1, 3), (0, 3), (-1, 3), (-1, 2), (0, 2), (1, 2), (1, 1), (0, 1), (-1, 1), (-1, 0), (0, 0), (1, 0), (1, -1), (0, -1), (-1, -1), (-1, -2), (0, -2), (1, -2), (1, -3), (0, -3), (-1, -3)]
+for x in aura:
+    maxine.clickaura.append(vec(x))
 
 currentfiles = currentfileg + '/zither'
 
@@ -2085,6 +2204,7 @@ H.health = 50
 H.shield = 0
 H.agro = 1
 H.movement = 2
+H.speed = 30
 H.immunities = []
 H.healdam = 0
 H.inc = 0
@@ -2501,44 +2621,41 @@ class main():
                     if mpos in M.selectingattack():
                         M.selectattack()
             else:
-                print(mpos in M.getaura(),M.selectedchar != 0 , M.selectedattack != 0)
                 if mpos in M.getaura() and M.selectedchar != 0 and M.selectedattack != 0:
                     if len(M.actions) != len(M.allies) and M.selectedchar not in M.actions:
                         #print('line2439',M.selectedchar.attacks[M.selectedattack][8])
                         
                         if M.selectedchar.attacks[M.selectedattack][0][typeofattack][0] == sttatck: #straight attack
-                            print(M.unconversion[M.allies[M.selectedchar][0].x,M.allies[M.selectedchar][0].y][1])
                             ccc = []
 
                             for x in collumcheck[M.unconversion[M.allies[M.selectedchar][0].x,M.allies[M.selectedchar][0].y][1]]:#check postions along column
-                                print('line2446',x)
                                 if M.enemyspaces[x.x,x.y] != 0:
-                                    print('hell yeah')
                                     ccc = [x]
                                     break
-                                
                         if M.selectedchar.attacks[M.selectedattack][0][support] != False:
                             for x in M.allies:
                                 if mpos in M.allies[x][2]:
                                     M.actions.append(M.selectedchar)
                                     M.selectedchar.support(x)
                                     M.checkifdead()
-                        elif M.unconversion[M.allies[M.selectedchar][0].x,M.allies[M.selectedchar][0].y] in M.selectedchar.attacks[M.selectedattack][0][whereattack] and mpos in ccc:
-                            print(M.selectedchar.attacks[M.selectedattack][0][heavy])
+                        elif M.unconversion[M.allies[M.selectedchar][0].x,M.allies[M.selectedchar][0].y] in M.selectedchar.attacks[M.selectedattack][0][whereattack] and bigmpos in ccc:
                             if M.selectedchar.attacks[M.selectedattack][0][heavy]:
                                 M.actions.append(M.selectedchar)
                                 M.allies[M.selectedchar][4].update({heavy:[M.allies[M.selectedchar][6],M.selectedattack]})
-                                M.allyspaces[M.unconversion[M.allies[M.selectedchar][6].x,M.allies[M.selectedchar][6].y]] = M.selectedchar
+                                print(M.allyspaces)
+                                
+                                if M.unconversion[M.allies[M.selectedchar][0].x,M.allies[M.selectedchar][0].y] != M.unconversion[M.allies[M.selectedchar][6].x,M.allies[M.selectedchar][6].y]:
+                                    M.allyspaces[M.unconversion[M.allies[M.selectedchar][6].x,M.allies[M.selectedchar][6].y]] = M.selectedchar
+                                    M.allyspaces[M.unconversion[M.allies[M.selectedchar][0].x,M.allies[M.selectedchar][0].y]] = 0
                                 M.allies[M.selectedchar][6] = M.allies[M.selectedchar][0]
-                                M.allyspaces[M.unconversion[M.allies[M.selectedchar][0].x,M.allies[M.selectedchar][0].y]] = 0
+                                
+                                    
                                 print('line 2493',M.allyspaces)
                                 self.allyheavys.append(M.selectedchar)
-                                print(M.allies[M.selectedchar])
                             else:
                                 M.damage = {}
                                 der,xxer = M.selectenemy()
                                 if M.selectedchar.attacks[M.selectedattack][0][typeofattack][1] == 0:
-                                    print('line2483',ccc,der,xxer)
                                     M.actions.append(M.selectedchar)
                                     M.selectedchar.attack((der,xxer),M.selectedattack)
                                     M.checkifdead()  
@@ -2561,7 +2678,6 @@ class main():
                         
                         
                 elif M.moving:
-                    print('move')
                     if M.selectedchar not in M.actions and M.selectedchar != 0:
                         M.moveallies()
                     elif mpos not in M.selectingchar():
@@ -2627,7 +2743,6 @@ class main():
             else:
                 if len(M.actions) >= len(M.allies) and self.playertrunover == False and len(M.allies) > 0:
                     M.statuseffects(False)
-                    print('line 2583',M.allyspaces)
                     self.enemy_attck_time = pg.time.get_ticks()
                     self.playertrunover = True
                     M.damage = {}
@@ -2665,7 +2780,6 @@ class main():
                         self.heavies.append(self.attacks)
                         self.attacks += 1
                         if self.k != self.attacks:
-                            print('flopped')
                             self.enemy_attck_time = pg.time.get_ticks() -1000
                             self.flop = False
                     
@@ -2687,8 +2801,25 @@ class main():
                         self.flop = False
 
 
-                        self.heavies += self.allyheavys
+                        self.heavies += self.allyheavys # adds ally heavies to overall heavies
+                        self.allyheavys = []
+                        self.heaviescopy = list(self.heavies)
+                        self.heavies = {}
+                        for pp in self.heaviescopy:
+                            if isinstance(pp,int):
+                                oo = main.little[pp][0]
+                                ee = main.little[pp][1]
+                                self.heavies.update({pp:[oo.speed,M.enemy[oo][ee][1]]})
+                            else:
+                                self.heavies.update({pp:[pp.speed,M.allies[pp][1]]})
                         
+                        
+                        self.heavies = sorted(self.heavies.items(), key=lambda kv:(kv[1][0],-kv[1][1]),reverse=True)
+                        self.heaviescopy = dict(self.heavies)
+                        self.heavies = []
+                        for x in self.heaviescopy:
+                            self.heavies.append(x)
+                        #print(self.heaviescopy)
                         if self.heavyattacks >= len(self.heavies):
                             self.playertrunover = False
                             self.attackscanheavy = False
@@ -2824,8 +2955,6 @@ class main():
                 if current_time - self.startheavy > 1000 and self.attackscanheavy and len(M.allies) > 0 and not self.flop:
                     self.display_time_start = pg.time.get_ticks()  
                     self.heavy_enemy_damage = pg.time.get_ticks()
-                    print('using a heavy')
-                    print('line 2754',self.heavies,self.heavyattacks)
                     M.enemyheavyattack(self.heavies[self.heavyattacks])
 
                     self.flop = True
@@ -2967,7 +3096,6 @@ class main():
                         M.tran = True
                         if L.crossvec.x == 28:
                             if O.crossvec.x == 5:
-                                print('gameover')
                                 M.tran = True
                             else:
                                 main.current_state = 'overmap'
@@ -4194,8 +4322,7 @@ class ui():
                 main.current_state = self.save_state
             if self.setbutton.collidepoint(int(mpos.x*WIDTHTILESIZE),int(mpos.y*HEIGHTTILESIZE)):
                 self.settings = True
-
-        if self.quit.collidepoint(int(mpos.x*WIDTHTILESIZE),int(mpos.y*HEIGHTTILESIZE)):
+        if self.quit.collidepoint(int(truepos.x),int(truepos.y)):
             self.running = False
             pg.quit
         
@@ -4541,14 +4668,12 @@ class obstacles():
     def __init__(self):
         self.vec = 0
     def checkifdead():
-        print('dead things')
         test = dict(M.obstacles)
         for x in test:
             for y in test[x]:
                 if int(y[1]) <= 0:
                     save = y[0]
                     M.obstacles[x].remove(y)
-                    print('save',save)
                     save = M.unconversion[save.x,save.y]
                     if save in M.allyspaces:
                         M.allyspaces[save] = 0
@@ -5469,8 +5594,6 @@ class battle():
             self.allies[y][0] = vec(M.conversion[cho])
             self.allies[y][2] = [self.allies[y][0]+ x for x in y.clickaura]
     def moveallies(self):
-        print(bigmpos)
-        print(M.allyspaces)
         if (bigmpos.x,bigmpos.y) in M.allyspaces:
             poopee = M.unconversion[(self.allies[self.selectedchar][6].x,self.allies[self.selectedchar][6].y)]
             checker = [vec(1,0),vec(0,1),vec(-1,0),vec(0,-1)]
@@ -5593,7 +5716,6 @@ class battle():
             if len(self.enemy[x]) > 1:
                 lel = 0
                 for z in self.enemy[x]:
-                    print(mpos)
                     if mpos in self.enemy[x][lel][2]:
                         cur_enemyspecific = lel
                         cur_enemyclass = x
@@ -5622,7 +5744,6 @@ class battle():
             if len(self.enemy[x]) > 1:
                 lel = 0
                 for z in self.enemy[x]:
-                    print(pos,self.enemy[x][lel][0])
                     if pos == self.enemy[x][lel][0]:
                         cur_enemyspecific = lel
                         cur_enemyclass = x
@@ -5635,7 +5756,6 @@ class battle():
             if len(self.obstacles[x]) > 1:
                 lel = 0
                 for z in self.obstacles[x]:
-                    print(pos,self.obstacles[x][lel][0])
                     if pos == self.obstacles[x][lel][0]:
                         cur_enemyspecific = lel
                         cur_enemyclass = x
@@ -5916,28 +6036,21 @@ while ui.running:
         # write important things here 
         # duh
         if main.current_state == 'switch':
-            print(pg.mouse.get_pos())
             mpos = vec(pg.mouse.get_pos()) #// HEIGHTTILESIZE
             mpos = vec(int(mpos.x/WIDTHTILESIZE),int(mpos.y/HEIGHTTILESIZE))
-            print(mpos)
         if event.type == pg.MOUSEBUTTONDOWN:
             if event.button == 1:
                 if main.current_state == 'battle' or main.current_state == 'shop' or main.current_state == 'switch' or main.current_state == 'menu' or ui.pause:
-                    print(pg.mouse.get_pos())
+                    truepos = vec(pg.mouse.get_pos())
                     mpos = vec(pg.mouse.get_pos()) #// HEIGHTTILESIZE
                     mpos = vec(int(mpos.x/WIDTHTILESIZE),int(mpos.y/HEIGHTTILESIZE))
-                    print(mpos)
                     mposraw = vec(pg.mouse.get_pos())
                     create.append(mpos)
                     bigmpos = vec(pg.mouse.get_pos())
-                    print('bigmpos',bigmpos,HEIGHT/(64/5))
                     bigmpos = vec(int(int(bigmpos.x-int(WIDTH/(108/5)))/(WIDTH/(64/5))),int(bigmpos.y/(HEIGHT/(36/5))))
-                    print(bigmpos)
                 if main.current_state == 'creator' or main.current_state == 'map' or main.current_state == 'tutorial' or main.current_state == 'overmap' and not ui.pause:
-                    print(pg.mouse.get_pos())
                     mpos2 = vec(pg.mouse.get_pos()) #// (HEIGHTTILESIZE*2)
                     mpos = vec(int(mpos.x/(WIDTHTILESIZE*2)),int(mpos.y/HEIGHTTILESIZE*2))
-                    print(mpos2)
                     pos = pg.mouse.get_pos()
                     pos = vec(pos.x/WIDTHTILESIZE,pos.y/30)
                     L.click = True
@@ -5951,7 +6064,6 @@ while ui.running:
                         M.tran = True
                         if L.crossvec.x == 28:
                             if O.crossvec.x == 5:
-                                print('gameover')
                                 M.tran = True
                             else:
                                 main.current_state = 'overmap'
