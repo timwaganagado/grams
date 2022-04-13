@@ -68,10 +68,10 @@ except:
 clock = pg.time.Clock()
 cross = 'cross-1.png.png'
 filename = os.path.dirname(sys.argv[0])
-filename += '\Halood_images'
+filename += '/Halood_images'
 
 def draw_text(text, size, color, x, y, align="topleft"):
-    font = pg.font.Font("C:\Windows\Fonts\Arial.ttf",size)
+    font = pg.font.Font("C:/Windows/Fonts/Arial.ttf",size)
     text_surface = font.render(text, True, color)
     text_rect = text_surface.get_rect(**{align: (int(x), int(y))})
     screen.blit(text_surface, text_rect)
@@ -143,9 +143,9 @@ testenemy = testenemy()
 
 stunte = testenemy.stunte()
 
-currentfileg =  filename +'\enemies'
+currentfileg =  filename +'/enemies'
 
-currentfiles = currentfileg + '\swordguy'
+currentfiles = currentfileg + '/swordguy'
 swordguy_img = pg.image.load(os.path.join(currentfiles,'Layer 1_swordguy_combat1.png')).convert_alpha()
 swordguy_img = pg.transform.scale(swordguy_img, (imagescaledwidth, imagescaledheight))
 swordguy2_img = pg.image.load(os.path.join(currentfiles,'Layer 1_swordguy_combat2.png')).convert_alpha()
@@ -551,7 +551,7 @@ enemy.list.append(bleedte)
 enemy.list.append(spsword)
 enemy.list.append(stunte)
 
-currentfiles = currentfileg + '\conrift'
+currentfiles = currentfileg + '/conrift'
 
 conrift_combat_img = pg.image.load(os.path.join(currentfiles,'conrift_combat0.png')).convert_alpha()
 conrift_combat_img = pg.transform.scale(conrift_combat_img, (imagescaledwidth, imagescaledheight))
@@ -578,7 +578,7 @@ conrift.clickaura = [vec(-1,0),vec(-1,1),vec(-1,2),vec(-1,3),vec(-1,-1),vec(-1,-
 conrift.attacks = {'darkness':[5,{},False,1,5],'conduction':[20,{fire:1,stun:1},False,1,1]}
 conrift.stagger = 15
 
-currentfiles = currentfileg + '\magee'
+currentfiles = currentfileg + '/magee'
 
 magee_combat_img = pg.image.load(os.path.join(currentfiles,'magee_combat0.png')).convert_alpha()
 magee_combat_img = pg.transform.scale(magee_combat_img, (imagescaledwidth, imagescaledheight))
@@ -608,7 +608,7 @@ for aura in auras:
 magee.attacks = {'fire ball':[10,{fire:1},False,1,4],'lightning':[15,{stun:1},False,1,1],'ice shards':[5,{pierce:1},False,1,4],'heal':[5,{},True,0,2],'miss':[0,{},False,1,1]}
 magee.stagger = 15
 
-currentfiles = currentfileg + '\swordguy'
+currentfiles = currentfileg + '/swordguy'
 
 swordguy_img = pg.image.load(os.path.join(currentfiles,'Layer 1_swordguy_combat1.png')).convert_alpha()
 swordguy_img = pg.transform.scale(swordguy_img, (imagescaledwidth, imagescaledheight))
@@ -674,7 +674,7 @@ for aura in auras:
 archer.attacks = {'piercing arrow':[5,{pierce:1},False,1,5],'blunt arrow':[5,{},False,1,1],'miss':[0,{},False,1,1]}
 archer.stagger = 10
 
-currentfiles = currentfileg + '\boulderine'
+currentfiles = currentfileg + '/boulderine'
 
 boulderine = enemy.boulderine()
 enemy.list.append(boulderine)
@@ -690,7 +690,7 @@ for aura in auras:
 boulderine.attacks = {'weak smoke':[5,{weakness:1},False,1,2],'reposte':[0,{},True,0,2],'miss':[0,{},False,1,1]}
 boulderine.stagger = 15
 
-currentfiles = currentfileg + '\hardboulderine'
+currentfiles = currentfileg + '/hardboulderine'
 
 hardboulderine = enemy.hardboulderine()
 enemy.list.append(hardboulderine)
@@ -736,7 +736,7 @@ for aura in auras:
 rentoron.attacks = {'jump':[2,{charge:1},True,1,2],'smack':[5,{},False,1,4],'miss':[0,{},False,1,1]}
 rentoron.stagger = 13
 
-currentfiles = currentfileg + '\grosehund'
+currentfiles = currentfileg + '/grosehund'
 
 grosehund_combat_img = pg.image.load(os.path.join(currentfiles,'grosehund_combat0.png')).convert_alpha()
 grosehund_combat_img = pg.transform.scale(grosehund_combat_img, (imagescaledwidth, imagescaledheight))
@@ -782,7 +782,7 @@ for aura in auras:
 barrier.attacks = {'decimating energy':[5,{},False,5,5],'chaos energy':[5,{},False,1,1],'misalignment':[5,{},False,1,2]}
 barrier.stagger = 10
 
-currentfiles = currentfileg + '\dva'
+currentfiles = currentfileg + '/dva'
 
 dva = enemy.dva()
 enemy.list.append(dva)
