@@ -2629,9 +2629,12 @@ class main():
                             ccc = []
 
                             for x in collumcheck[M.unconversion[M.allies[M.selectedchar][0].x,M.allies[M.selectedchar][0].y][1]]:#check postions along column
-                                if M.enemyspaces[x.x,x.y] != 0:
-                                    ccc = [x]
-                                    break
+                                if M.selectedchar.attacks[M.selectedattack][0][heavy]:
+                                    ccc.append(x)
+                                else:
+                                    if M.enemyspaces[x.x,x.y] != 0:
+                                        ccc.append(x)
+                                        break
                         if M.selectedchar.attacks[M.selectedattack][0][support] != False:
                             for x in M.allies:
                                 if mpos in M.allies[x][2]:
@@ -5138,7 +5141,7 @@ class battle():
                         new = targetpos+ ll
                         rect = pg.Surface((int(WIDTH/(64/5)), int(HEIGHT/(36/5))))
                         rect.set_alpha(64)
-                        rect.fill(WHITE)
+                        rect.fill(RED)
                         screen.blit(rect,(int(new.x*(WIDTH/(64/5))+(WIDTH/(32/1))),int(new.y*(HEIGHT/(36/5)))))  
                         
                 
@@ -5355,18 +5358,31 @@ class battle():
                                         screen.blit(rect,(int(new.x*(WIDTH/(64/5))+(WIDTH/(32/1))),int(new.y*int(HEIGHT/(36/5)))))
                 if self.selectedattack != 0:
                     if self.selectedchar.attacks[self.selectedattack][0][whereattack] != False:
+                        rect = pg.Surface((150, 150))
+                        rect.set_alpha(64)
+                        rect.fill(GREEN)
                         for new in self.selectedchar.attacks[self.selectedattack][0][whereattack]:
-                            rect = pg.Surface((150, 150))
-                            rect.set_alpha(64)
-                            rect.fill(GREEN)
-                            screen.blit(rect,(int(new.x*150+50),int(new.y*150)))
+                            
+                            screen.blit(rect,(int(new.x*(WIDTH/(64/5))+(WIDTH/(32/1))),int(new.y*int(HEIGHT/(36/5))))) 
+                        
+                        if M.selectedchar.attacks[M.selectedattack][0][typeofattack][0] == sttatck: #straight attack
+                            for new in collumcheck[M.unconversion[M.allies[M.selectedchar][0].x,M.allies[M.selectedchar][0].y][1]]: 
+                                rect = pg.Surface((150, 150))
+                                rect.set_alpha(64)
+                                rect.fill(YELLOW)
+                                screen.blit(rect,(int(new.x*(WIDTH/(64/5))+(WIDTH/(32/1))),int(new.y*int(HEIGHT/(36/5))))) 
+                                if M.enemyspaces[new.x,new.y] != 0:
+                                    rect = pg.Surface((150, 150))
+                                    rect.set_alpha(64)
+                                    rect.fill(RED)
+                                    screen.blit(rect,(int(new.x*(WIDTH/(64/5))+(WIDTH/(32/1))),int(new.y*int(HEIGHT/(36/5))))) 
                     else:
                         for new in M.allyspaces:
                             new = vec(new)
                             rect = pg.Surface((150, 150))
                             rect.set_alpha(64)
                             rect.fill(GREEN)
-                            screen.blit(rect,(int(new.x*150+50),int(new.y*150)))
+                            screen.blit(rect,(int(new.x*(WIDTH/(64/5))+(WIDTH/(32/1))),int(new.y*int(HEIGHT/(36/5)))))  
     def draw_damage(self):
         for x in self.damage:
             damage = 0
@@ -5658,6 +5674,15 @@ class battle():
                     y += z[2]
             else:
                 y += self.obstacles[x][0][2]
+        if M.selectedattack != 0 and M.selectedchar != 0:
+            if M.selectedchar.attacks[M.selectedattack][0][typeofattack][0] == sttatck: #straight attack
+                for new in collumcheck[M.unconversion[M.allies[M.selectedchar][0].x,M.allies[M.selectedchar][0].y][1]]: 
+                    new = vec(M.conversion[new.x,new.y])
+                    ll = []
+                    for x in auras:
+                        hew = new+vec(x)
+                        ll.append(vec(hew))
+                    y += ll
         if M.selectedattack != 0 and M.selectedchar != 0:
             if M.selectedchar.attacks[M.selectedattack][2] != False:
                 for x in self.allies:
@@ -6047,7 +6072,9 @@ while ui.running:
                     mposraw = vec(pg.mouse.get_pos())
                     create.append(mpos)
                     bigmpos = vec(pg.mouse.get_pos())
-                    bigmpos = vec(int(int(bigmpos.x-int(WIDTH/(108/5)))/(WIDTH/(64/5))),int(bigmpos.y/(HEIGHT/(36/5))))
+                    bigmpos = vec(int(int(bigmpos.x-int(WIDTH/32))/(WIDTH/(64/5))),int(bigmpos.y/(HEIGHT/(36/5))))
+                    print(int(WIDTH/32))
+                    print(bigmpos)
                 if main.current_state == 'creator' or main.current_state == 'map' or main.current_state == 'tutorial' or main.current_state == 'overmap' and not ui.pause:
                     mpos2 = vec(pg.mouse.get_pos()) #// (HEIGHTTILESIZE*2)
                     mpos = vec(int(mpos.x/(WIDTHTILESIZE*2)),int(mpos.y/HEIGHTTILESIZE*2))
