@@ -1116,9 +1116,10 @@ class ally():
                 else:
                     M.damage.update({target:[damage]})
     def defaultheavyattack(self,target):
-        where = M.allies[target][4][heavy][0]
+        where = M.allies[target][0]
         what = M.allies[target][4][heavy][1]
         del M.allies[target][4][heavy]
+        
         M.allyspaces[M.unconversion[where.x,where.y]] = target
         if target.attacks[what][0][typeofattack][0] == sttatck: #straight attack
             #print(M.unconversion[M.allies[M.selectedchar][0].x,M.allies[M.selectedchar][0].y][1])
@@ -1275,6 +1276,7 @@ class ally():
             target,dup = target
             damage = self.attacks[self.attack1][0][dealtdamage]
             damage = ally.checkattack(damage,self)
+            print(target)
             target.damage(dup,damage,self)
             ally.applyeffects(target,dup,attack,self)
             self.passive(attack)
@@ -2203,7 +2205,7 @@ H.vec = vec(20,15)
 H.health = 50
 H.shield = 0
 H.agro = 1
-H.movement = 2
+H.movement = 5
 H.speed = 30
 H.immunities = []
 H.healdam = 0
@@ -2215,7 +2217,7 @@ H.exp = 0
 H.lvl = 0
 H.needtolvl = 10
 H.combat_animation = {1:heplane_combat_img,2:heplane_combat2_img,3:heplane_combat3_img}
-H.attacks = {H.attack1:[{dealtdamage:10,effects:{fire:1},support:False,hits:1,typeofattack:[sttatck,0],whereattack:secondrow+firstrow,heavy:True},heplane_ability1_img,[vec(18,31) + a for a in iconaura]],H.attack2:[{dealtdamage:5,effects:{},support:False,hits:1,typeofattack:[sttatck,0],whereattack:secondrow+firstrow,heavy:False},heplane_ability2_img,[vec(18,31) + a for a in iconaura]],H.attack3:[{dealtdamage:0,effects:{},support:True,hits:1,typeofattack:[anywhere,0],whereattack:False,heavy:False},heplane_ability3_img,[vec(18,31) + a for a in iconaura]],H.attack4:[{dealtdamage:20,effects:{},support:True,hits:1,typeofattack:[anywhere,0],whereattack:False,heavy:False},heplane_ability4_img,[vec(18,31) + a for a in iconaura]]}
+H.attacks = {H.attack1:[{dealtdamage:10,effects:{fire:1},support:False,hits:1,typeofattack:[sttatck,0],whereattack:secondrow+firstrow,heavy:True},heplane_ability1_img,[vec(18,31) + a for a in iconaura]],H.attack2:[{dealtdamage:25,effects:{},support:False,hits:1,typeofattack:[sttatck,0],whereattack:secondrow+firstrow,heavy:False},heplane_ability2_img,[vec(18,31) + a for a in iconaura]],H.attack3:[{dealtdamage:0,effects:{},support:True,hits:1,typeofattack:[anywhere,0],whereattack:False,heavy:False},heplane_ability3_img,[vec(18,31) + a for a in iconaura]],H.attack4:[{dealtdamage:20,effects:{},support:True,hits:1,typeofattack:[anywhere,0],whereattack:False,heavy:False},heplane_ability4_img,[vec(18,31) + a for a in iconaura]]}
 aura = [(1, 3), (0, 3), (-1, 3), (-1, 2), (0, 2), (1, 2), (1, 1), (0, 1), (-1, 1), (-1, 0), (0, 0), (1, 0), (1, -1), (0, -1), (-1, -1), (-1, -2), (0, -2), (1, -2), (1, -3), (0, -3), (-1, -3)]
 H.clickaura = []
 for x in aura:
@@ -2653,7 +2655,7 @@ class main():
                                 M.allies[M.selectedchar][6] = M.allies[M.selectedchar][0]
                                 
                                     
-                                print('line 2493',M.allyspaces)
+                                
                                 self.allyheavys.append(M.selectedchar)
                             else:
                                 M.damage = {}
@@ -2674,8 +2676,8 @@ class main():
                                                 new = M.conversion[new[0],new[1]]
                                                 der, xxer = M.areaselectenemy(new)
                                                 M.selectedchar.attack((der,xxer),M.selectedattack)
-                                             
-                                    M.checkifdead()  
+                                print('line 2680',M.allyspaces)    
+                                M.checkifdead()  
                         
                         
                         
@@ -2892,7 +2894,7 @@ class main():
                                             if ll in pospos:
                                                 pot.append(ll)
                                         if len(pot) != 0:
-                                            if random.choices([True,False],[5,5])[0]:
+                                            if random.choices([True,False],[5,0])[0]:
                                                 M.heavyattacking.append(k)
                                                 pos = random.choice(pot)
                                                 M.enemy[x][y][4].update({'heavy':[attacking,pos]})
@@ -2908,7 +2910,7 @@ class main():
                                     damage = attack[attacking] #damage number
                                     able = damage[5][0] #type of attack eg straight
                                     pospos = damage[6] #vec where the enemy can attack from
-                                    poopee = M.unconversion[(M.enemy[x][y][0].x,M.enemy[x][y][0].y)] #current vec
+                                    poopee = M.unconversion[(M.enemy[x][0][0].x,M.enemy[x][0][0].y)] #current vec
                                     checker = [vec(1,0),vec(0,1),vec(-1,0),vec(0,-1)] #vec check
                                     checked = [] #possible places the enemy can move to
                                     movement = x.movement +1 #gets movement 
@@ -2939,12 +2941,12 @@ class main():
                                     if len(pot) != 0:
                                         if random.choices([True,False],[50,50])[0]:
                                             M.heavyattacking.append(k)
-                                            M.enemy[x][y][4].update({'heavy':attacking})
+                                            M.enemy[x][0][4].update({'heavy':attacking})
                                         k += 1 
                                         if x in boss.bosses:
                                             if random.choices([True,False],[50,50])[0]:
                                                 M.heavyattacking.append(k)
-                                                M.enemy[x][y][4].update({'heavy':attacking})
+                                                M.enemy[x][0][4].update({'heavy':attacking})
                                             k += 1
                     
                         
@@ -2954,7 +2956,7 @@ class main():
                 if current_time - self.display_time_stop > 3000 and self.playertrunover == False:
                     M.damage = {}
                     
-                    #heavy attack part --- heavy attack part
+                    #heavy attack part --- heavy attack part --- heavy attack part --- heavy attack part --- heavy attack part --- heavy attack part
                 if current_time - self.startheavy > 1000 and self.attackscanheavy and len(M.allies) > 0 and not self.flop:
                     self.display_time_start = pg.time.get_ticks()  
                     self.heavy_enemy_damage = pg.time.get_ticks()
@@ -3051,7 +3053,7 @@ class main():
                                 damage = attack[attacking] #damage number
                                 able = damage[5][0] #type of attack eg straight
                                 pospos = damage[6] #vec where the enemy can attack from
-                                poopee = M.unconversion[(M.enemy[x][y][0].x,M.enemy[x][y][0].y)] #current vec
+                                poopee = M.unconversion[(M.enemy[x][0][0].x,M.enemy[x][0][0].y)] #current vec
                                 checker = [vec(1,0),vec(0,1),vec(-1,0),vec(0,-1)] #vec check
                                 checked = [] #possible places the enemy can move to
                                 movement = x.movement +1 #gets movement 
@@ -3082,12 +3084,12 @@ class main():
                                 if len(pot) != 0:
                                     if random.choices([True,False],[50,50])[0]:
                                         M.heavyattacking.append(k)
-                                        M.enemy[x][y][4].update({'heavy':attacking})
+                                        M.enemy[x][0][4].update({'heavy':attacking})
                                     k += 1 
                                     if x in boss.bosses:
                                         if random.choices([True,False],[50,50])[0]:
                                             M.heavyattacking.append(k)
-                                            M.enemy[x][y][4].update({'heavy':attacking})
+                                            M.enemy[x][0][4].update({'heavy':attacking})
                                         k += 1
                 if M.victory:
                     for x in M.savelevel:
@@ -5128,12 +5130,16 @@ class battle():
                 goal_center = (int(pos.x * WIDTHTILESIZE + WIDTHTILESIZE / 2), int(pos.y * HEIGHTTILESIZE + HEIGHTTILESIZE / 2))
                 screen.blit(ani[self.current_animation], ani[self.current_animation].get_rect(center=goal_center))
     def draw_heavy(self):
+        #print('k',main.k)
+        #print(self.heavyattacking)
+        
         for x in range(0,main.k):
             if x in self.heavyattacking:
                 pos = self.enemy[main.little[x][0]][main.little[x][1]][0]
                 pos = vec(M.unconversion[pos.x,pos.y])
                 attack = self.enemy[main.little[x][0]][main.little[x][1]][4]['heavy'][0]
                 attpos = self.enemy[main.little[x][0]][main.little[x][1]][4]['heavy'][1]
+                print(attack)
                 attack = main.little[x][0].heavyattacks[attack]
                 if attack[5][0] == 'spec 1st column':
                     targetpos = (5,attpos.y)
@@ -5170,14 +5176,17 @@ class battle():
                 pg.draw.rect(screen,YELLOW,rect)
                 text = str(x.exp)+'/'+str(x.needtolvl)
                 draw_text(text, 20, BLACK, pos.x*WIDTHTILESIZE - 10, pos.y*HEIGHTTILESIZE - 150)
+        funny = 0
         for x in self.enemy:
             for y in self.enemy[x]:
                 pos = y[0]
                 heat = y[1] 
                 text = str(round(heat))+'/'+str(x.health)
                 draw_text(text, 20, BLACK, pos.x*WIDTHTILESIZE - 10, pos.y*HEIGHTTILESIZE - 150)
+                draw_text(str(funny), 20, BLACK, pos.x*WIDTHTILESIZE - 10, pos.y*HEIGHTTILESIZE )
                 rect = pg.Rect(int(pos.x*WIDTHTILESIZE - 10), int(pos.y*HEIGHTTILESIZE - 120), int(heat), 20)
                 pg.draw.rect(screen,RED,rect)
+                funny += 1
         for x in self.obstacles:
             for y in self.obstacles[x]:
                 pos = y[0]
@@ -5187,8 +5196,10 @@ class battle():
                 rect = pg.Rect(int(pos.x*WIDTHTILESIZE - 10), int(pos.y*HEIGHTTILESIZE - 120), int(heat/x.health*50), 20)
                 pg.draw.rect(screen,RED,rect)
     def draw_enemychar(self):
+        funny = 0
         for x in self.enemy:   
             for y in self.enemy[x]:
+                
                 if y[6]:
                     ani = x.attack_animation
                     pos = y[0]
@@ -5441,11 +5452,44 @@ class battle():
                 lel += 1
     def checkifdead(self):
         test = dict(self.enemy)
+        kill = 0
         for x in test:
                 for y in test[x]:
+                    
                     if int(y[1]) <= 0:
+                        self.enemyspaces[M.unconversion[y[0].x,y[0].y]] = 0
                         self.enemy[x].remove(y)
                         self.killhistory.append(self.selectedchar)
+                        print(main.k)
+                        #print('heavies',main.heavies)
+                        funny = 0
+                        for qq in M.heavyattacking:
+                            print(M.heavyattacking)
+                            print(qq)
+                            print(kill)
+                            if qq == kill:
+                                del M.heavyattacking[funny]
+                                print(M.heavyattacking)
+                                funny = 0
+                                for ll in M.heavyattacking:
+                                    if ll > kill:
+                                        M.heavyattacking[funny] = int(ll-1)
+                                    funny +=1
+                                break
+                            funny += 1
+                        main.k = 0
+                        for x in M.enemy:
+                            if len(M.enemy[x]) > 1:
+                                for y in range(len(M.enemy[x])):
+                                    main.little.update({main.k:[x,y]})
+                                    main.k += 1
+                            else:
+                                main.little.update({main.k:[x,0]})
+                                main.k += 1 
+                                if x in boss.bosses:
+                                    main.little.update({main.k:[x,0]})
+                                    main.k += 1
+                    kill += 1
                 if len(test[x]) <= 0:
                     del self.enemy[x]
                     self.killhistory.append(self.selectedchar)
@@ -5561,7 +5605,7 @@ class battle():
                 y[0] = vec(M.conversion[cho])
                 y[2] = [y[0]+ x for x in x.clickaura] 
     def spawnobstacles(self):
-        thang = random.randint(5,12)
+        thang = random.randint(0,0)
         for x in range(0,thang):
             picked = random.choice(self.spaces)
             con = True
