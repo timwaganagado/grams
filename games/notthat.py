@@ -57,7 +57,7 @@ acceleration = 0.5
 
 speed = 4
 
-jumpheight = 1
+jumpheight = 2
 
 platforms = []
 
@@ -80,6 +80,8 @@ while running:
                     velocity = 10
                     jump = True
                     hasjump = False
+            if event.key == pg.K_e:
+                jumpheight += 1
         if event.type == pg.MOUSEBUTTONDOWN:
             if event.button == 1:
                 mpos = vec(pg.mouse.get_pos())
