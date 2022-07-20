@@ -678,18 +678,21 @@ class lightning:
                 mysurf = pg.transform.rotate(mysurf,self.degrees+180)
             else:
                 mysurf = pg.transform.rotate(mysurf,self.degrees)
-        mysurf = pg.transform.scale(mysurf,(int(self.radius),int(self.radius)))
-        screen.blit(mysurf,(self.rect[0]-(self.radius/2),self.rect[1]-(self.radius/2)))
+        new = self.radius*2
+        mysurf = pg.transform.scale(mysurf,(int(new),int(new)))
+        screen.blit(mysurf,(self.rect[0]-(new/2),self.rect[1]-(new/2)))
         
     def update_rect(self):
         self.rect = pg.Rect(self.pos.x, self.pos.y, 15, 15)
 
 lightning_move_1 = pg.image.load(os.path.join(filename,'1.png'))
 lightning_move_2 = pg.image.load(os.path.join(filename,'2.png'))
-lightning_still = pg.imgae.load(os.path.join(filename,'0.png'))
+lightning_still = pg.image.load(os.path.join(filename,'0.png'))
 
 class manager:
     def __init__(self):
+        pg.mixer.music.load(os.path.join(musicname,'hunted.mp3'))
+        pg.mixer.music.play(-1,0,5000)
         self.start_time = current_milli_time()
         self.minutes = 0
         self.rate_enemy = 1000
@@ -799,8 +802,10 @@ class manager:
                     for qq in x.actions:
                         if qq in P.__dict__:
                             P.__dict__[qq] += x.actions[qq]
-                        else:
+                        elif qq in pm.__dict__:
                             pm.__dict__[qq] += x.actions[qq]
+                        else:
+                            skills.speacialskill(qq)
                     self.skilling = False
                     self.unpause()
     def draw_levelup(self):

@@ -54,7 +54,7 @@ ORANGE = (255, 165, 0)
 check = 'working'
 
 pg.init()
-displayspec = 1
+displayspec = 0
 #displayspec = input('')
 #if displayspec == '':
 #    displayspec = 0
@@ -5603,7 +5603,7 @@ class battle():
                 y[0] = vec(M.conversion[cho])
                 y[2] = [y[0]+ x for x in x.clickaura] 
     def spawnobstacles(self):
-        thang = random.randint(0,0)
+        thang = random.randint(3,7)
         for x in range(0,thang):
             picked = random.choice(self.spaces)
             con = True

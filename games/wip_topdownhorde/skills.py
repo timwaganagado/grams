@@ -1,5 +1,7 @@
+from multiprocessing.context import SpawnContext
 import shelve
 import os , sys
+
 
 def test():
     print('working')
@@ -19,7 +21,15 @@ def new_skill(name,description,action=dict,specific_skill=str):
 def get_skills(highscores):
     return highscores['skill_dict'],highscores['skill'],highscores['specific_skill_dict']
 
-
+#def speacialskill(target):
+#    pass
+#    #over.skills.remove(target)
+#    target()
+#
+def Special_investment():
+    pass
+spec = [Special_investment]
+    
 if __name__ == '__main__':
     skill_dict = {} 
     skill = []
@@ -37,6 +47,7 @@ if __name__ == '__main__':
     new_skill('Bigger Bolts','Lightnings area grows',{'lightning_size':0.25},'Lightning')
     new_skill('Falling Through','Bullets Will Pierce Through 1 More Enemy',{'bullet_pierce':1},'Phoenix Gun')
     new_skill('Further Shock','Increase The Range of Lightning',{'lightning_range':1},'Lightning')
+    new_skill('An Investment','invest some damage to get more later',{'empty':0},0)
     highscores['skill_dict'] = skill_dict
     highscores['skill'] = skill
     highscores['specific_skill_dict'] = specific_skill_dict
