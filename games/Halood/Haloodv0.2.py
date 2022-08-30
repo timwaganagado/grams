@@ -1,5 +1,6 @@
 from pickle import TRUE
 from tempfile import tempdir
+from turtle import pos
 from numpy import place
 import pygame as pg
 import pygame.freetype
@@ -182,9 +183,11 @@ class hemo(defaultchar):
     def __init__(self,pos):
         super().__init__(30,60,2)
         self.pos = vec(pos)
+        self.rect = pg.Rect((self.pos.x-(50/2)), (self.pos.y-(50/2)), 50, 50)
         self.drawn_pos = vec(pos)
         self.combat_animation = {1:swordguy_img,2:swordguy2_img,3:swordguy3_img}
-        self.attack_animation = {1:swordguy_attacking2_img,2:swordguy_attacking3_img}
+        self.attack_animation = swordguy_attacking3_img
+        self.hurt_animation = swordguy_hurt_img
         self.animation = random.randint(1,len(self.combat_animation))
         self.abilites_current = ['Blunt Slash','Slash','Wild Flailing']
         self.abilites_actual = []
@@ -222,10 +225,14 @@ class hemo(defaultchar):
                 break 
             
 class defaultability:
-    def __init__(self,pos,owner) :
+    def __init__(self,pos,owner,c=True) :
         self.pos = vec(pos)
         self.rect = pg.Rect(int(self.pos.x-64), int(self.pos.y-64), 128, 128)
         self.owner = owner
+        self.attackarea = [1,2]
+        self.attackwhere = [1,2,3,4]
+        if c:
+            self.name += ' (incomplete)'
         self.checktext()
     def draw(self):
         if L.selectedattack == self:
@@ -235,13 +242,13 @@ class defaultability:
         screen.blit(self.icon, self.icon.get_rect(center=goal_center))
     def checktext(self):
         self.text = []
-        txt = '{}X{}'.format(int(self.damagetest()),self.timestest())
+        txt = '{}X{}'.format(int(self.damagetest()),self.timestest(0,0))
         color = BLACK
         if L.selectedenemy:
             if L.selectedenemy.speed*2 <= L.selectedchar.speed:
-                txt = '{}X{}'.format(int(self.damagetest()),self.timestest())
+                txt = '{}X{}'.format(int(self.damagetest()),self.timestest(L.selectedchar,L.selectedenemy))
                 color = GREEN
-        self.text.append(create_text_fit_color_lister(txt,50,BLACK,1525,1005,140,color,(len(txt),len(txt)-len(str(self.timestest()))),'center'))
+        self.text.append(create_text_fit_color_lister(txt,50,BLACK,1525,1005,140,color,(len(txt),len(txt)-len(str(self.timestest(0,0)))),'center'))
         txt = '{}'.format(self.name)
         self.text.append(create_text_fit_lister(txt,50,BLACK,595,745,200,))
     def drawtext(self):
@@ -254,18 +261,18 @@ class defaultability:
             else:
                 L.selectedattack = 0
                 L.selectedenemy = 0
-    def check_damage(self):
-        return self.damagetest() * self.timestest()
+    def check_damage(self,ini,tar):
+        return self.damagetest() * self.timestest(ini,tar)
     def damagetest(self):
         return self.damage
-    def timestest(self):
+    def timestest(self,ini,tar):
         extra = 1
-        if L.selectedenemy:
-            if L.selectedchar.speed >= L.selectedenemy.speed*2:
+        if tar:
+            if ini.speed >= tar.speed*2:
                 extra = 2
         return self.times * extra
     def attack(self,target,sender):
-        target.takedamage(self.check_damage(),sender)
+        target.takedamage(self.check_damage(sender,target),sender)
 
 
 class hemo_ability_bluntslash(defaultability):
@@ -275,6 +282,7 @@ class hemo_ability_bluntslash(defaultability):
         self.damage = 3
         self.times = 2
         self.name = 'Blunt Slash'
+        self.attackarea = [1,2]
         super().__init__(pos,owner)
 class hemo_ability_slash(defaultability):
     def __init__(self,pos,owner):
@@ -284,6 +292,7 @@ class hemo_ability_slash(defaultability):
         self.damage = 3
         self.times = 2
         self.name = 'Slash'
+        self.attackarea = [1,2]
         super().__init__(pos,owner)
 
 class hemo_ability_wildflailing(defaultability):
@@ -294,6 +303,7 @@ class hemo_ability_wildflailing(defaultability):
         self.damage = 10
         self.times = 2
         self.name = 'Wild Flailing'
+        self.attackarea = [1,2]
         super().__init__(pos,owner)
 
 
@@ -301,14 +311,17 @@ class heplane(defaultchar):
     def __init__(self,pos):
         super().__init__(50,120,2)
         self.pos = vec(pos)
-        self.pos_temp = vec(pos)
+        self.rect = pg.Rect((self.pos.x-(50/2)), (self.pos.y-(50/2)), 50, 50)
         self.combat_animation = {1:heplane_combat_img,2:heplane_combat2_img,3:heplane_combat3_img}
+        self.hurt_animation = heplane_hurt_img
+        self.attack_animation = heplane_attack_img
         self.animation = random.randint(1,len(self.combat_animation))
         self.abilites_current = ['Punch','Coilent']
         self.abilites_actual = []
     def draw(self):
         #ani = dict(self.combat_animation)
-        pos = self.pos_temp
+        pg.draw.rect(screen,BLACK,self.rect)
+        pos = self.pos
         #cur = ani[self.animation]
         cur = hepane_icon_img
         goal_center = (int(pos.x), int(pos.y))
@@ -348,6 +361,7 @@ class heplane_ability_punch(defaultability):
         self.damage = 10
         self.times = 1
         self.name = 'Punch'
+        self.attackarea = [1,2]
         super().__init__(pos,owner)
 class heplane_ability_coilent(defaultability):
     def __init__(self,pos,owner):
@@ -356,6 +370,7 @@ class heplane_ability_coilent(defaultability):
         self.damage = 10
         self.times = 1
         self.name = 'Coilent'
+        
         super().__init__(pos,owner)
     def check_damage(self):
         return self.damage +self.damage*(self.owner.health/self.owner.health_current)  
@@ -376,10 +391,11 @@ swordguy2_img = pg.transform.scale(swordguy2_img, (charspritesize, charspritesiz
 swordguy3_img = pg.image.load(os.path.join(currentfiles,'Layer 1_swordguy_combat3.png')).convert_alpha()
 swordguy3_img = pg.transform.scale(swordguy3_img, (charspritesize, charspritesize))
 
-swordguy_attacking2_img = pg.image.load(os.path.join(currentfiles,'swordguy_attacking1.png')).convert_alpha()
-swordguy_attacking2_img = pg.transform.scale(swordguy_attacking2_img, (charspritesize, charspritesize))
 swordguy_attacking3_img = pg.image.load(os.path.join(currentfiles,'swordguy_attacking2.png')).convert_alpha()
 swordguy_attacking3_img = pg.transform.scale(swordguy_attacking3_img, (charspritesize, charspritesize))
+
+swordguy_hurt_img = pg.image.load(os.path.join(currentfiles,'hemo_hurt.png')).convert_alpha()
+swordguy_hurt_img = pg.transform.scale(swordguy_hurt_img, (charspritesize, charspritesize))
 
 swordguy_icon_img = pg.image.load(os.path.join(currentfiles,'icon0.png')).convert_alpha()
 swordguy_icon_img = pg.transform.scale(swordguy_icon_img, (50, 50))
@@ -393,12 +409,23 @@ swordguy_ability3_img = pg.transform.scale(swordguy_ability3_img, (abilitysprite
 currentfileg =  filename +'/allies'  
 
 currentfiles = currentfileg + '/heplane'
+
+hepane_icon_img = pg.image.load(os.path.join(currentfiles,'icon0.png')).convert_alpha()
+hepane_icon_img = pg.transform.scale(hepane_icon_img, (50, 50))
+
 heplane_combat_img = pg.image.load(os.path.join(currentfiles,'Layer 1_heplane_combat1.png')).convert_alpha()
 heplane_combat_img = pg.transform.scale(heplane_combat_img, (charspritesize, charspritesize))
 heplane_combat2_img = pg.image.load(os.path.join(currentfiles,'Layer 1_heplane_combat2.png')).convert_alpha()
 heplane_combat2_img = pg.transform.scale(heplane_combat2_img, (charspritesize, charspritesize))
 heplane_combat3_img = pg.image.load(os.path.join(currentfiles,'Layer 1_heplane_combat3.png')).convert_alpha()
 heplane_combat3_img = pg.transform.scale(heplane_combat3_img, (charspritesize, charspritesize))
+
+heplane_hurt_img = pg.image.load(os.path.join(currentfiles,'heplane_hurt0.png')).convert_alpha()
+heplane_hurt_img = pg.transform.scale(heplane_hurt_img, (charspritesize, charspritesize))
+
+heplane_attack_img = pg.image.load(os.path.join(currentfiles,'heplane_attack.png')).convert_alpha()
+heplane_attack_img = pg.transform.scale(heplane_attack_img, (charspritesize, charspritesize))
+
 heplane_ability1_img = pg.image.load(os.path.join(currentfiles,'heplane_abilites0.png'))
 heplane_ability1_img = pg.transform.scale(heplane_ability1_img, (abilityspritesize, abilityspritesize))
 heplane_ability2_img = pg.image.load(os.path.join(currentfiles,'heplane_abilites1.png'))
@@ -407,84 +434,63 @@ heplane_ability3_img = pg.image.load(os.path.join(currentfiles,'heplane_abilites
 heplane_ability3_img = pg.transform.scale(heplane_ability3_img, (abilityspritesize, abilityspritesize))
 heplane_ability4_img = pg.image.load(os.path.join(currentfiles,'heplane_abilites3.png')).convert_alpha()
 heplane_ability4_img = pg.transform.scale(heplane_ability4_img, (abilityspritesize, abilityspritesize))
-hepane_icon_img = pg.image.load(os.path.join(currentfiles,'icon0.png')).convert_alpha()
-hepane_icon_img = pg.transform.scale(hepane_icon_img, (50, 50))
+
 
 class gamemanager:
     def __init__(self):
         self.currentturn = 0
-        self.grid = {}
-        self.gridsize = 39
         self.click = 0
         self.showpos = False
         self.selectedchar = 0
         self.selectedattack = 0
         self.selectedenemy = 0
         self.animtimer = 0
-        self.objects = []
         self.allies = []
-        self.enemies = []
+        self.enemies =[]
+        self.act_allies = {1:0,2:0,3:0,4:0}
+        self.act_enemies = {1:0,2:0,3:0,4:0}
         self.animations = 0
         self.texts = {}
+        self.phase = 0
         
         
+        self.ally_postovec = {}
+        for x in self.act_allies:
+            print(x)
+            self.ally_postovec.update({x:((WIDTH/2-200*x),300)})
         
-        self.gridamo = 8
-        self.widthpos = WIDTH*(self.gridsize/100)
-        widthlim = WIDTH-self.widthpos
-        widthdis = widthlim-self.widthpos
-        self.xstep = round(widthdis/self.gridamo)
-        self.xcheck = self.xstep*self.gridamo +self.widthpos
+        self.enemy_postovec = {}
+        for x in self.act_enemies:
+            self.enemy_postovec.update({x:((WIDTH/2+200*x),300)})
         
-        self.ypos = 50
-        ylim = widthdis+self.ypos
-        ydis = ylim-self.ypos
-        self.ystep = round(ydis/self.gridamo)
-        self.ycheck = self.ystep*self.gridamo + self.ypos
-        
-        
-        for x in range(self.gridamo):
-            for y in range(self.gridamo):
-                self.grid.update({(x,y):0})
-        
-        self.vectopos = {}
-        self.postovec = {}
-        posx = self.widthpos
-        posy = self.ypos
-        step = self.xstep
-        for x in self.grid:
-            xx = posx+step*x[0]+step/2
-            yy = posy+step*x[1]+step/2
-            self.vectopos.update({(xx,yy):x})
-            self.postovec.update({x:(xx,yy)})
-            
         self.spawn()    
         self.create_order()
     def spawn(self):
-        self.grid[0,1] = heplane(self.postovec[0,1])
-        self.objects.append(self.grid[0,1])
-        self.allies.append(self.grid[0,1])
-        ll = hemo(self.postovec[0,0])
-        self.grid[0,0] = ll
-        self.objects.append(ll)
-        self.enemies.append(ll)
-        #ll = hemo(self.postovec[6,7])
-        #self.grid[6,7] = ll
-        #self.objects.append(ll)
-        #self.enemies.append(ll)
-    def draw_grid(self):
-        for x in range(int(self.widthpos), int(self.xcheck+1), self.xstep):
-            pg.draw.line(screen, BLACK, (x, int(self.ypos)), (x, int(self.ycheck)))
-        for y in range(int(self.ypos), int(self.ycheck+1), self.ystep):
-            pg.draw.line(screen, BLACK, (int(self.widthpos), y), (int(self.xcheck), y))
-    def draw_gridobjects(self):
-        for x in self.grid:
-            if self.showpos:
-                xx,yy = self.postovec[x[0],x[1]]
-                txt = '{},{}'.format(int(x[0]),int(x[1]))
-                draw_text(txt,20,YELLOW,xx,yy)
-            if self.grid[x]:
-                self.grid[x].draw()
+        self.spec_spawn('heplane',1,0)
+        self.spec_spawn('hemo',2,0)
+        self.spec_spawn('hemo',1,1)
+        self.spec_spawn('hemo',2,1)
+    def spec_spawn(self,target,place,afil):
+        if afil == 0:
+            pla = self.ally_postovec[place]
+            xx = self.get_cla(target,pla)
+            self.act_allies[place] = xx
+            self.allies.append(xx)
+        if afil == 1:
+            pla = self.enemy_postovec[place]
+            xx = self.get_cla(target,pla)
+            self.act_enemies[place] = xx
+            self.enemies.append(xx)
+    def get_cla(self,tar,pla):
+        if tar == 'heplane':
+            return heplane(pla)
+        if tar == 'hemo':
+            return hemo(pla)
+    def draw_objects(self):
+        for x in self.allies:
+            x.draw()
+        for x in self.enemies:
+            x.draw()
     def draw_selection(self):
         cur = self.selectedchar
         if cur:
@@ -504,16 +510,18 @@ class gamemanager:
             else:
                 screen.blit(ui_same, ui_slow.get_rect(center=goal_center))
             
-            self.draw_movement(cur)
         tar = self.selectedattack
         if tar:
             tar.drawtext()
-            rect = pg.Surface((int(self.xstep), int(self.xstep)))
+            rect = pg.Surface((50, 10))
             rect.set_alpha(64)
             rect.fill(RED)
             for new in self.attackarea:
-                new = vec(self.postovec[(new.x,new.y)])
-                screen.blit(rect,(int(new.x-(self.xstep/2)),int(new.y-(self.xstep/2)))) 
+                if self.selectedchar in self.allies:
+                    new = vec(self.enemy_postovec[new])
+                elif self.selectedchar in self.enemies:
+                    new = vec(self.ally_postovec[new])
+                screen.blit(rect,(int(new.x-(50/2)),int(new.y+(10/2)))) 
         tar = self.selectedenemy
         if tar:
             for x in self.enemytext:
@@ -537,15 +545,18 @@ class gamemanager:
             goal_center = (int(pos.x), int(pos.y))
             screen.blit(cur, cur.get_rect(center=goal_center))
     def mpostopos(self):
-        ll = vec(pg.mouse.get_pos()[0]-self.widthpos,pg.mouse.get_pos()[1]-self.ypos)//self.xstep
+        ll = vec(pg.mouse.get_pos())
         return (ll.x,ll.y)
     def updateani(self):
         if current_time - 1000 >self.animtimer:
-            for x in self.grid:
-                if self.grid[x]:
-                    self.grid[x].animation += 1
-                    if self.grid[x].animation > len(self.grid[x].combat_animation):
-                        self.grid[x].animation = 1
+            for x in self.allies:
+                x.animation += 1
+                if x.animation > len(x.combat_animation):
+                    x.animation = 1
+            for x in self.enemies:
+                x.animation += 1
+                if x.animation > len(x.combat_animation):
+                    x.animation = 1
             self.animtimer = pg.time.get_ticks()
     def showclick(self):
         if self.click:
@@ -553,48 +564,45 @@ class gamemanager:
             draw_text(txt,50,BLACK,pg.mouse.get_pos()[0],pg.mouse.get_pos()[1])
     def selectchar(self):
         pos = self.mpostopos()  
-        if pos in self.grid:
-            if self.grid[pos]:         
-                if self.selectedchar != self.grid[pos]:
-                    #if self.selectedchar:
-                    #    temp = self.translate(self.selectedchar.pos)
-                    #    self.grid[temp] = 0
-                    self.select(self.grid[pos])
-                    
-                else:
-                    self.selectedchar = 0
-                    self.selectedattack = 0
-                    self.selectedenemy = 0
-                    self.texts.update({'player health':0})
-                    self.texts.update({'player speed':0})
+        for x in self.allies:
+            self.leleol(pos,x)
+        for x in self.enemies:
+            self.leleol(pos,x)
+            
+    def leleol(self,pos,x):
+        if x.rect.collidepoint(pos):        
+            if self.selectedchar != x:
+                #if self.selectedchar:
+                #    temp = self.translate(self.selectedchar.pos)
+                #    self.grid[temp] = 0
+                self.select(x)
+                
+            else:
+                self.unselect()
+            return
+    def unselect(self):
+        self.selectedchar = 0
+        self.selectedattack = 0
+        self.selectedenemy = 0
+        self.texts.update({'player health':0})
+        self.texts.update({'player speed':0})
     def select(self,tar):
         self.selectedchar = tar
         self.selectedattack = 0
         tar.abilites_create()
-        temp = self.translate(tar.pos)
         txt = '{}/{}'.format(tar.health_current,tar.health)
         self.texts.update({'player health':create_text_fit_lister(txt,75,RED,480,670,120,'center')})
         txt = '{}'.format(tar.speed)
         self.texts.update({'player speed':create_text_fit_lister(txt,70,GREEN,517,840,70,'center')})
-        self.currentmovement = self.movement(temp,tar.movement+1)
-        self.currentmovementdraw = []
-        for new in self.currentmovement:
-            rect = pg.Surface((int(self.xstep), int(self.xstep)))
-            rect.set_alpha(64)
-            rect.fill(BLACK)
-            new = vec(self.postovec[(new.x,new.y)])
-            self.currentmovementdraw.append((rect,(int(new.x-(self.xstep/2)),int(new.y-(self.xstep/2)))))
     def selectattack(self):
         if self.selectedchar:
             for x in self.selectedchar.abilites_actual:
                 x.pressed(mpos)
                 if self.selectedattack:
-                    group = self.enemies
-                    if self.selectedchar in self.enemies:
-                        group = self.allies
-                    for x in group:
-                        temp = self.vectopos[(x.pos.x,x.pos.y)]
-                        self.attackarea = self.movement(temp,self.selectedattack.range+1,False,True)
+                    temp = []
+                    for xx in x.attackarea:
+                        temp.append(xx)
+                    self.attackarea = temp
     def draw_ui(self):
         goal_center = int(WIDTH / 2), int(HEIGHT/ 2)
         screen.blit(ui_fall, ui_fall.get_rect(center=goal_center))
@@ -625,10 +633,6 @@ class gamemanager:
         self.whose = 0
         self.turn = self.heavies[self.whose]
         self.nextturn()
-    def snap_move(self,target,ll,save):
-        ll = self.postovec[(ll.x,ll.y)]
-        target.pos = vec(ll)
-        self.grid[self.translate(save)] = 0
     def update_pos(self,target,position):
         position = vec(position)
         pos = self.vectopos[(target.pos.x,target.pos.y)]
@@ -648,78 +652,73 @@ class gamemanager:
             self.whose = 0
         self.turn = self.heavies[self.whose]
         self.whose += 1
-        
+        print('self.phase',self.phase)
+        if self.phase == 'Enemy':
+            print(self.enemyselectedattack)
+            self.enemyselectedattack.attack(self.enemytarget,self.enemywho)
+            self.update_text(self.enemywho,self.enemytarget)
         self.phase = 'Player'
+        self.unselect()
         if self.turn in self.enemies:
             self.phase = 'Enemy'
             self.selectedchar = self.turn
-            temp = self.translate(self.selectedchar.pos)
-            self.currentmovement = self.movement(temp,self.selectedchar.movement+1)
-        temp = self.vectopos[(self.turn.pos.x,self.turn.pos.y)]
-        self.turn_movement = self.movement(temp,self.turn.movement+1)
-        self.turn_movementdraw = []
-        for new in self.turn_movement:
-            rect = pg.Surface((int(self.xstep), int(self.xstep)))
-            rect.set_alpha(64)
-            rect.fill(BLACK)
-            new = vec(self.postovec[(new.x,new.y)])
-            self.turn_movementdraw.append((rect,(int(new.x-(self.xstep/2)),int(new.y-(self.xstep/2)))))
+            txt = '{}/{}'.format(self.selectedchar.health_current,self.selectedchar.health)
+            self.texts.update({'player health':create_text_fit_lister(txt,75,RED,480,670,120,'center')})
+            txt = '{}'.format(self.selectedchar.speed)
+            self.texts.update({'player speed':create_text_fit_lister(txt,70,GREEN,517,840,70,'center')})
     def enemy_turn(self):
         if self.phase == 'Enemy':
             tar = self.turn
-            tarpos = tar.pos
-            tarpos = vec(self.vectopos[(tarpos.x,tarpos.y)]) 
-            new = self.allies[0]
-            newpos = vec(self.vectopos[(new.pos.x,new.pos.y)])
-            distance = math.sqrt(pow(newpos.x-tarpos.x,2)+pow(newpos.y-tarpos.y,2))
-            closest = distance
-            att = new
-            for x in self.allies:
-                new = x
-                newpos = vec(self.vectopos[(new.pos.x,new.pos.y)])
-                distance = math.sqrt(pow(newpos.x-tarpos.x,2)+pow(newpos.y-tarpos.y,2))
-                if distance < closest:
-                    closest = distance
-                    att = new
-            movement = tar.movement + 1
-            
-            checked = self.movement(tarpos,movement,add=True)
+            for x in self.act_enemies:
+                if self.act_enemies[x] == tar:
+                    tarpos = x
+                    break
+            print(tarpos)
             
             if len(tar.abilites_actual) == 0:
                 tar.abilites_create()
             
             
-            
+            simpally = []
+            for x in self.act_allies:
+                if self.act_allies[x]:
+                    simpally.append(x)
+            print(simpally)
+            move = True
+            for x in tar.abilites_actual:
+                for y in simpally:
+                    if y in x.attackarea:
+                        if tarpos in x.attackwhere:
+                            move = False
+                            break
             attack = random.choice(tar.abilites_actual)
-            newchecked = [] 
-            attpos = vec(self.vectopos[(att.pos.x,att.pos.y)])
-            attrange = attack.range + 1 
-            newchecked = self.movement(attpos,attrange,seethrough=True)
-            x = checked[0]
-            y = newchecked[0]
-            distance = math.sqrt(pow(y.x-x.x,2)+pow(y.y-x.y,2))
-            closest = distance
-            idealpos = x
-            attackpos = y
-            for x in checked:
-                for y in newchecked:
-                    distance = math.sqrt(pow(y.x-x.x,2)+pow(y.y-x.y,2))
-                    if distance < closest:
-                        closest = distance
-                        idealpos = x
-                        attackpos = y
-            self.enemywho = tar
-            self.enemyidealpos = idealpos
-            self.whereattack = attackpos
-            self.enemyselectedattack = attack
-            self.enemytarget = att
-            self.animations = animationmove()
-            self.moveanimation = True
-            self.phase = 0
-            self.selectedattack = self.enemyselectedattack
-            self.selectedenemy = self.enemytarget
-            self.update_text(self.enemywho,self.enemytarget)
+            check = True
+            for y in self.act_allies:
+                if self.act_allies[y] and y in attack.attackarea:
+                    check = False
+                    break
+            if check:
+                for x in tar.abilites_actual:
+                    if tarpos in x.attackwhere:
+                        attack = x
             
+            possibletargets = []
+            for x in attack.attackarea:
+                if self.act_allies[x]:
+                    possibletargets.append(x)
+            
+            att = self.act_allies[random.choice(possibletargets)]
+            
+            self.enemywho = tar
+            self.enemytarget = att
+            self.selectedattack = attack
+            self.animations = animationmove(tar,attack,att)
+            self.moveanimation = True
+            
+            self.attackarea = self.selectedattack.attackarea
+            self.selectedenemy = self.enemytarget
+            self.phase = 0
+            self.update_text(self.enemywho,self.selectedenemy)
             
     def ally_turn(self):
         if not self.selectedattack:
@@ -727,20 +726,21 @@ class gamemanager:
         if self.phase == 'Player':
             player = self.selectedchar
             if player == self.turn:
-                self.checkmove()
-                if self.mpostopos() in self.grid:
-                    target = self.locate(vec(self.mpostopos()))
-                    if self.selectedenemy == target and target != 0:
-                        self.selectedattack.attack(target,player)
-                        self.nextturn()
-                        self.update_pos(player,self.translate(player.pos_temp))
-                    if self.selectedattack and target in self.enemies:
-                        for x in self.enemies:
-                            temp = self.vectopos[(x.pos.x,x.pos.y)]
-                            attackarea = self.movement(temp,self.selectedattack.range+1,False,True)
-                            if self.translate(player.pos_temp) in attackarea:
+                for x in self.enemies:
+                    target = 0
+                    if x.rect.collidepoint(self.mpostopos()):
+                        target = x
+                    if target:
+                        if self.selectedenemy == target and target != 0:
+                            self.animations = animationmove(self.selectedchar,self.selectedattack,self.selectedenemy)
+                            self.moveanimation = True
+
+                        if self.selectedattack and target in self.enemies:
+                            for xx in self.act_enemies:
+                                if self.act_enemies[xx] == target:
+                                    pos = xx
+                            if pos in self.attackarea:
                                 self.selectedenemy = x
-                                self.enemytext = []
                                 self.update_text(player,x)
                                 break
     def update_text(self,player,x):
@@ -758,7 +758,7 @@ class gamemanager:
         
         txt = '{}/{}'.format(x.health_current,x.health)
         self.enemytext.append(create_text_fit_lister(txt,75,RED,1670,1005,100,'center'))
-        txt = '{}/{}'.format(x.health_current-self.selectedattack.check_damage(),x.health)
+        txt = '{}/{}'.format(x.health_current-self.selectedattack.check_damage(player,x),x.health)
         self.enemytext.append(create_text_fit_lister(txt,75,RED,1825,1005,100,'center'))
         goal_center = int(1765), int(605)
         if x.speed < player.speed:
@@ -767,157 +767,94 @@ class gamemanager:
             self.enemyspeedimage = ui_fast, ui_fast.get_rect(center=goal_center)
         else:
             self.enemyspeedimage = ui_same, ui_same.get_rect(center=goal_center)
-    def checkmove(self):
-        if self.mpostopos() in self.turn_movement:
-            self.temp_pos(self.selectedchar,self.mpostopos())
     
-    def movement(self,pos,movement,add=True,seethrough =False):
-        
-        checker = [vec(1,0),vec(0,1),vec(-1,0),vec(0,-1)] #vec check
-        checked = [] 
-
-        for x in range(0,movement): # checks the where the enemy can move 
-            if x == 1: # first check around the enemy
-                for x in checker:
-                    new = pos+ x
-                    if self.gridamo > new.x >= 0 and self.gridamo > new.y >= 0 and (self.grid[new.x,new.y] == 0 or  seethrough): # restricts movements to the grid
-                        checked.append(new)
-            else: # second and more checks and if the movement is more
-                oldchecked = list(checked)
-                for y in oldchecked: #grabs the already checked positions and checks around them
-                    for x in checker:
-                        new = y+ x 
-                        if self.gridamo > new.x >= 0 and self.gridamo > new.y >= 0 and (self.grid[new.x,new.y] == 0 or  seethrough):
-                            if new not in checked: #prevents already checked vecs to be added to the list
-                                checked.append(new)
-        if add:                        
-            checked.append(vec(pos))
-        return checked
 class animationmove:
-    def __init__(self):
-        self.step = 0
-        self.enemywho = L.enemywho
-        self.savestart = vec(L.enemywho.pos)
-        self.idealpos = L.enemyidealpos
-        self.ww = vec(L.untranslate(L.enemyidealpos))
-        self.selectedattack = L.selectedattack
-        self.enemyidealpos =L.enemyidealpos
-        self.whereattack = L.whereattack 
-        self.enemytarget = L.enemytarget
+    def __init__(self,enemywho,selectedattack,enemytarget):
+        self.enemywho = enemywho
+        print('turd',L.selectedattack)
+        self.selectedattack = selectedattack
+        self.enemytarget = enemytarget
         self.plaani = self.enemytarget.combat_animation
         self.eneani = self.enemywho.combat_animation
-        self.x = vec(L.enemywho.drawn_pos)
-        self.xgrt = False
-        if self.ww.x < self.x.x:
-            self.xgrt = True
-        self.ygrt = False
-        if self.ww.y < self.x.y:
-            self.ygrt = True
-        self.move()
-        rect = pg.Rect(0,0,WIDTH*(2/3)/2,0)
-        self.rightpart = pg.transform.chop(background_fall,rect)
-        rect = pg.Rect(WIDTH*(2/3)/2,0,WIDTH*(2/3)/2,0)
-        self.leftpart = pg.transform.chop(background_fall,rect)
-        self.pos = -400
+
+        self.step = 0
+        self.pos = 0
         self.steptwosteps = 1
-    def move(self):
-        ww = self.ww
-        x = self.x
-        if (ww.y-x.y) != 0:
-            self.ang = math.atan((ww.x-x.x)/(ww.y-x.y))
-            ver = math.cos(self.ang)
-            hor = math.sin(self.ang)
-        else:
-            self.ang = 0
-            ver = 0
-            if (ww.x-x.x)<0:
-                hor = -1
-                self.degrees = -90
-            else:
-                hor = 1
-        if (ww.y-x.y) < 0:
-            self.enemywho.drawn_pos -= vec(hor,ver)
-        else:
-            self.enemywho.drawn_pos -= vec(hor,ver) *-1
-        
-    def stepone(self):
-        self.move()
-        cot1,cot2 = False,False
-        
-        if self.enemywho.drawn_pos.x != self.ww.x:
-            if self.xgrt:
-                if self.enemywho.drawn_pos.x < self.ww.x:
-                    cot1 = True
-            else:
-                if self.enemywho.drawn_pos.x > self.ww.x:
-                    cot1 = True
-        else:
-            cot1 = True
-        
-        if self.enemywho.drawn_pos.y != self.ww.y:
-            if self.ygrt:
-                if self.enemywho.drawn_pos.y < self.ww.y:
-                    cot2 = True
-            else:
-                if self.enemywho.drawn_pos.y > self.ww.y:
-                    cot2 = True
-        else:
-            cot2 = True
-        if cot1 and cot2:
-            self.step +=1
-            L.snap_move(self.enemywho,self.idealpos,self.savestart)
-            L.update_pos(self.enemywho,self.idealpos)
-            if L.selectedattack:
-                group = L.enemies
-                if L.selectedchar in L.enemies:
-                    group = L.allies
-                for x in group:
-                    temp = L.vectopos[(x.pos.x,x.pos.y)]
-                    L.attackarea = L.movement(temp,self.selectedattack.range+1,False,True)
-            if self.enemyidealpos != self.whereattack:
-                self.step += 1
-                
     def steptwo(self):
-        cover = pg.Surface((WIDTH,HEIGHT))
+        cover = pg.Surface((WIDTH,HEIGHT/2))
         cover.fill((128,128,128))
         cover.set_alpha(128)
-        goal_center = int(WIDTH/2), int(HEIGHT/2)
+        goal_center = int(WIDTH/2), int(HEIGHT/4)
         screen.blit(cover, cover.get_rect(center=goal_center))
-        goal_center = int(self.pos), int(HEIGHT/2)
-        screen.blit(self.leftpart, self.leftpart.get_rect(center=goal_center))
-        goal_center = int(WIDTH-self.pos), int(HEIGHT/2)
-        screen.blit(self.rightpart, self.rightpart.get_rect(center=goal_center))
         
         ani = dict(self.plaani)
-        cur = ani[self.enemytarget.animation]
-        goal_center = (int(self.pos), int(HEIGHT/2))
-        cur = pg.transform.scale(cur,(250,250))
-        screen.blit(cur, cur.get_rect(center=goal_center))
+        placur = ani[self.enemytarget.animation]
+        plagoal_center = int(self.enemytarget.pos.x), int(HEIGHT/4)
+        
         
         ani = dict(self.eneani)
-        cur = ani[self.enemywho.animation]
-        #HEIGHTTILESIZE = 150
-        cur = pg.transform.scale(cur,(250,250))
-        goal_center = (int(WIDTH-self.pos), int(HEIGHT/2))
-        screen.blit(cur, cur.get_rect(center=goal_center))
+        enecur = ani[self.enemywho.animation]
+        enegoal_center = (int(self.enemywho.pos.x), int(HEIGHT/4))
+        
+        
+        
+        print(self.pos)
         if self.steptwosteps == 1:
-            if self.pos < WIDTH*1/3:
-                self.pos += 30
+            if self.pos < 15:
+                self.pos += 1
             else:
-                self.pos = WIDTH*1/3
+                self.pos = 0
                 self.steptwosteps += 1
-        if self.steptwosteps == 2:
-            draw_text(L.enemyselectedattack.name,50,BLACK,int(WIDTH-self.pos-100), int(HEIGHT/3))
-        if self.steptwosteps == 3:
+        if self.steptwosteps == 2 : #attack name for enemy
+            draw_text(self.selectedattack.name,50,BLACK,int(self.enemywho.pos.x), int(HEIGHT/7),'center')
+            if self.pos < 30:
+                self.pos += 1
+            else:
+                self.pos = 0
+                self.steptwosteps += 1
+        if self.steptwosteps == 3: #attack animation for initiate and hurt for target
+            enecur = self.enemywho.attack_animation
+            placur = self.enemytarget.hurt_animation
+            draw_text(str(self.selectedattack.check_damage(self.enemywho,self.enemytarget)),50,RED,int(self.enemytarget.pos.x), int(HEIGHT/7-self.pos),'center')
+            if self.pos <15:
+                ani = dict(self.enemywho.combat_animation)
+                enecur = ani[1]
+            if self.pos < 40:
+                self.pos += 1
+            else:
+                self.pos = 0
+                self.steptwosteps += 1
+        if self.steptwosteps == 4: # return attack for target and hurt for initiated
+            if self.enemytarget.speed >= self.enemywho.speed*2:
+                placur = self.enemytarget.attack_animation
+                enecur= self.enemywho.hurt_animation
+                draw_text(str(self.enemytarget.check_ret()),50,RED,int(self.enemywho.pos.x), int(HEIGHT/7-self.pos),'center')
+                if self.pos <15:
+                    ani = dict(self.enemytarget.combat_animation)
+                    placur = ani[1]
+                if self.pos < 40:
+                    self.pos += 1
+                else:
+                    self.pos = 0
+                    self.steptwosteps += 1
+            else:
+                self.steptwosteps += 1
+        if self.steptwosteps == 5:
             self.step +=1
-            print(L.enemyselectedattack)
-            L.enemyselectedattack.attack(self.enemytarget,self.enemywho)
+            self.selectedattack.attack(self.enemytarget,self.enemywho)
+            
+        placur = pg.transform.scale(placur,(250,250))
+        screen.blit(placur, placur.get_rect(center=plagoal_center))
+        enecur = pg.transform.scale(enecur,(250,250))
+        screen.blit(enecur, enecur.get_rect(center=enegoal_center))
     def enemymove(self):
         if self.step == 0:
-            self.stepone()
-            
-        if self.step == 1:
+            print('steptwo')
             self.steptwo()
+        if self.step == 1:
+            self.pos += 1
+            if self.pos > 15:
+                self.step += 1
         if self.step == 2:    
             L.nextturn()
             L.animations = 0
@@ -963,17 +900,16 @@ while running:
                 L.selectattack()
                 L.ally_turn()
             if event.button == 3:
-                L.click = True
+                L.unselect()
         if event.type == pg.QUIT: # allows for quit when clicking on the X 
             running = False
             pg.quit() 
     pg.display.set_caption("{:.2f}".format(clock.get_fps())) # changes the name of the application
     screen.fill(WHITE) # fills screnn with color
     current_time = pg.time.get_ticks()
-    L.draw_grid()
-    L.draw_gridobjects()
     L.updateani()
     L.enemy_turn()
+    L.draw_objects()
     L.draw_selection_char()
     L.draw_ui()
     L.draw_selection()

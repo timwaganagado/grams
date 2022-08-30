@@ -120,9 +120,13 @@ clock = pg.time.Clock()
 
 class enemymanager:
     def __init__(self):
+        self.limit = 5
+        if not state.israndom:
+            self.sturcture = [100,100,50]
+            self.limit = 0
         self.enemies = []
         self.obstacles = []
-        self.limit = 5
+        
         self.pos = vec(0,0)
         self.spawnobstaclesstart()
         self.variety = 0
@@ -183,8 +187,12 @@ class enemymanager:
                 self.obstacles.remove(x)
                 self.obstacles.append(self.spawnobstaclelive())
     def checkspawn(self):
-        if len(self.enemies) < self.limit:
-            self.enemies.append(self.spawnenemy())
+        if state.israndom:
+            if len(self.enemies) < self.limit:
+                self.enemies.append(self.spawnenemy())
+        else:
+            if len(self.enemies) < self.sturcture[self.limit]:
+                self.enemies.append(self.spawnenemy())
     def draw_enemies(self):
         for x in self.enemies:
             x.draw()
@@ -544,6 +552,9 @@ class playermanager:
     
 class bullet:
     def __init__(self,origin,moving):
+        randombang = bangsounds[random.randint(0,3)]
+        pg.mixer.Sound.set_volume(randombang, sets.volume_effects)
+        pg.mixer.Sound.play(randombang)
         self.pos = vec(origin.pos.x,origin.pos.y)
         self.update_rect()
         self.damage = 5
@@ -555,7 +566,6 @@ class bullet:
             self.ang = math.atan((self.pos.x-moving.x)/(self.pos.y-moving.y))
             #if random.choice([True,False]):
             spread = random.uniform(-0.1,0.15)
-            print(spread)
             self.ang = self.ang + spread
             ver = math.cos(self.ang)
             hor = math.sin(self.ang)
@@ -611,7 +621,7 @@ class bullet:
         self.rect = pg.Rect(self.pos.x, self.pos.y, 15, 15)
 
 bulletimage = pg.image.load(os.path.join(filename,'New Piskel.png'))
-
+bangsounds = [pg.mixer.Sound(os.path.join(musicname,'01-Audio Track.wav')),pg.mixer.Sound(os.path.join(musicname,'02-Audio Track.wav')),pg.mixer.Sound(os.path.join(musicname,'03-Audio Track.wav')),pg.mixer.Sound(os.path.join(musicname,'04-Audio Track.wav'))]
 
 class lightning:
     def __init__(self,origin,moving,bounce = 0,ticks = 4):
@@ -691,8 +701,12 @@ lightning_still = pg.image.load(os.path.join(filename,'0.png'))
 
 class manager:
     def __init__(self):
-        pg.mixer.music.load(os.path.join(musicname,'hunted.mp3'))
-        pg.mixer.music.play(-1,0,5000)
+        if state.current_music != 'hunted.mp3':
+            pg.mixer.music.unload()
+            state.current_music = 'hunted.mp3'
+            pg.mixer.music.load(os.path.join(musicname,state.current_music))
+            pg.mixer.music.play(-1,0,5000)
+            pg.mixer.music.set_volume(sets.volume_music)
         self.start_time = current_milli_time()
         self.minutes = 0
         self.rate_enemy = 1000
@@ -707,19 +721,17 @@ class manager:
         self.ticktimer = 0
         self.oldpausetick = 0
         self.newenemytimer = 0
+        self.fixedtime = pg.time.get_ticks()
+        self.pausedtime = pg.time.get_ticks()
         self.invincible = False
         self.skilling =False
         self.addvariety = 60000
         self.newenemy =False
     def draw_time(self):
-        new_time=0
-        if self.pause_time or self.specialpause_time:
-            #new =self.start_time-
-            new_time= time.time() * 1000 - self.pause_timer
-        displaytime = time.time() * 1000 - self.start_time - self.oldpausetime- new_time
+        displaytime = self.fixedtime
         minutes = 0
-        if int(round(displaytime/1000,0)) > 60:
-            minutes = int((int(round(displaytime/1000,0)) - int(round(displaytime/1000,0))%60) /60)
+        if int(round(self.fixedtime/1000,0)) > 60:
+            minutes = int((int(round(self.fixedtime/1000,0)) - int(round(self.fixedtime/1000,0))%60) /60)
             displaytime -= 60000 *minutes
         displaytime = int(round(displaytime/1000,0))
         if displaytime < 10 and minutes < 10:
@@ -741,28 +753,25 @@ class manager:
         if self.newenemy:
             draw_text_center('You Have a Bad Feeling',30,RED,WIDTH/2,HEIGHT*(2/5))
     def timers(self):
-        if P.shoot and current_time -  over.fire_speed_timer> P.fire_speed + self.ticktimer:
+        
+        
+        #print(self.fixedtime,self.pausedtime,current_time)
+        if P.shoot and current_time -  over.fire_speed_timer> P.fire_speed:
             pm.addbullet(P,vec(pg.mouse.get_pos()))
             over.fire_speed_timer = pg.time.get_ticks()
         if P.invincible == False:
-            if current_time - invincible_timer > 2000 + self.ticktimer:
+            if current_time - invincible_timer > 2000:
                 P.invincible = True
-        if current_time - self.check_spawn_timer > self.rate_enemy + self.ticktimer:
-            eneman.checkspawn()
-            self.check_spawn_timer = pg.time.get_ticks()
-        if current_time - self.limit_increase_timer > 5000 + self.ticktimer:
-            eneman.limit += 1
-            self.limit_increase_timer = pg.time.get_ticks()
-        if current_time - self.rate_enemy_timer - 15000 + self.ticktimer:
-            self.rate_enemy -= 500
-            self.rate_enemy_timer = pg.time.get_ticks()
+        #print(current_time - self.check_spawn_timer,self.rate_enemy + self.ticktimer)
+        
         new_time=0
         if self.pause_time:
             #new =self.start_time-
             new_time= time.time() * 1000 - self.pause_timer
-        if time.time() * 1000 - self.start_time - self.oldpausetime- new_time >= self.addvariety:
+        print(self.fixedtime,self.addvariety)
+        if self.fixedtime >= self.addvariety:
             self.newenemy = True
-            self.newenemytimer = pg.time.get_ticks()
+            self.newenemytimer = self.fixedtime
             self.addvariety += self.addvariety
             if state.israndom:
                 eneman.create_randomenemies()
@@ -771,8 +780,30 @@ class manager:
                 eneman.variety += 1
                 if eneman.variety > 1:
                     eneman.variety = 1
+        #print(self.fixedtime-self.check_spawn_timer,self.rate_enemy)
+        if self.fixedtime-self.check_spawn_timer > self.rate_enemy:
+            eneman.checkspawn()
+            self.check_spawn_timer = self.fixedtime
+        #print(current_time - self.limit_increase_timer,30000 + self.ticktimer)
+        if self.fixedtime - self.limit_increase_timer > 30000 + self.ticktimer:
+            if state.israndom:
+                print('yes')
+                eneman.limit *= 1.5
+                print(eneman.limit)
+                self.limit_increase_timer = self.fixedtime
+            else:
+                print('yes')
+                eneman.limit += 1
+                self.limit_increase_timer = self.fixedtime
+        if self.fixedtime - self.rate_enemy_timer > 15000 + self.ticktimer:
+            if state.israndom:
+                self.rate_enemy -= 500
+                self.rate_enemy_timer = self.fixedtime
+            else:
+                self.rate_enemy -= 500
+                self.rate_enemy_timer = self.fixedtime
         if self.newenemy:        
-            if current_time - self.newenemytimer > 5000:
+            if self.fixedtime - self.newenemytimer > 5000:
                 self.newenemy = False
                 self.newenemytimer = 0
     def create_skills(self):
@@ -784,16 +815,15 @@ class manager:
             self.skills.append(skillicon(x,random.choice(skill+specific_skill_dict[state.current_weapon])))
     def pause(self):
         self.pause_time = True
-        self.pause_timer=current_milli_time()
-        self.ticktimer = pg.time.get_ticks()
     def pausespecial(self):
         self.specialpause_time = True
-        self.pause_timer=current_milli_time()
-        #self.ticktimer = pg.time.get_ticks()
     def unpause(self):
         self.pause_time =False
-        self.oldpausetime += time.time() * 1000 - self.pause_timer
-        self.ticktimer = 0
+    def updatetime(self):
+        if self.pause_time or self.specialpause_time:
+            self.pausedtime += current_time - (self.pausedtime +self.fixedtime)
+        else:
+            self.fixedtime += current_time - (self.pausedtime+self.fixedtime)
     def select_skill(self,mpos):
         if self.skilling:
     
@@ -830,50 +860,61 @@ class skillicon:
 
 skillspaces = [vec(WIDTH*(1/5),HEIGHT*(3/10)),vec(WIDTH*(1/5),HEIGHT*(4/10)),vec(WIDTH*(1/5),HEIGHT*(5/10)),vec(WIDTH*(1/5),HEIGHT*(6/10)),vec(WIDTH*(1/5),HEIGHT*(7/10))]
 
-class Menu:
-    def __init__(self):
-        self.title = 'Surviving Klov'
-        pg.mixer.music.load(os.path.join(musicname,'landing.mp3'))
-        pg.mixer.music.play(-1,0,2000)
-        self.buttons = [Play(vec(WIDTH/2,HEIGHT*(2/5))),Randombutton(vec(WIDTH/2,HEIGHT*(5/10))),SelectWeapon(vec(WIDTH/2,HEIGHT*(4/5))),Leaderboardbutton(vec(WIDTH/2,HEIGHT*(6/10)))]
-    def draw_buttons(self):
-        draw_text_center(self.title,50,RED,WIDTH/2,HEIGHT*(1/5))
+class defaultmenu:
+    def draw_buttons(self,spec=5):
+        draw_text_center(self.title,50,RED,WIDTH/2,HEIGHT*(1/spec))
         for x in self.buttons:
             x.draw()
     def press_buttons(self,mpos):
         for x in self.buttons:
             x.pressed(mpos)
 
+class Menu(defaultmenu):
+    def __init__(self):
+        self.title = 'Surviving Klov'
+        if state.current_music != 'landing.mp3':
+            pg.mixer.music.unload()
+            state.current_music = 'landing.mp3'
+            pg.mixer.music.load(os.path.join(musicname,state.current_music))
+            pg.mixer.music.play(-1,0,2000)
+            pg.mixer.music.set_volume(sets.volume_music)
+        self.buttons = [Play(vec(WIDTH/2,HEIGHT*(2/5))),Randombutton(vec(WIDTH/2,HEIGHT*(5/10))),SelectWeapon(vec(WIDTH/2,HEIGHT*(4/5))),Leaderboardbutton(vec(WIDTH/2,HEIGHT*(6/10))),settingsbutton(vec(WIDTH/2,HEIGHT*(7/10)))]
+
 class defaultbutton:
-    def __init__(self,sizex = 300,sizey= 50):
+    def __init__(self,pos,sizex = 300,sizey= 50):
+        self.pos = pos
         self.rect = pg.Rect((self.pos.x-sizex/2), (self.pos.y-sizey/2), sizex, sizey)
     def draw(self):
         pg.draw.rect(screen,BLACK,self.rect)
         draw_text_center(self.name,40,WHITE,self.pos.x,self.pos.y)
 
+class settingsbutton(defaultbutton):
+    def __init__(self,pos):
+        self.name = 'Settings'
+        super().__init__(pos)
+    def pressed(self,mpos):
+        global menu
+        if self.rect.collidepoint((mpos.x,mpos.y)):
+            menu = settingsmenu()
+
 class Leaderboardbutton(defaultbutton):
     def __init__(self,pos):
         self.name = 'Leaderboard'
-        self.pos = pos
-        super().__init__()
+        super().__init__(pos)
     def pressed(self,mpos):
         global over,P,pm,eneman,menu
         if self.rect.collidepoint((mpos.x,mpos.y)):
             menu = leaderboard()
 
-class leaderboard:
+class leaderboard(defaultmenu):
     def __init__(self):
         self.title = 'Leaderboard'
         self.buttons = [returntomenu(vec(WIDTH/2,HEIGHT*(8/10)))]
         create_highscores(self)
     def draw_buttons(self):
-        draw_text_center(self.title,50,RED,WIDTH/2,HEIGHT*(1/10))
-        for x in self.buttons:
-            x.draw()
+        super().draw_buttons(10)
         draw_highscores(self)
-    def press_buttons(self,mpos):
-        for x in self.buttons:
-            x.pressed(mpos)
+
 
 def draw_highscores(target):
     draw_text_center('Level',40,BLACK,WIDTH/4,HEIGHT*(2/11))
@@ -885,8 +926,7 @@ def draw_highscores(target):
 class Play(defaultbutton):
     def __init__(self,pos):
         self.name = 'Play'
-        self.pos = pos
-        super().__init__()
+        super().__init__(pos)
     def pressed(self,mpos):
         global over,P,pm,eneman,menu
         if self.rect.collidepoint((mpos.x,mpos.y)):
@@ -902,8 +942,7 @@ class Randombutton(defaultbutton):
         self.name = 'Random'
         if state.israndom:
             self.name = 'Survive'
-        self.pos = pos
-        super().__init__()
+        super().__init__(pos)
     def pressed(self,mpos):
         if self.rect.collidepoint((mpos.x,mpos.y)):
             if state.israndom:
@@ -917,8 +956,7 @@ class Randombutton(defaultbutton):
 class SelectWeapon(defaultbutton):
     def __init__(self,pos):
         self.name = 'Change Weapon'
-        self.pos = pos
-        super().__init__()
+        super().__init__(pos)
     def pressed(self,mpos):
         global menu
         if self.rect.collidepoint((mpos.x,mpos.y)):
@@ -940,8 +978,7 @@ class pausemenu:
 class resume(defaultbutton):
     def __init__(self,pos):
         self.name = 'Resume'
-        self.pos = pos
-        super().__init__()
+        super().__init__(pos)
     def pressed(self,mpos):
         if self.rect.collidepoint((mpos.x,mpos.y)):
             state.current_state = 'gameplay'
@@ -950,8 +987,7 @@ class resume(defaultbutton):
 class restart(defaultbutton):
     def __init__(self,pos):
         self.name = 'Restart'
-        self.pos = pos
-        super().__init__()
+        super().__init__(pos)
     def pressed(self,mpos):
         global over,P,pm,eneman,menu
         if self.rect.collidepoint((mpos.x,mpos.y)):
@@ -965,9 +1001,13 @@ class restart(defaultbutton):
 
 class Gameover:
     def __init__(self) :
-        pg.mixer.music.load(os.path.join(musicname,'death.mp3'))
-        pg.mixer.music.play(-1,0,5000)
-        newtime = round((time.time() * 1000 - over.start_time - over.oldpausetime)/1000)
+        if state.current_music != 'death.mp3':
+            pg.mixer.music.unload()
+            state.current_music = 'death.mp3'
+            pg.mixer.music.load(os.path.join(musicname,state.current_music))
+            pg.mixer.music.play(-1,0,5000)
+            pg.mixer.music.set_volume(sets.volume_music)
+        newtime = round(over.fixedtime/1000)
         lvl = P.lvl
         weapon = state.current_weapon
         self.highscores = []
@@ -1037,8 +1077,7 @@ def create_highscores(target,newtime=0,lvl=0):
 class returntomenu(defaultbutton):
     def __init__(self,pos):
         self.name = 'Menu'
-        self.pos = pos
-        super().__init__()
+        super().__init__(pos)
     def pressed(self,mpos):
         global over,P,pm,eneman,menu
         if self.rect.collidepoint((mpos.x,mpos.y)):
@@ -1084,20 +1123,71 @@ class weaponselectmenu:
 class weaponbutton(defaultbutton):
     def __init__(self,name,pos):
         self.name = name
-        self.pos = pos
-        super().__init__(50)
+        super().__init__(pos,50)
     def pressed(self,mpos):
         if self.rect.collidepoint((mpos.x,mpos.y)):
             state.current_weapon = self.name
 
+class settingsmenu(defaultmenu):
+    def __init__(self):
+        self.title = 'Settings'
+        self.buttons = [volumebutton(vec(WIDTH/2,HEIGHT*(4/10))),effectsvolumebutton(vec(WIDTH/2,HEIGHT*(5/10))),resetleaderboard(vec(WIDTH/2,HEIGHT*(6/10))),returntomenu(vec(WIDTH/2,HEIGHT*(8/10)))]
         
-        
+class volumebutton(defaultbutton):
+    def __init__(self,pos):
+        self.name = "Music Volume: {}".format(str(int(sets.volume_music*10)))
+        super().__init__(pos)
+    def pressed(self,mpos):
+        if self.rect.collidepoint((mpos.x,mpos.y)):
+            if event.button == 1:
+                if sets.volume_music == 1:
+                    sets.volume_music = -0.1
+                sets.volume_music = round(sets.volume_music+0.1,1)
+                pg.mixer.music.set_volume(sets.volume_music)
+                self.name = "Music Volume: {}".format(str(int(sets.volume_music*10)))
+            if event.button == 3:
+                if sets.volume_music == 0:
+                    sets.volume_music = 1.1
+                sets.volume_music = round(sets.volume_music-0.1,1)
+                pg.mixer.music.set_volume(sets.volume_music)
+                self.name = "Music Volume: {}".format(str(int(sets.volume_music*10)))
+
+class effectsvolumebutton(defaultbutton):
+    def __init__(self, pos):
+        self.name = "Sound FX Volume: {}".format(str(int(sets.volume_effects*10)))
+        super().__init__(pos)
+    def pressed(self,mpos):
+        if self.rect.collidepoint((mpos.x,mpos.y)):
+            if event.button == 1:
+                if sets.volume_effects == 1:
+                    sets.volume_effects = -0.1
+                sets.volume_effects = round(sets.volume_effects+0.1,1)
+                self.name = "Sound FX Volume: {}".format(str(int(sets.volume_effects*10)))
+            if event.button == 3:
+                if sets.volume_effects == 0:
+                    sets.volume_effects = 1.1
+                sets.volume_effects = round(sets.volume_effects-0.1,1)
+                self.name = "Sound FX Volume: {}".format(str(int(sets.volume_effects*10)))
+            randombang = bangsounds[random.randint(0,3)]
+            pg.mixer.Sound.set_volume(randombang, sets.volume_effects)
+            pg.mixer.Sound.play(randombang)
+
+class resetleaderboard(defaultbutton):
+    def __init__(self,pos):
+        self.name = "Reset Leaderboard"
+        super().__init__(pos)
+    def pressed(self,mpos):
+        if self.rect.collidepoint((mpos.x,mpos.y)):
+            highscores['highscores'] = [[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0]]
+
+
 class state:
     def __init__(self):
         self.current_state = 'menu'
         self.israndom = False
         self.show_hitbox = False
         self.current_weapon = 'Phoenix Gun'
+        self.current_music = 0
         self.weaponlist = ['Phoenix Gun','Lightning']
         for x in range(0,11):
             self.weaponlist.append('test{}'.format(x))
@@ -1184,6 +1274,7 @@ class state:
         P.draw()
         pm.draw()
         eneman.draw_enemies()
+        over.updatetime()
         over.draw_time()
         over.draw_levelup()
         if not over.pause_time:
@@ -1200,11 +1291,14 @@ class state:
                 gameover = Gameover()
                 P = player(vec(-202,-202),RED,-2)
                 over.pausespecial()
-                
-                
         over.draw_newenemy()
         if not over.specialpause_time:
             over.timers()
+
+class settings:
+    def __init__(self):
+        self.volume_music = 0.3
+        self.volume_effects = 0.3
 
 skills.test()
 
@@ -1214,6 +1308,7 @@ specific_skill_dict = skills.get_skills(highscores)[2]
 
 treeimage = pg.image.load(os.path.join(filename,'tree0.png'))
 
+sets = settings()
 
 state = state()
 menu = Menu()
