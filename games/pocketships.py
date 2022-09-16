@@ -1,3 +1,4 @@
+from pickle import TRUE
 from select import select
 from turtle import pos
 from unicodedata import name
@@ -54,24 +55,38 @@ class cmap:
         #for x in range(0,20):
         #    self.create_ship(self.locations[0])
         self.mpos_ori = 0
+        self.unselect()
+        
+        self.money = 500
+        
+        self.timer = 10000
+    def unselect(self):
         self.selectedloc = 0
-        self.selectedship = 0
         self.selectingcargo = False
+        self.selectingtravel = False
+        self.selectedtravel = []
+        
+        self.selectedship = 0
         self.selectedcargo = []
-        self.second = 0
         self.menu = 0
         self.buttons = []
         self.locmenu = 0
+        self.cost = 0
+        self.unlocking = 0
     def draw_locations(self):
         for x in self.locations:
             pos = x.pos
-            pygame.draw.circle(screen,WHITE,pos,5)
-            draw_text(x.name,25,WHITE,x.pos.x+5,x.pos.y)
+            if x.unlocked:
+                pygame.draw.circle(screen,WHITE,pos,5)
+                draw_text(x.name,25,WHITE,x.pos.x+5,x.pos.y)
+            else:
+                pygame.draw.circle(screen,GREY,pos,5)
+                draw_text(x.name,25,GREY,x.pos.x+5,x.pos.y)
         for x in self.ships:
             pos = x.pos
             pygame.draw.circle(screen,BLUE,pos,5)
     def move(self):
-        if self.mpos_ori and not self.selectedloc:
+        if self.mpos_ori and (not self.selectedloc or self.selectingtravel):
             cur = vec(pygame.mouse.get_pos())
             direction = cur - self.mpos_ori
             for x in self.locations:
@@ -79,19 +94,43 @@ class cmap:
             for x in self.ships:
                 x.pos += direction
             self.mpos_ori = cur
-    def create_location(self,specloc=0,specname=0,lock=False):
-        ll = location(specloc,specname,lock)
+        for x in self.ships:
+            if x.traveling:
+                x.move()
+    def create_location(self,specloc=0,specname=0,unlock=False):
+        if len(self.locations) <= 1:
+            unlock = True 
+        ll = location(specloc,specname,unlock,self)
         self.locations.append(ll)
     def selectlocation(self):
         for x in self.locations:
             cur = math.sqrt((self.mpos_ori.x-x.pos.x)**2+(self.mpos_ori.y-x.pos.y)**2)
             if cur < 5:
-                self.selectedloc = x
-                self.menu = 0
-                self.locmenu = 'cargo'
-                self.buttons.append(nextpagebutton(vec(145,455)))
-                self.buttons.append(backpagebutton(vec(255,455)))
-                self.buttons.append(hangerpagebutton(vec(35,455)))
+                if not self.selectedloc:
+                    if x.unlocked:
+                        self.selectedloc = x
+                        self.menu = 0
+                        self.locmenu = 'cargo'
+                        self.buttons.append(nextpagebutton(vec(145,455)))
+                        self.buttons.append(backpagebutton(vec(255,455)))
+                        self.buttons.append(hangerpagebutton(vec(35,455)))
+                    else:
+                        self.unlocking = x
+                        self.buttons.append(unlockbutton(vec(200,455)))
+                if self.selectingtravel:
+                    if self.selectedtravel[-1] == x:
+                        if len(self.selectedtravel) > 1:
+                            dis = math.sqrt((self.selectedtravel[-2].pos.x-self.selectedtravel[-1].pos.x)**2+(self.selectedtravel[-2].pos.y-self.selectedtravel[-1].pos.y)**2)
+                            self.cost -= round(dis / self.selectedship.engine)
+                            self.selectedtravel.remove(x)
+                    else:
+                        print(x.pos)
+                        dis = math.sqrt((x.pos.x-self.selectedtravel[-1].pos.x)**2+(x.pos.y-self.selectedtravel[-1].pos.y)**2)
+                        print(dis)
+                        self.cost += round(dis / self.selectedship.engine)
+                        self.selectedtravel.append(x)
+
+
                 
     def unlock_locations(self,target):
         amo = random.randint(1,3)
@@ -118,17 +157,34 @@ class cmap:
                         once = False
                 if once:
                     allg = False
-            self.create_location(cur)
+            self.create_location(cur,unlock=False)
     def draw_distance(self):
-        if self.selectedloc and self.second:
-            fir = self.selectedloc.pos
-            sec = self.second.pos
-            pygame.draw.line(screen,WHITE,fir,sec,width=2)
-            dis = math.sqrt((fir.x-sec.x)**2+(fir.y-sec.y)**2)
-            mid = vec((fir.x+sec.x)/2,(fir.y+sec.y)/2)
-            draw_text(str(dis),30,WHITE,mid.x+15,mid.y)
+        if self.selectingtravel and len(self.selectedtravel)>=1:
+            pos = 0
+            for x in self.selectedtravel:
+                if pos != 0:
+                    pygame.draw.line(screen,YELLOW,x.pos,self.selectedtravel[pos-1].pos)
+                pos+=1
+    def draw_monies(self):
+        if self.selectingtravel:
+            draw_text('{}-{}'.format(self.money,self.cost),30,WHITE,5,5)
+        else:
+            draw_text(str(self.money),30,WHITE,5,5)
+            draw_text(str(self.timer),30,WHITE,50,5)
+    def draw_travels(self):
+        for x in self.ships:
+            if x.traveling:
+                pos = 0
+                for yy in x.flightplan:
+                    if pos != 0:
+                        pygame.draw.line(screen,YELLOW,yy.pos,x.flightplan[pos-1].pos)
+                    pos+=1
     def draw_loc(self):
-        if self.selectedloc:
+        if self.unlocking:
+            pygame.draw.rect(screen,BLUE,(50,50,400,400))
+            draw_text(str(self.unlocking),30,WHITE,int(WIDTH/10),int(HEIGHT*(1/20)))
+            draw_text("unlock {} for {}".format(self.unlocking.name,self.unlocking.cost),50,WHITE,250,250,"center")
+        if self.selectedloc and not self.selectingtravel:
             pygame.draw.rect(screen,BLUE,(50,50,400,400))
             draw_text(str(self.selectedloc),30,WHITE,int(WIDTH/10),int(HEIGHT*(1/20)))
             if self.locmenu == 'cargo':
@@ -147,7 +203,6 @@ class cmap:
                 draw_text('Space',20,WHITE,225,55)
                 self.selectedloc.draw_hanger(self.menu)
     def update_inventories(self,spec=0):
-        
         if spec:
             amo = random.randint(1,spec.limit)
             for x in range(amo):
@@ -161,6 +216,11 @@ class cmap:
                     name = random.choice(cargonames)
                     yy.inventory.append(cargo(name,yy,self))
                 yy.inventory = sorted(yy.inventory, key=distance_sort,reverse=True)
+    def update(self):
+        self.timer -= 1
+        if self.timer < 0:
+            self.update_inventories()
+            self.timer = 10000
     def create_ship(self,where,name=0):
         ll = ship(where,name)
         self.ships.append(ll)
@@ -176,8 +236,11 @@ class cmap:
                 pos = vec(55,50+19*(x+1))
                 rect = pygame.Rect(pos.x,pos.y,400,19)
                 if rect.collidepoint(mpos.x,mpos.y):
-                    self.selectedship = self.selectedloc.hanger[x+20*self.menu]
-                    self.buttons.append(selectshipbutton(vec(365,455)))
+                    try:
+                        self.selectedship = self.selectedloc.hanger[x+20*self.menu]
+                        self.buttons.append(selectshipbutton(vec(365,455)))
+                    except:
+                        pass
                     break
         if self.selectingcargo:
             for x in range(0,20):
@@ -216,13 +279,83 @@ class ship:
         self.c = random.randint(1,3)
         self.space = 50
         self.space_current = 0
+        
+        self.inventory = []
+        self.flightplan = []
+        self.traveling = False
+        
+        self.distance_need = 0
+        self.distance = 0
+        self.current_destination = 0
+        
+        self.engine = 1
     def add_self(self):
         self.destination_current = self.destination_target
         self.destination_target = 0
         self.destination_current.hanger.append(self)
+    def check_deliver(self):
+        print(self.inventory)
+        remove = []
+        for x in self.inventory:
+            print(x.destination,self.destination_target)
+            if x.destination == self.destination_target:
+                remove.append(x)
+                self.space_current -= x.space
+                curmap.money += x.value
+        for x in remove:
+            self.inventory.remove(x)
+        print(self.inventory)
+    def update_movement(self):
+        print(self.destination_current)
+        self.destination_current.hanger.remove(self)
+        self.check_deliver()
+        
+        self.destination_current = self.flightplan[self.current_destination-1]
+        self.destination_target = self.flightplan[self.current_destination]
+        self.distance_need = math.sqrt((self.destination_current.pos.x-self.destination_target.pos.x)**2+(self.destination_current.pos.y-self.destination_target.pos.y)**2)
+        self.distance = 0
+        cur = self.destination_current
+        tar = self.destination_target
+        if (cur.pos.y-tar.pos.y) != 0:
+            self.ang = math.atan((cur.pos.x-tar.pos.x)/(cur.pos.y-tar.pos.y))
+            ver = math.cos(self.ang)
+            hor = math.sin(self.ang)
+        else:
+            self.ang = 0
+            ver = 0
+            if (cur.pos.x-tar.pos.x)<0:
+                hor = -1
+                self.degrees = -90
+            else:
+                hor = 1
+        self.ver = ver
+        self.hor = hor
+                
+    def move(self):
+        if self.distance >= self.distance_need:
+            self.current_destination += 1
+            print(self.flightplan,self.current_destination)
+            if self.current_destination >= len(self.flightplan):
+                self.check_deliver()
+                self.traveling = False
+                self.flightplan = []
+                self.current_destination = 0
+                self.pos = vec(self.destination_target.pos)
+                print(self.inventory)
+                self.destination_target.inventory += self.inventory
+                self.add_self()
+            else:
+                self.update_movement()
+        else:
+            self.distance += self.c
+            
+            if (self.destination_current.pos.y-self.destination_target.pos.y) < 0:
+                self.pos += vec(self.hor,self.ver) *1* self.c
+            else:
+                self.pos += vec(self.hor,self.ver)*-1* self.c
 
 class location:
-    def __init__(self,pos,text,unlocked=False):
+    def __init__(self,pos,text,unlocked,curmap):
         if not text:
             text = ''
             for x in range(random.randint(1,6)):
@@ -234,6 +367,7 @@ class location:
         self.inventory = []
         self.hanger = []
         self.limit = 40
+        self.cost = random.randint(100,(200+100*len(curmap.locations)))
     def draw_inventroy(self,menu):
         added = 1
         for x in self.inventory[0+20*menu:20+20*menu]:
@@ -244,6 +378,12 @@ class location:
                 draw_text(str(x.space),15,BLACK,pos.x+175,pos.y)
                 draw_text(str(x.destination),15,BLACK,pos.x+225,pos.y)
                 draw_text(str(x.distance),15,BLACK,pos.x+275,pos.y)
+            elif x.origin != curmap.selectedloc:
+                draw_text(str(x.name),15,RED,pos.x,pos.y)
+                draw_text(str(x.value),15,RED,pos.x+125,pos.y)
+                draw_text(str(x.space),15,RED,pos.x+175,pos.y)
+                draw_text(str(x.destination),15,RED,pos.x+225,pos.y)
+                draw_text(str(x.distance),15,RED,pos.x+275,pos.y)
             else:
                 draw_text(str(x.name),15,WHITE,pos.x,pos.y)
                 draw_text(str(x.value),15,WHITE,pos.x+125,pos.y)
@@ -273,8 +413,18 @@ class cargo:
         self.name = name
         temp = list(curmap.locations)
         temp.remove(origin)
+        print(curmap.locations)
+        print(temp)
+        tempdel = []
+        for x in temp:
+            if not x.unlocked:
+                print(x)
+                tempdel.append(x)
+        for x in tempdel:
+            temp.remove(x)
         self.destination = random.choice(temp)
         self.distance = math.sqrt((origin.pos.x-self.destination.pos.x)**2+(origin.pos.y-self.destination.pos.y)**2)
+        self.origin = origin
         self.value = random.randint(50,100)
         self.space = random.randint(1,10)
     def update_rect(self,pos):
@@ -320,6 +470,16 @@ class hangerpagebutton(defaultlocbutton):
     def pressed(self):
         if super().pressed():
             curmap.menu = 0
+            curmap.selectingcargo = False
+            curmap.selectedship = 0
+            for x in curmap.selectedcargo:
+                print(x.space)
+                curmap.selectedship.space_current -= x.space
+            curmap.selectedcargo = []
+            for x in curmap.buttons:
+                if x.name == 'Plan Trip':
+                    curmap.buttons.remove(x)
+                    break
             if self.name == 'Hanger':
                 self.name = 'Cargo'
             else:
@@ -338,18 +498,70 @@ class selectshipbutton(defaultlocbutton):
         if super().pressed():
             curmap.locmenu = 'cargo'
             curmap.selectingcargo = True
+            curmap.buttons.append(planbutton(self.pos))
             for x in curmap.buttons:
                 if x.name == 'Cargo':
                     x.name = 'Hanger'
                     curmap.buttons.remove(self)
-                    curmap.buttons.append(embarkbutton(self.pos))
                     break
         
+class planbutton(defaultlocbutton):
+    def __init__(self,pos):
+        self.name = 'Plan Trip'
+        self.pos = pos
+        super().__init__()        
+    def pressed(self):
+        if super().pressed():
+            curmap.selectingtravel = True
+            curmap.buttons = []
+            curmap.selectingcargo = False
+            curmap.buttons.append(embarkbutton(self.pos))
+            curmap.buttons.append(backbutton(vec(35,455)))
+            curmap.selectedtravel.append(curmap.selectedloc)
+
 class embarkbutton(defaultlocbutton):
     def __init__(self,pos):
         self.name = 'Embark'
         self.pos = pos
-        super().__init__()        
+        super().__init__()
+    def pressed(self):
+        if super().pressed():
+            curmap.selectedship.inventory = curmap.selectedcargo
+            curmap.selectedship.flightplan = curmap.selectedtravel
+            curmap.selectedship.traveling = True
+            curmap.money -= curmap.cost
+            curmap.cost = 0
+            curmap.unselect()
+
+class backbutton(defaultlocbutton):
+    def __init__(self,pos):
+        self.name = 'Back'
+        self.pos = pos
+        super().__init__()
+    def pressed(self):
+        if super().pressed():
+            curmap.selectingtravel = False
+            curmap.selectingcargo = True
+            curmap.buttons = []
+            curmap.buttons.append(nextpagebutton(vec(145,455)))
+            curmap.buttons.append(backpagebutton(vec(255,455)))
+            curmap.buttons.append(hangerpagebutton(vec(35,455)))
+            curmap.buttons.append(planbutton(vec(365,455)))
+
+class unlockbutton(defaultlocbutton):
+    def __init__(self,pos):
+        self.name = "Unlock"
+        self.pos = pos
+        super().__init__()
+    def pressed(self):
+        if super().pressed():
+            curmap.unlocking.unlocked = True
+            curmap.buttons = []
+            curmap.money -= curmap.unlocking.cost
+            curmap.unlock_locations(curmap.unlocking)
+            curmap.unlocking = 0
+            
+            
 
 cargonames = []
 
@@ -382,8 +594,10 @@ while running:
                 curmap.press_buttons()
                 curmap.press_menu()
             if event.button == 3:
-                curmap.selectedloc = 0
-                curmap.buttons = []
+                if curmap.selectedcargo:
+                    for x in curmap.selectedcargo:
+                        curmap.selectedship.space_current -= x.space
+                curmap.unselect()
         if event.type == pygame.MOUSEBUTTONUP:
             if event.button == 1:
                 curmap.mpos_ori = 0
@@ -397,7 +611,10 @@ while running:
     curmap.draw_locations()
     curmap.move()
     curmap.draw_distance()
+    curmap.draw_travels()
     curmap.draw_loc()
     curmap.draw_buttons()
+    curmap.draw_monies()
+    curmap.update()
     # anything down here will be displayed ontop of anything above
     pygame.display.flip() # dose the changes goto doccumentation for other ways

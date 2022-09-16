@@ -1,5 +1,6 @@
 from pickle import TRUE
 from tempfile import tempdir
+from tkinter import CENTER
 from turtle import pos
 from numpy import place
 import pygame as pg
@@ -212,7 +213,7 @@ class hemo(defaultchar):
         temp = self.abilites_current
         positions = []
         for x in range(4):
-            positions.append((WIDTH*((3+x)/9),HEIGHT*(3/5)))
+            positions.append((457+140*x,800))
         for x in temp:
             for y in positions:
                 positions.remove(y)
@@ -311,6 +312,8 @@ class heplane(defaultchar):
     def __init__(self,pos):
         super().__init__(50,120,2)
         self.pos = vec(pos)
+        self.name = 'Heplane'
+        self.type = 'Halood'
         self.rect = pg.Rect((self.pos.x-(50/2)), (self.pos.y-(50/2)), 50, 50)
         self.combat_animation = {1:heplane_combat_img,2:heplane_combat2_img,3:heplane_combat3_img}
         self.hurt_animation = heplane_hurt_img
@@ -323,7 +326,23 @@ class heplane(defaultchar):
         pg.draw.rect(screen,BLACK,self.rect)
         pos = self.pos
         #cur = ani[self.animation]
-        cur = hepane_icon_img
+        cur = self.combat_animation[self.animation]
+        goal_center = (int(pos.x), int(pos.y))
+        
+        if self == L.selectedchar:
+            lol = cur.copy()
+            lol = pg.transform.scale(lol, (charspritesize+25, charspritesize+20))
+            lol.fill((0, 0, 0),special_flags=pg.BLEND_RGB_MULT)
+            lel = lol.get_rect(center=goal_center)
+            lel[1] -=2
+            screen.blit(lol, lel)
+        
+        screen.blit(cur, cur.get_rect(center=goal_center))
+    def draw_icon(self):
+        pg.draw.rect(screen,BLACK,self.rect)
+        pos = self.pos
+        #cur = ani[self.animation]
+        cur = heplane_icon_img
         goal_center = (int(pos.x), int(pos.y))
         
         if self == L.selectedchar:
@@ -340,7 +359,7 @@ class heplane(defaultchar):
         temp = self.abilites_current
         positions = []
         for x in range(4):
-            positions.append((WIDTH*((3+x)/9),HEIGHT*(3/5)))
+            positions.append((457+140*x,800))
         for x in temp:
             for y in positions:
                 positions.remove(y)
@@ -378,23 +397,23 @@ class heplane_ability_coilent(defaultability):
 
 filename = os.path.dirname(sys.argv[0])
 filename += '/Halood_images'
-charspritesize = 512
+charspritesize = 256
 abilityspritesize = 100
 
 currentfileg =  filename +'/enemies'
 
 currentfiles = currentfileg + '/swordguy'
-swordguy_img = pg.image.load(os.path.join(currentfiles,'Layer 1_swordguy_combat1.png')).convert_alpha()
+swordguy_img = pg.image.load(os.path.join(currentfiles,'0.png')).convert_alpha()
 swordguy_img = pg.transform.scale(swordguy_img, (charspritesize, charspritesize))
-swordguy2_img = pg.image.load(os.path.join(currentfiles,'Layer 1_swordguy_combat2.png')).convert_alpha()
+swordguy2_img = pg.image.load(os.path.join(currentfiles,'1.png')).convert_alpha()
 swordguy2_img = pg.transform.scale(swordguy2_img, (charspritesize, charspritesize))
-swordguy3_img = pg.image.load(os.path.join(currentfiles,'Layer 1_swordguy_combat3.png')).convert_alpha()
+swordguy3_img = pg.image.load(os.path.join(currentfiles,'2.png')).convert_alpha()
 swordguy3_img = pg.transform.scale(swordguy3_img, (charspritesize, charspritesize))
 
-swordguy_attacking3_img = pg.image.load(os.path.join(currentfiles,'swordguy_attacking2.png')).convert_alpha()
+swordguy_attacking3_img = pg.image.load(os.path.join(currentfiles,'3.png')).convert_alpha()
 swordguy_attacking3_img = pg.transform.scale(swordguy_attacking3_img, (charspritesize, charspritesize))
 
-swordguy_hurt_img = pg.image.load(os.path.join(currentfiles,'hemo_hurt.png')).convert_alpha()
+swordguy_hurt_img = pg.image.load(os.path.join(currentfiles,'4.png')).convert_alpha()
 swordguy_hurt_img = pg.transform.scale(swordguy_hurt_img, (charspritesize, charspritesize))
 
 swordguy_icon_img = pg.image.load(os.path.join(currentfiles,'icon0.png')).convert_alpha()
@@ -410,8 +429,8 @@ currentfileg =  filename +'/allies'
 
 currentfiles = currentfileg + '/heplane'
 
-hepane_icon_img = pg.image.load(os.path.join(currentfiles,'icon0.png')).convert_alpha()
-hepane_icon_img = pg.transform.scale(hepane_icon_img, (50, 50))
+heplane_icon_img = pg.image.load(os.path.join(currentfiles,'icon0.png')).convert_alpha()
+heplane_icon_img = pg.transform.scale(heplane_icon_img, (50, 50))
 
 heplane_combat_img = pg.image.load(os.path.join(currentfiles,'Layer 1_heplane_combat1.png')).convert_alpha()
 heplane_combat_img = pg.transform.scale(heplane_combat_img, (charspritesize, charspritesize))
@@ -435,6 +454,30 @@ heplane_ability3_img = pg.transform.scale(heplane_ability3_img, (abilityspritesi
 heplane_ability4_img = pg.image.load(os.path.join(currentfiles,'heplane_abilites3.png')).convert_alpha()
 heplane_ability4_img = pg.transform.scale(heplane_ability4_img, (abilityspritesize, abilityspritesize))
 
+#currentfiles = currentfileg + '/fallen'
+#fallen_icon_img = pg.image.load(os.path.join(currentfiles,'fallen_icon.png')).convert_alpha()
+#fallen_icon_img = pg.transform.scale(fallen_icon_img, (50, 50))
+#
+#fallen_combat_img = pg.image.load(os.path.join(currentfiles,'Layer 1_heplane_combat1.png')).convert_alpha()
+#fallen_combat_img = pg.transform.scale(fallen_combat_img, (charspritesize, charspritesize))
+#fallen_combat2_img = pg.image.load(os.path.join(currentfiles,'Layer 1_heplane_combat2.png')).convert_alpha()
+#fallen_combat2_img = pg.transform.scale(fallen_combat2_img, (charspritesize, charspritesize))
+#fallen_combat3_img = pg.image.load(os.path.join(currentfiles,'Layer 1_heplane_combat3.png')).convert_alpha()
+#fallen_combat3_img = pg.transform.scale(fallen_combat3_img, (charspritesize, charspritesize))
+#
+#fallen_hurt_img = pg.image.load(os.path.join(currentfiles,'heplane_hurt0.png')).convert_alpha()
+#fallen_hurt_img = pg.transform.scale(fallen_hurt_img, (charspritesize, charspritesize))
+#
+#fallen_attack_img = pg.image.load(os.path.join(currentfiles,'heplane_attack.png')).convert_alpha()
+#fallen_attack_img = pg.transform.scale(fallen_attack_img, (charspritesize, charspritesize))
+
+class text:
+    def __init__(self,txt,size,color,x,y,limit,allign):
+        self.text = create_text_fit_lister(txt,size,color,x,y,limit,allign)
+    def draw(self):
+        draw_text_list(self.text)
+    def __repr__(self):
+        return "{}".format(self.name)
 
 class gamemanager:
     def __init__(self):
@@ -450,7 +493,7 @@ class gamemanager:
         self.act_allies = {1:0,2:0,3:0,4:0}
         self.act_enemies = {1:0,2:0,3:0,4:0}
         self.animations = 0
-        self.texts = {}
+        self.texts = []
         self.phase = 0
         
         
@@ -467,7 +510,6 @@ class gamemanager:
         self.create_order()
     def spawn(self):
         self.spec_spawn('heplane',1,0)
-        self.spec_spawn('hemo',2,0)
         self.spec_spawn('hemo',1,1)
         self.spec_spawn('hemo',2,1)
     def spec_spawn(self,target,place,afil):
@@ -497,18 +539,9 @@ class gamemanager:
             for x in cur.abilites_actual:
                 x.draw()
             
-            if self.texts['player health']:
-                screen.blit(self.texts['player health'][0],self.texts['player health'][1])
-            if self.texts['player speed']:
-                screen.blit(self.texts['player speed'][0],self.texts['player speed'][1])
+            for x in self.texts:
+                x.draw()
             
-            goal_center = int(440), int(843)
-            if cur.speed < self.turn.speed:
-                screen.blit(ui_slow, ui_slow.get_rect(center=goal_center))
-            elif cur.speed > self.turn.speed:
-                screen.blit(ui_fast, ui_slow.get_rect(center=goal_center))
-            else:
-                screen.blit(ui_same, ui_slow.get_rect(center=goal_center))
             
         tar = self.selectedattack
         if tar:
@@ -542,8 +575,12 @@ class gamemanager:
             pos = vec(WIDTH*(8/9),HEIGHT*(7/9))
             cur = ani[tar.animation]
             #HEIGHTTILESIZE = 150
+            cur = pg.transform.flip(cur,True,False)
             goal_center = (int(pos.x), int(pos.y))
             screen.blit(cur, cur.get_rect(center=goal_center))
+    def draw_background(self):
+        goal_center = int(WIDTH / 2), int(HEIGHT / 2)
+        screen.blit(background_fall, background_fall.get_rect(center=goal_center))
     def mpostopos(self):
         ll = vec(pg.mouse.get_pos())
         return (ll.x,ll.y)
@@ -581,19 +618,16 @@ class gamemanager:
                 self.unselect()
             return
     def unselect(self):
-        self.selectedchar = 0
         self.selectedattack = 0
-        self.selectedenemy = 0
-        self.texts.update({'player health':0})
-        self.texts.update({'player speed':0})
     def select(self,tar):
         self.selectedchar = tar
         self.selectedattack = 0
         tar.abilites_create()
+        self.texts = []
         txt = '{}/{}'.format(tar.health_current,tar.health)
-        self.texts.update({'player health':create_text_fit_lister(txt,75,RED,480,670,120,'center')})
-        txt = '{}'.format(tar.speed)
-        self.texts.update({'player speed':create_text_fit_lister(txt,70,GREEN,517,840,70,'center')})
+        self.texts.append(text(txt,75,RED,87,965,120,'center'))
+        self.texts.append(text('{}'.format(tar.name),50,BLACK,175,750,100,'topleft'))
+        self.texts.append(text("{}".format(tar.type),30,BLACK,175,800,100,'topleft'))
     def selectattack(self):
         if self.selectedchar:
             for x in self.selectedchar.abilites_actual:
@@ -661,11 +695,6 @@ class gamemanager:
         self.unselect()
         if self.turn in self.enemies:
             self.phase = 'Enemy'
-            self.selectedchar = self.turn
-            txt = '{}/{}'.format(self.selectedchar.health_current,self.selectedchar.health)
-            self.texts.update({'player health':create_text_fit_lister(txt,75,RED,480,670,120,'center')})
-            txt = '{}'.format(self.selectedchar.speed)
-            self.texts.update({'player speed':create_text_fit_lister(txt,70,GREEN,517,840,70,'center')})
     def enemy_turn(self):
         if self.phase == 'Enemy':
             tar = self.turn
@@ -842,9 +871,12 @@ class animationmove:
         if self.steptwosteps == 5:
             self.step +=1
             self.selectedattack.attack(self.enemytarget,self.enemywho)
-            
+        if self.enemytarget in L.enemies:
+            placur = pg.transform.flip(placur,True,False)
         placur = pg.transform.scale(placur,(250,250))
         screen.blit(placur, placur.get_rect(center=plagoal_center))
+        if self.enemywho in L.enemies:
+            enecur = pg.transform.flip(enecur,True,False)
         enecur = pg.transform.scale(enecur,(250,250))
         screen.blit(enecur, enecur.get_rect(center=enegoal_center))
     def enemymove(self):
@@ -872,7 +904,7 @@ ui_same = pg.image.load(os.path.join(filename,'speedicon2.png'))
 ui_same = pg.transform.scale(ui_same, (50, 50))
 
 background_fall = pg.image.load(os.path.join(filename,'backgorunds-2.png.png'))
-background_fall = pg.transform.scale(background_fall, (int(WIDTH*(2/3)), int(HEIGHT*(2/3))))
+background_fall = pg.transform.scale(background_fall, (int(WIDTH), int(HEIGHT)))
             
 current_time = pg.time.get_ticks()
 L = gamemanager()
@@ -909,6 +941,7 @@ while running:
     current_time = pg.time.get_ticks()
     L.updateani()
     L.enemy_turn()
+    L.draw_background()
     L.draw_objects()
     L.draw_selection_char()
     L.draw_ui()
