@@ -47,6 +47,11 @@ def draw_text_fit(text, size, color, x, y, xbound, align="topleft"):
         text_surface = font.render(text, True, color)
         text_rect = text_surface.get_rect(**{align: (x, y)})
     screen.blit(text_surface, text_rect)
+def create_text_lister(text, size, color, x, y, align="topleft"):
+    font = pg.font.Font(font_name, size)
+    text_surface = font.render(text, True, color)
+    text_rect = text_surface.get_rect(**{align: (x, y)})
+    return text_surface, text_rect
 def create_text_fit_lister(text, size, color, x, y, xbound, align="topleft"):
     font = pg.font.Font(font_name, size)
     text_surface = font.render(text, True, color)
@@ -167,64 +172,68 @@ screen = pg.display.set_mode((WIDTH, HEIGHT),display = 0)
 clock = pg.time.Clock()
 
 class defaultchar:
-    def __init__(self,hp,spd,mp):
+    def __init__(self,hp,spd,pos):
+        self.speedrand = 6
+        self.fix_position(pos)
+        self.name = 'fix'
+        self.type = 'fix'
         self.health = hp
         self.health_current = int(self.health)
+        self.health_display = int(self.health_current)
         self.speed = spd
-        self.speed_current = 0
-        self.movement = mp
-    def check_ret(self):
-        return 5
-    def takedamage(self,damage,sender):
-        self.health_current -= damage
-        if sender.speed*2 <= self.speed:
-            sender.takedamage(self.check_ret(),self) 
-
-class hemo(defaultchar):
-    def __init__(self,pos):
-        super().__init__(30,60,2)
+        self.rect_colour = (random.randint(0,255),random.randint(0,255),random.randint(0,255))
+        self.defaulteffects()
+        self.effects = []
+        size = 100
+        self.health_rect = pg.Rect(self.pos.x-(size/2),HEIGHT*(2/4),size,10)
+        self.update_health()
+    def defaulteffects(self):
+        self.damageattack_percent = 0
+        self.speedincrease = 0
+    def fix_position(self,pos):
+        change = 150
         self.pos = vec(pos)
-        self.rect = pg.Rect((self.pos.x-(50/2)), (self.pos.y-(50/2)), 50, 50)
-        self.drawn_pos = vec(pos)
-        self.combat_animation = {1:swordguy_img,2:swordguy2_img,3:swordguy3_img}
-        self.attack_animation = swordguy_attacking3_img
-        self.hurt_animation = swordguy_hurt_img
-        self.animation = random.randint(1,len(self.combat_animation))
-        self.abilites_current = ['Blunt Slash','Slash','Wild Flailing']
-        self.abilites_actual = []
+        self.rect = pg.Rect((self.pos.x+(change/2)-(charspritesize/2)), (self.pos.y-(charspritesize/2)), charspritesize-change, charspritesize)
     def draw(self):
         #ani = dict(self.combat_animation)
-        pos = self.drawn_pos
+        pg.draw.rect(screen,self.rect_colour,self.rect)
+        pos = self.pos
         #cur = ani[self.animation]
-        cur = swordguy_icon_img
+        cur = self.combat_animation[self.animation]
         goal_center = (int(pos.x), int(pos.y))
-        
+        if self in L.enemies:
+            cur = pg.transform.flip(cur,True,False)
         if self == L.selectedchar:
             lol = cur.copy()
-            lol = pg.transform.scale(lol, (60, 60))
+            lol = pg.transform.scale(lol, (charspritesize+25, charspritesize+20))
             lol.fill((0, 0, 0),special_flags=pg.BLEND_RGB_MULT)
             lel = lol.get_rect(center=goal_center)
             lel[1] -=2
             screen.blit(lol, lel)
         
         screen.blit(cur, cur.get_rect(center=goal_center))
-    def abilites_create(self):
-        self.abilites_actual = []
-        temp = self.abilites_current
-        positions = []
-        for x in range(4):
-            positions.append((457+140*x,800))
-        for x in temp:
-            for y in positions:
-                positions.remove(y)
-                if x == 'Blunt Slash':
-                    self.abilites_actual.append(hemo_ability_bluntslash(y,self))
-                if x == 'Slash':
-                    self.abilites_actual.append(hemo_ability_slash(y,self))
-                if x == 'Wild Flailing':
-                    self.abilites_actual.append(hemo_ability_wildflailing(y,self))
-                break 
-            
+    def draw_health(self):
+        pygame.draw.rect(screen,BLACK,self.health_rect)
+        pygame.draw.rect(screen,RED,self.health_currentrect)
+    def update_health(self):
+        size = 100
+        self.health_currentrect = pg.Rect(self.pos.x-(size/2),HEIGHT*(2/4),size*(self.health_current/self.health),10)
+    def check_ret(self):
+        return 5
+    def takedamage(self,damage,sender):
+        self.health_current -= damage
+        if sender.speed*2 <= self.speed:
+            sender.takedamage(self.check_ret(),self) 
+        self.update_health()
+    def cleanse(self):
+        for x in self.effects:
+            x.cleanse(self)
+    def checkspeed(self):
+        speed = self.speed + random.randint(0,self.speedrand) + self.speedincrease
+        if speedlimit() in self.effects:
+            self.speedincrease = 0
+        return speed
+
 class defaultability:
     def __init__(self,pos,owner,c=True) :
         self.pos = vec(pos)
@@ -235,6 +244,7 @@ class defaultability:
         if c:
             self.name += ' (incomplete)'
         self.checktext()
+        self.effects = []
     def draw(self):
         if L.selectedattack == self:
             pg.draw.rect(screen,BLACK,self.rect)
@@ -243,15 +253,11 @@ class defaultability:
         screen.blit(self.icon, self.icon.get_rect(center=goal_center))
     def checktext(self):
         self.text = []
-        txt = '{}X{}'.format(int(self.damagetest()),self.timestest(0,0))
+        txt = '{}X{}'.format(int(self.damagetest(self.owner,0)),self.timestest(0,0))
         color = BLACK
-        if L.selectedenemy:
-            if L.selectedenemy.speed*2 <= L.selectedchar.speed:
-                txt = '{}X{}'.format(int(self.damagetest()),self.timestest(L.selectedchar,L.selectedenemy))
-                color = GREEN
         self.text.append(create_text_fit_color_lister(txt,50,BLACK,1525,1005,140,color,(len(txt),len(txt)-len(str(self.timestest(0,0)))),'center'))
         txt = '{}'.format(self.name)
-        self.text.append(create_text_fit_lister(txt,50,BLACK,595,745,200,))
+        self.text.append(create_text_lister(txt,50,BLACK,400,885,))
     def drawtext(self):
         for x in self.text:
             draw_text_list(x)
@@ -263,81 +269,106 @@ class defaultability:
                 L.selectedattack = 0
                 L.selectedenemy = 0
     def check_damage(self,ini,tar):
-        return self.damagetest() * self.timestest(ini,tar)
-    def damagetest(self):
-        return self.damage
+        return int(self.damagetest(ini,tar) * self.timestest(ini,tar))
+    def damagetest(self,ini,tar):
+        change = 0
+        damage = random.randint(self.damage[0],self.damage[1])
+        if tar:
+            change -= (damage*ini.damageattack_percent)
+        return  damage + change
     def timestest(self,ini,tar):
         extra = 1
-        if tar:
-            if ini.speed >= tar.speed*2:
-                extra = 2
         return self.times * extra
     def attack(self,target,sender):
-        target.takedamage(self.check_damage(sender,target),sender)
+        for x in self.effects:
+            target.effects.append(find_effect(x))
+        damage = self.check_damage(sender,target)
+        target.takedamage(damage,sender)
+        sender.cleanse()
+        return damage
+
+def find_effect(effect):
+    if effect == 'dull':
+        return dull()
+
+class hemo(defaultchar):
+    def __init__(self,pos):
+        super().__init__(30,60,pos)
+        self.combat_animation = {1:swordguy_img,2:swordguy2_img,3:swordguy3_img}
+        self.attack_animation = swordguy_attacking3_img
+        self.hurt_animation = swordguy_hurt_img
+        self.icon = swordguy_icon_img
+        self.animation = random.randint(1,len(self.combat_animation))
+        self.abilites_current = ['Blunt Slash','Slash','Wild Flailing']
+        self.abilites_actual = []
+        
+    def abilites_create(self):
+        self.abilites_actual = []
+        temp = self.abilites_current
+        positions = []
+        for x in range(4):
+            positions.append((456+136*x,800))
+        for x in temp:
+            for y in positions:
+                positions.remove(y)
+                if x == 'Blunt Slash':
+                    self.abilites_actual.append(hemo_ability_bluntslash(y,self))
+                if x == 'Slash':
+                    self.abilites_actual.append(hemo_ability_slash(y,self))
+                if x == 'Wild Flailing':
+                    self.abilites_actual.append(hemo_ability_wildflailing(y,self))
+                break 
+        
 
 
 class hemo_ability_bluntslash(defaultability):
     def __init__(self,pos,owner):
-        self.icon = swordguy_ability1_img
-        self.range = 1
-        self.damage = 3
-        self.times = 2
         self.name = 'Blunt Slash'
-        self.attackarea = [1,2]
+        self.damage = 1,2
+        self.times = 2
         super().__init__(pos,owner)
+        self.icon = swordguy_ability1_img
+        self.attackarea = [1,2]
+        
 class hemo_ability_slash(defaultability):
     def __init__(self,pos,owner):
-    
-        self.icon = swordguy_ability2_img
-        self.range = 1
-        self.damage = 3
-        self.times = 2
         self.name = 'Slash'
-        self.attackarea = [1,2]
+        self.damage = 2,4
+        self.times = 2
         super().__init__(pos,owner)
+        self.icon = swordguy_ability2_img
+        self.attackarea = [1,2]
+        
 
 class hemo_ability_wildflailing(defaultability):
     def __init__(self,pos,owner):
-        
-        self.icon = swordguy_ability3_img
-        self.range = 1
-        self.damage = 10
-        self.times = 2
         self.name = 'Wild Flailing'
-        self.attackarea = [1,2]
+        self.damage = 6,10
+        self.times = 2
         super().__init__(pos,owner)
-
+        self.icon = swordguy_ability3_img
+        self.attackarea = [1,2]
+        
+class cri(defaultchar):
+    def __init__(self,pos):
+        self.name = "Cri"
+        self.type = "Crystal"
+        super().__init__(30, 40, pos)
 
 class heplane(defaultchar):
     def __init__(self,pos):
-        super().__init__(50,120,2)
-        self.pos = vec(pos)
-        self.name = 'Heplane'
-        self.type = 'Halood'
-        self.rect = pg.Rect((self.pos.x-(50/2)), (self.pos.y-(50/2)), 50, 50)
+        
+        
+        
         self.combat_animation = {1:heplane_combat_img,2:heplane_combat2_img,3:heplane_combat3_img}
         self.hurt_animation = heplane_hurt_img
         self.attack_animation = heplane_attack_img
         self.animation = random.randint(1,len(self.combat_animation))
         self.abilites_current = ['Punch','Coilent']
         self.abilites_actual = []
-    def draw(self):
-        #ani = dict(self.combat_animation)
-        pg.draw.rect(screen,BLACK,self.rect)
-        pos = self.pos
-        #cur = ani[self.animation]
-        cur = self.combat_animation[self.animation]
-        goal_center = (int(pos.x), int(pos.y))
-        
-        if self == L.selectedchar:
-            lol = cur.copy()
-            lol = pg.transform.scale(lol, (charspritesize+25, charspritesize+20))
-            lol.fill((0, 0, 0),special_flags=pg.BLEND_RGB_MULT)
-            lel = lol.get_rect(center=goal_center)
-            lel[1] -=2
-            screen.blit(lol, lel)
-        
-        screen.blit(cur, cur.get_rect(center=goal_center))
+        super().__init__(50,30,pos)
+        self.name = 'Heplane'
+        self.type = 'Halood'
     def draw_icon(self):
         pg.draw.rect(screen,BLACK,self.rect)
         pos = self.pos
@@ -359,7 +390,7 @@ class heplane(defaultchar):
         temp = self.abilites_current
         positions = []
         for x in range(4):
-            positions.append((457+140*x,800))
+            positions.append((456+136*x,800))
         for x in temp:
             for y in positions:
                 positions.remove(y)
@@ -375,25 +406,62 @@ class heplane(defaultchar):
         
 class heplane_ability_punch(defaultability):
     def __init__(self,pos,owner):
-        self.icon = heplane_ability2_img
-        self.range = 1
-        self.damage = 10
-        self.times = 1
         self.name = 'Punch'
-        self.attackarea = [1,2]
+        self.damage = 3,7
+        self.times = 1
         super().__init__(pos,owner)
+        self.icon = heplane_ability2_img
+        self.attackarea = [1,2]
+        
 class heplane_ability_coilent(defaultability):
     def __init__(self,pos,owner):
-        self.icon = heplane_ability1_img
-        self.range = 1
-        self.damage = 10
-        self.times = 1
         self.name = 'Coilent'
-        
+        self.damage = 8,10
+        self.times = 1
         super().__init__(pos,owner)
-    def check_damage(self):
-        return self.damage +self.damage*(self.owner.health/self.owner.health_current)  
-    
+        self.effects = ['dull']
+        self.icon = heplane_ability1_img
+        self.attackarea = [1,2]
+    def check_damage(self,sender,target):
+        damage = self.damagetest(sender,target) 
+        damage += +damage*(self.owner.health_current/self.owner.health) 
+        return int(damage * self.timestest(sender,target))
+
+
+
+class defaulteffect:
+    def __init__(self):
+        self.turns = 2
+    def turn(self,target):
+        if self.turns == 0:
+            target.effects.remove(self)
+            return
+        self.turns -= 1
+    def cleanse(self):
+        print(self.name,'dosent have cleanse')
+class dull(defaulteffect):
+    def __init__(self):
+        self.name = 'Dull'
+        self.colour = GREY
+        super().__init__()
+    def turn(self,target):
+        super().turn()
+        target.damageattack_percent = 0.4
+    def cleanse(self,target):
+        target.damageattack_percent = 0
+    def draw(self,target):
+        draw_text(self.name,50,self.colour,int(target.pos.x),int(HEIGHT/7),'center')
+
+class speedlimit(defaulteffect):
+    def __init__(self):
+        self.name = 'Speed Limit'
+        self.colour = GREEN
+        super().__init__()
+    def turn(self,target):
+        super().turn()
+        target.speedincrease = 50
+    def draw(self,target):
+        draw_text(self.name,50,self.colour,int(target.pos.x),int(HEIGHT/7),'center')
 
 filename = os.path.dirname(sys.argv[0])
 filename += '/Halood_images'
@@ -481,6 +549,8 @@ class text:
 
 class gamemanager:
     def __init__(self):
+        self.reset()
+    def reset(self):
         self.currentturn = 0
         self.click = 0
         self.showpos = False
@@ -489,6 +559,7 @@ class gamemanager:
         self.selectedenemy = 0
         self.animtimer = 0
         self.allies = []
+        self.npcallies = []
         self.enemies =[]
         self.act_allies = {1:0,2:0,3:0,4:0}
         self.act_enemies = {1:0,2:0,3:0,4:0}
@@ -499,26 +570,31 @@ class gamemanager:
         
         self.ally_postovec = {}
         for x in self.act_allies:
-            print(x)
-            self.ally_postovec.update({x:((WIDTH/2-200*x),300)})
+            self.ally_postovec.update({x:((WIDTH/2-150*x),300)})
         
         self.enemy_postovec = {}
         for x in self.act_enemies:
-            self.enemy_postovec.update({x:((WIDTH/2+200*x),300)})
+            self.enemy_postovec.update({x:((WIDTH/2+150*x),300)})
         
         self.spawn()    
         self.create_order()
     def spawn(self):
-        self.spec_spawn('heplane',1,0)
-        self.spec_spawn('hemo',1,1)
-        self.spec_spawn('hemo',2,1)
+        self.spec_spawn('heplane',1,'player')
+        self.spec_spawn('hemo',1,'enemy')
+        self.spec_spawn('hemo',2,'enemy')
     def spec_spawn(self,target,place,afil):
-        if afil == 0:
+        if afil == 'player':
             pla = self.ally_postovec[place]
             xx = self.get_cla(target,pla)
             self.act_allies[place] = xx
             self.allies.append(xx)
-        if afil == 1:
+        if afil == 'ally':
+            pla = self.ally_postovec[place]
+            xx = self.get_cla(target,pla)
+            self.act_allies[place] = xx
+            self.allies.append(xx)
+            self.npcallies.append(xx)
+        if afil == 'enemy':
             pla = self.enemy_postovec[place]
             xx = self.get_cla(target,pla)
             self.act_enemies[place] = xx
@@ -531,8 +607,10 @@ class gamemanager:
     def draw_objects(self):
         for x in self.allies:
             x.draw()
+            x.draw_health()
         for x in self.enemies:
             x.draw()
+            x.draw_health()
     def draw_selection(self):
         cur = self.selectedchar
         if cur:
@@ -682,19 +760,47 @@ class gamemanager:
         ll = self.postovec[(position.x,position.y)]
         target.pos_temp = vec(ll)
     def nextturn(self):
-        if self.whose == len(self.heavies):
+        for x in self.allies:
+            if x.health_current <= 0:
+                self.allies.remove(x)
+        for x in self.enemies:
+            if x.health_current <= 0:
+                self.enemies.remove(x)
+                self.heavies.remove(x)
+                move = False
+                for key,y in self.act_enemies.items():
+                    if y == 0:
+                        break
+                    if move:
+                        print('key',key,'y',y)
+                        print(self.act_enemies)
+                        self.act_enemies[key] = 0
+                        self.act_enemies[key-1] = y
+                        pla = self.enemy_postovec[key-1]
+                        y.fix_position(pla)
+                    if y == x:
+                        move = True 
+                        self.act_enemies[key] = 0
+        if len(self.allies) == 0 or len(self.enemies) == 0:
+            self.reset()
+            return
+        if self.whose >= len(self.heavies):
             self.whose = 0
         self.turn = self.heavies[self.whose]
+        
         self.whose += 1
-        print('self.phase',self.phase)
         if self.phase == 'Enemy':
-            print(self.enemyselectedattack)
-            self.enemyselectedattack.attack(self.enemytarget,self.enemywho)
+            #self.enemyselectedattack.attack(self.enemytarget,self.enemywho)
             self.update_text(self.enemywho,self.enemytarget)
         self.phase = 'Player'
-        self.unselect()
         if self.turn in self.enemies:
             self.phase = 'Enemy'
+        if self.turn in self.npcallies:
+            self.phase = 'ally'
+        if self.phase == 'Player' or self.phase == 'ally':
+            self.select(self.turn)
+        for x in self.turn.effects:
+            x.turn(self.turn)
     def enemy_turn(self):
         if self.phase == 'Enemy':
             tar = self.turn
@@ -702,7 +808,7 @@ class gamemanager:
                 if self.act_enemies[x] == tar:
                     tarpos = x
                     break
-            print(tarpos)
+            
             
             if len(tar.abilites_actual) == 0:
                 tar.abilites_create()
@@ -712,7 +818,6 @@ class gamemanager:
             for x in self.act_allies:
                 if self.act_allies[x]:
                     simpally.append(x)
-            print(simpally)
             move = True
             for x in tar.abilites_actual:
                 for y in simpally:
@@ -740,14 +845,58 @@ class gamemanager:
             
             self.enemywho = tar
             self.enemytarget = att
-            self.selectedattack = attack
             self.animations = animationmove(tar,attack,att)
             self.moveanimation = True
             
-            self.attackarea = self.selectedattack.attackarea
-            self.selectedenemy = self.enemytarget
             self.phase = 0
-            self.update_text(self.enemywho,self.selectedenemy)
+            
+            
+        if self.phase == 'ally':
+            tar = self.turn
+            for x in self.act_allies:
+                if self.act_allies[x] == tar:
+                    tarpos = x
+                    break
+            
+            
+            if len(tar.abilites_actual) == 0:
+                tar.abilites_create()
+            
+            
+            simpenem = []
+            for x in self.act_enemies:
+                if self.act_enemies[x]:
+                    simpenem.append(x)
+            move = True
+            for x in tar.abilites_actual:
+                for y in simpenem:
+                    if y in x.attackarea:
+                        if tarpos in x.attackwhere:
+                            move = False
+                            break
+            attack = random.choice(tar.abilites_actual)
+            check = True
+            for y in self.act_enemies:
+                if self.act_enemies[y] and y in attack.attackarea:
+                    check = False
+                    break
+            if check:
+                for x in tar.abilites_actual:
+                    if tarpos in x.attackwhere:
+                        attack = x
+            
+            possibletargets = []
+            for x in attack.attackarea:
+                if self.act_allies[x]:
+                    possibletargets.append(x)
+            
+            att = self.act_enemies[random.choice(possibletargets)]
+            
+            self.enemywho = tar
+            self.enemytarget = att
+            self.animations = animationmove(tar,attack,att)
+            self.moveanimation = True
+            self.phase = 0
             
     def ally_turn(self):
         if not self.selectedattack:
@@ -775,13 +924,7 @@ class gamemanager:
     def update_text(self,player,x):
         self.enemytext = []
         self.selectedattack.checktext()
-        txt = '{}/{}'.format(player.health_current,player.health)
-        self.enemytext.append(create_text_fit_lister(txt,75,RED,1665,605,100,'center'))
         
-        if x.speed >= player.speed*2:
-            txt = '{}/{}'.format(player.health_current-x.check_ret(),player.health)
-            
-        self.enemytext.append(create_text_fit_lister(txt,75,RED,1505,605,100,'center'))
         txt = '{}'.format(x.speed)
         self.enemytext.append(create_text_fit_lister(txt,70,GREEN,1845,605,65,'center'))
         
@@ -800,7 +943,6 @@ class gamemanager:
 class animationmove:
     def __init__(self,enemywho,selectedattack,enemytarget):
         self.enemywho = enemywho
-        print('turd',L.selectedattack)
         self.selectedattack = selectedattack
         self.enemytarget = enemytarget
         self.plaani = self.enemytarget.combat_animation
@@ -809,6 +951,7 @@ class animationmove:
         self.step = 0
         self.pos = 0
         self.steptwosteps = 1
+        self.count = 0
     def steptwo(self):
         cover = pg.Surface((WIDTH,HEIGHT/2))
         cover.fill((128,128,128))
@@ -825,26 +968,40 @@ class animationmove:
         enecur = ani[self.enemywho.animation]
         enegoal_center = (int(self.enemywho.pos.x), int(HEIGHT/4))
         
-        
-        
-        print(self.pos)
-        if self.steptwosteps == 1:
+        if self.steptwosteps == 0:
             if self.pos < 15:
                 self.pos += 1
             else:
                 self.pos = 0
                 self.steptwosteps += 1
+        if self.steptwosteps == 1:
+            
+            if self.count < len(self.enemywho.effects):
+                self.enemywho.effects[self.count].draw(self.enemywho)
+                enecur= self.enemywho.hurt_animation
+                if self.pos < 30:
+                    self.pos += 1
+                else:
+                    self.pos = 0
+                    self.count += 1
+            else:
+                self.steptwosteps += 1
+                self.count = 0
+            
         if self.steptwosteps == 2 : #attack name for enemy
             draw_text(self.selectedattack.name,50,BLACK,int(self.enemywho.pos.x), int(HEIGHT/7),'center')
+           
             if self.pos < 30:
                 self.pos += 1
             else:
                 self.pos = 0
                 self.steptwosteps += 1
         if self.steptwosteps == 3: #attack animation for initiate and hurt for target
+            if self.pos == 0:
+                self.damage = self.selectedattack.attack(self.enemytarget,self.enemywho)
             enecur = self.enemywho.attack_animation
             placur = self.enemytarget.hurt_animation
-            draw_text(str(self.selectedattack.check_damage(self.enemywho,self.enemytarget)),50,RED,int(self.enemytarget.pos.x), int(HEIGHT/7-self.pos),'center')
+            draw_text(str(self.damage),50,RED,int(self.enemytarget.pos.x), int(HEIGHT/7-self.pos),'center')
             if self.pos <15:
                 ani = dict(self.enemywho.combat_animation)
                 enecur = ani[1]
@@ -870,7 +1027,7 @@ class animationmove:
                 self.steptwosteps += 1
         if self.steptwosteps == 5:
             self.step +=1
-            self.selectedattack.attack(self.enemytarget,self.enemywho)
+            
         if self.enemytarget in L.enemies:
             placur = pg.transform.flip(placur,True,False)
         placur = pg.transform.scale(placur,(250,250))
@@ -881,7 +1038,6 @@ class animationmove:
         screen.blit(enecur, enecur.get_rect(center=enegoal_center))
     def enemymove(self):
         if self.step == 0:
-            print('steptwo')
             self.steptwo()
         if self.step == 1:
             self.pos += 1
@@ -891,7 +1047,7 @@ class animationmove:
             L.nextturn()
             L.animations = 0
 def speed_sort(target):
-    return target.speed            
+    return target.checkspeed()
         
 ui_fall = pg.image.load(os.path.join(filename,'battle_ui.png'))
 ui_fall = pg.transform.scale(ui_fall, (WIDTH, HEIGHT))
