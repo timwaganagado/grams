@@ -70,7 +70,7 @@ class enemycharacter:
         self.rect = pg.Rect(int(self.position.x), int(self.position.y-(self.sizey/2)), self.sizex , self.sizey)
     def draw(self):
         pg.draw.rect(screen,BLACK,self.rect)
-        goal_center = self.position.x+(self.sizey/2),self.position.y
+        goal_center = self.position.x+self.sizex-(self.sizey/2),self.position.y
         screen.blit(self.char_sprite,self.char_sprite.get_rect(center=goal_center))
         draw_text(self.char_name,50,self.colour,self.position.x+(self.sizex/2),self.position.y,'center')
 
