@@ -155,6 +155,6 @@ while running:
     screen.fill(WHITE) # fills screnn with color
     # anything down here will be displayed ontop of anything above
     if second != 0 and first != 0:
-        draw_text(str(text),50,(0,0,0),first[0],first[1],second)
+        draw_text(str(text),50,(0,0,0),WIDTH/2,HEIGHT/2,second,'center')
     
     pg.display.flip() # dose the changes goto doccumentation for other ways
