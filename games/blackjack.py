@@ -22,7 +22,7 @@ while cont == 1:
       if skip == 0:
          betable = input('how much do you want to bet? ')
          if betable == '':
-            betable = int(bet)
+            betable = int(bet/2)
          elif betable.isdigit:
             betable = int(betable)
          else:

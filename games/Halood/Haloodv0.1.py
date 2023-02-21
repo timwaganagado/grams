@@ -55,30 +55,57 @@ def create_text_fit_lister(text, size, color, x, y, xbound, align="topleft"):
         text_surface = font.render(text, True, color)
         text_rect = text_surface.get_rect(**{align: (x, y)})
     return text_surface, text_rect
-def draw_text_fit_list(new):
+def draw_text_list(new):
     text_surface,text_rect = new
     screen.blit(text_surface, text_rect)
 def draw_text_fit_color(text, size, color, x, y, xbound, othercolor, where, align="topleft"):
     font = pg.font.Font(font_name, size)
     text_surface = font.render(text, True, color)
     text_rect = text_surface.get_rect(**{align: (x, y)})
-    x = text_rect[0]
-    align = 'topleft'
-    text_surface = font.render('', True, color)
-    text_rect = text_surface.get_rect(**{align: (x, y)})
-    listofblits =[(text_surface,text_rect)]
+    while text_rect[2] > xbound:
+        size -= 1
+        font = pg.font.Font(font_name, size)
+        text_surface = font.render(text, True, color)
+        text_rect = text_surface.get_rect(**{align: (x, y)})
+    savesize = pg.Surface((text_surface.get_width(), text_surface.get_height()), pg.SRCALPHA)
     place = 1
+    dis = 0
     for xx in text:
-        new = listofblits[-1][1]
-        new = new[0]+new[2]
-        text_surface = font.render(xx, True, color)
-        if where[0]>=place>=where[1]:
+        if where[0]>=place>where[1]:
             text_surface = font.render(xx, True, othercolor)
-        text_rect = text_surface.get_rect(**{align: (new, y)})
-        listofblits.append((text_surface,text_rect))
+        else:
+            text_surface = font.render(xx, True, color)
+        
+        savesize.blit(text_surface,((dis, 0)))
+        dis+= text_surface.get_width()
         place += 1
-    for yy in listofblits:
-        screen.blit(yy[0], yy[1])
+    align = 'center'
+    text_rect = savesize.get_rect(**{align: (x, y)})
+    screen.blit(savesize,text_rect)
+def create_text_fit_color_lister(text, size, color, x, y, xbound, othercolor, where, align="topleft"):
+    font = pg.font.Font(font_name, size)
+    text_surface = font.render(text, True, color)
+    text_rect = text_surface.get_rect(**{align: (x, y)})
+    while text_rect[2] > xbound:
+        size -= 1
+        font = pg.font.Font(font_name, size)
+        text_surface = font.render(text, True, color)
+        text_rect = text_surface.get_rect(**{align: (x, y)})
+    savesize = pg.Surface((text_surface.get_width(), text_surface.get_height()), pg.SRCALPHA)
+    place = 1
+    dis = 0
+    for xx in text:
+        if where[0]>=place>where[1]:
+            text_surface = font.render(xx, True, othercolor)
+        else:
+            text_surface = font.render(xx, True, color)
+        
+        savesize.blit(text_surface,((dis, 0)))
+        dis+= text_surface.get_width()
+        place += 1
+    align = 'center'
+    text_rect = savesize.get_rect(**{align: (x, y)})
+    return savesize,text_rect
 def draw_text_wraped(text=str, size=int, color=tuple, x=float, y=float, x_bound=int, y_bound=10, draw_rect=False, align="topleft"):
     font = pg.font.Font(font_name, size)
     if draw_rect:
@@ -157,6 +184,7 @@ class hemo(defaultchar):
         self.pos = vec(pos)
         self.drawn_pos = vec(pos)
         self.combat_animation = {1:swordguy_img,2:swordguy2_img,3:swordguy3_img}
+        self.attack_animation = {1:swordguy_attacking2_img,2:swordguy_attacking3_img}
         self.animation = random.randint(1,len(self.combat_animation))
         self.abilites_current = ['Blunt Slash','Slash','Wild Flailing']
         self.abilites_actual = []
@@ -198,21 +226,27 @@ class defaultability:
         self.pos = vec(pos)
         self.rect = pg.Rect(int(self.pos.x-64), int(self.pos.y-64), 128, 128)
         self.owner = owner
+        self.checktext()
     def draw(self):
         if L.selectedattack == self:
             pg.draw.rect(screen,BLACK,self.rect)
             
         goal_center = (int(self.pos.x), int(self.pos.y))
         screen.blit(self.icon, self.icon.get_rect(center=goal_center))
-    def drawtext(self):
+    def checktext(self):
+        self.text = []
         txt = '{}X{}'.format(int(self.damagetest()),self.timestest())
+        color = BLACK
         if L.selectedenemy:
-            if L.selectedenemy.speed*2 < L.selectedchar.speed:
+            if L.selectedenemy.speed*2 <= L.selectedchar.speed:
                 txt = '{}X{}'.format(int(self.damagetest()),self.timestest())
-                draw_text_fit_color(txt,50,BLACK,1520,990,140,GREEN,(len(txt),len(txt)),'center')
-        draw_text_fit(txt,50,BLACK,1520,1005,140,'center')
+                color = GREEN
+        self.text.append(create_text_fit_color_lister(txt,50,BLACK,1525,1005,140,color,(len(txt),len(txt)-len(str(self.timestest()))),'center'))
         txt = '{}'.format(self.name)
-        draw_text(txt,50,BLACK,595,745)
+        self.text.append(create_text_fit_lister(txt,50,BLACK,595,745,200,))
+    def drawtext(self):
+        for x in self.text:
+            draw_text_list(x)
     def pressed(self,mpos):
         if self.rect.collidepoint((mpos.x,mpos.y)):
             if self != L.selectedattack:
@@ -236,35 +270,36 @@ class defaultability:
 
 class hemo_ability_bluntslash(defaultability):
     def __init__(self,pos,owner):
-        super().__init__(pos,owner)
         self.icon = swordguy_ability1_img
         self.range = 1
         self.damage = 3
         self.times = 2
         self.name = 'Blunt Slash'
-
+        super().__init__(pos,owner)
 class hemo_ability_slash(defaultability):
     def __init__(self,pos,owner):
-        super().__init__(pos,owner)
+    
         self.icon = swordguy_ability2_img
         self.range = 1
         self.damage = 3
         self.times = 2
         self.name = 'Slash'
+        super().__init__(pos,owner)
 
 class hemo_ability_wildflailing(defaultability):
     def __init__(self,pos,owner):
-        super().__init__(pos,owner)
+        
         self.icon = swordguy_ability3_img
         self.range = 1
         self.damage = 10
         self.times = 2
         self.name = 'Wild Flailing'
+        super().__init__(pos,owner)
 
 
 class heplane(defaultchar):
     def __init__(self,pos):
-        super().__init__(50,30,2)
+        super().__init__(50,120,2)
         self.pos = vec(pos)
         self.pos_temp = vec(pos)
         self.combat_animation = {1:heplane_combat_img,2:heplane_combat2_img,3:heplane_combat3_img}
@@ -308,20 +343,20 @@ class heplane(defaultchar):
         
 class heplane_ability_punch(defaultability):
     def __init__(self,pos,owner):
-        super().__init__(pos,owner)
         self.icon = heplane_ability2_img
         self.range = 1
         self.damage = 10
         self.times = 1
         self.name = 'Punch'
+        super().__init__(pos,owner)
 class heplane_ability_coilent(defaultability):
     def __init__(self,pos,owner):
-        super().__init__(pos,owner)
         self.icon = heplane_ability1_img
         self.range = 1
         self.damage = 10
         self.times = 1
         self.name = 'Coilent'
+        super().__init__(pos,owner)
     def check_damage(self):
         return self.damage +self.damage*(self.owner.health/self.owner.health_current)  
     
@@ -340,6 +375,12 @@ swordguy2_img = pg.image.load(os.path.join(currentfiles,'Layer 1_swordguy_combat
 swordguy2_img = pg.transform.scale(swordguy2_img, (charspritesize, charspritesize))
 swordguy3_img = pg.image.load(os.path.join(currentfiles,'Layer 1_swordguy_combat3.png')).convert_alpha()
 swordguy3_img = pg.transform.scale(swordguy3_img, (charspritesize, charspritesize))
+
+swordguy_attacking2_img = pg.image.load(os.path.join(currentfiles,'swordguy_attacking1.png')).convert_alpha()
+swordguy_attacking2_img = pg.transform.scale(swordguy_attacking2_img, (charspritesize, charspritesize))
+swordguy_attacking3_img = pg.image.load(os.path.join(currentfiles,'swordguy_attacking2.png')).convert_alpha()
+swordguy_attacking3_img = pg.transform.scale(swordguy_attacking3_img, (charspritesize, charspritesize))
+
 swordguy_icon_img = pg.image.load(os.path.join(currentfiles,'icon0.png')).convert_alpha()
 swordguy_icon_img = pg.transform.scale(swordguy_icon_img, (50, 50))
 swordguy_ability1_img = pg.image.load(os.path.join(currentfiles,'hemo_abilites0.png'))
@@ -383,6 +424,8 @@ class gamemanager:
         self.objects = []
         self.allies = []
         self.enemies = []
+        self.animations = 0
+        self.texts = {}
         
         
         
@@ -448,10 +491,10 @@ class gamemanager:
             for x in cur.abilites_actual:
                 x.draw()
             
-            txt = '{}/{}'.format(cur.health_current,cur.health)
-            draw_text(txt,75,RED,410,640)
-            txt = '{}'.format(cur.speed)
-            draw_text_fit(txt,70,GREEN,517,840,65,'center')
+            if self.texts['player health']:
+                screen.blit(self.texts['player health'][0],self.texts['player health'][1])
+            if self.texts['player speed']:
+                screen.blit(self.texts['player speed'][0],self.texts['player speed'][1])
             
             goal_center = int(440), int(843)
             if cur.speed < self.turn.speed:
@@ -474,15 +517,9 @@ class gamemanager:
         tar = self.selectedenemy
         if tar:
             for x in self.enemytext:
-                draw_text_fit_list(x)
+                draw_text_list(x)
+            screen.blit(self.enemyspeedimage[0],self.enemyspeedimage[1]) 
             
-            goal_center = int(1765), int(605)
-            if tar.speed < self.selectedchar.speed:
-                screen.blit(ui_slow, ui_slow.get_rect(center=goal_center))
-            elif tar.speed >= self.selectedchar.speed*2:
-                screen.blit(ui_fast, ui_slow.get_rect(center=goal_center))
-            else:
-                screen.blit(ui_same, ui_slow.get_rect(center=goal_center))
     def draw_selection_char(self):
         tar = self.selectedchar
         if tar:
@@ -522,16 +559,31 @@ class gamemanager:
                     #if self.selectedchar:
                     #    temp = self.translate(self.selectedchar.pos)
                     #    self.grid[temp] = 0
-                    self.selectedchar = self.grid[pos]
-                    self.selectedattack = 0
-                    self.selectedchar.abilites_create()
-                    temp = self.translate(self.selectedchar.pos)
-                    self.currentmovement = self.movement(temp,self.selectedchar.movement+1)
+                    self.select(self.grid[pos])
+                    
                 else:
                     self.selectedchar = 0
                     self.selectedattack = 0
                     self.selectedenemy = 0
-            
+                    self.texts.update({'player health':0})
+                    self.texts.update({'player speed':0})
+    def select(self,tar):
+        self.selectedchar = tar
+        self.selectedattack = 0
+        tar.abilites_create()
+        temp = self.translate(tar.pos)
+        txt = '{}/{}'.format(tar.health_current,tar.health)
+        self.texts.update({'player health':create_text_fit_lister(txt,75,RED,480,670,120,'center')})
+        txt = '{}'.format(tar.speed)
+        self.texts.update({'player speed':create_text_fit_lister(txt,70,GREEN,517,840,70,'center')})
+        self.currentmovement = self.movement(temp,tar.movement+1)
+        self.currentmovementdraw = []
+        for new in self.currentmovement:
+            rect = pg.Surface((int(self.xstep), int(self.xstep)))
+            rect.set_alpha(64)
+            rect.fill(BLACK)
+            new = vec(self.postovec[(new.x,new.y)])
+            self.currentmovementdraw.append((rect,(int(new.x-(self.xstep/2)),int(new.y-(self.xstep/2)))))
     def selectattack(self):
         if self.selectedchar:
             for x in self.selectedchar.abilites_actual:
@@ -547,15 +599,11 @@ class gamemanager:
         goal_center = int(WIDTH / 2), int(HEIGHT/ 2)
         screen.blit(ui_fall, ui_fall.get_rect(center=goal_center))
     def draw_movement(self,target):
-        point = self.currentmovement
+        point = self.currentmovementdraw
         if target == self.turn:
-            point = self.turn_movement
+            point = self.turn_movementdraw
         for new in point:
-            rect = pg.Surface((int(self.xstep), int(self.xstep)))
-            rect.set_alpha(64)
-            rect.fill(BLACK)
-            new = vec(self.postovec[(new.x,new.y)])
-            screen.blit(rect,(int(new.x-(self.xstep/2)),int(new.y-(self.xstep/2)))) 
+            screen.blit(new[0],new[1])
     def translate(self,new):
         return self.vectopos[(new.x,new.y)]
     def untranslate(self,new):
@@ -604,8 +652,18 @@ class gamemanager:
         self.phase = 'Player'
         if self.turn in self.enemies:
             self.phase = 'Enemy'
+            self.selectedchar = self.turn
+            temp = self.translate(self.selectedchar.pos)
+            self.currentmovement = self.movement(temp,self.selectedchar.movement+1)
         temp = self.vectopos[(self.turn.pos.x,self.turn.pos.y)]
         self.turn_movement = self.movement(temp,self.turn.movement+1)
+        self.turn_movementdraw = []
+        for new in self.turn_movement:
+            rect = pg.Surface((int(self.xstep), int(self.xstep)))
+            rect.set_alpha(64)
+            rect.fill(BLACK)
+            new = vec(self.postovec[(new.x,new.y)])
+            self.turn_movementdraw.append((rect,(int(new.x-(self.xstep/2)),int(new.y-(self.xstep/2)))))
     def enemy_turn(self):
         if self.phase == 'Enemy':
             tar = self.turn
@@ -658,43 +716,57 @@ class gamemanager:
             self.animations = animationmove()
             self.moveanimation = True
             self.phase = 0
+            self.selectedattack = self.enemyselectedattack
+            self.selectedenemy = self.enemytarget
+            self.update_text(self.enemywho,self.enemytarget)
             
             
     def ally_turn(self):
         if not self.selectedattack:
             L.selectchar()
         if self.phase == 'Player':
-            if self.selectedchar == self.turn:
+            player = self.selectedchar
+            if player == self.turn:
                 self.checkmove()
                 if self.mpostopos() in self.grid:
                     target = self.locate(vec(self.mpostopos()))
                     if self.selectedenemy == target and target != 0:
-                        self.selectedattack.attack(target,self.selectedchar)
+                        self.selectedattack.attack(target,player)
                         self.nextturn()
-                        self.update_pos(self.selectedchar,self.translate(self.selectedchar.pos_temp))
+                        self.update_pos(player,self.translate(player.pos_temp))
                     if self.selectedattack and target in self.enemies:
                         for x in self.enemies:
                             temp = self.vectopos[(x.pos.x,x.pos.y)]
                             attackarea = self.movement(temp,self.selectedattack.range+1,False,True)
-                            if self.translate(self.selectedchar.pos_temp) in attackarea:
+                            if self.translate(player.pos_temp) in attackarea:
                                 self.selectedenemy = x
                                 self.enemytext = []
-                                txt = '{}/{}'.format(self.selectedchar.health_current,self.selectedchar.health)
-                                self.enemytext.append(create_text_fit_lister(txt,75,RED,1665,605,100,'center'))
-                                txt = '{}/{}'.format(self.selectedchar.health_current,self.selectedchar.health)
-                                if x.speed >= self.selectedchar.speed*2:
-                                    txt = '{}/{}'.format(self.selectedchar.health_current-x.check_ret(),self.selectedchar.health)
-                                    
-                                self.enemytext.append(create_text_fit_lister(txt,75,RED,1505,605,100,'center'))
-                                txt = '{}'.format(x.speed)
-                                self.enemytext.append(create_text_fit_lister(txt,70,GREEN,1845,605,65,'center'))
-                                
-                                txt = '{}/{}'.format(x.health_current,x.health)
-                                self.enemytext.append(create_text_fit_lister(txt,75,RED,1670,1005,100,'center'))
-                                txt = '{}/{}'.format(x.health_current-self.selectedattack.check_damage(),x.health)
-                                self.enemytext.append(create_text_fit_lister(txt,75,RED,1825,1005,100,'center'))
+                                self.update_text(player,x)
                                 break
-                    
+    def update_text(self,player,x):
+        self.enemytext = []
+        self.selectedattack.checktext()
+        txt = '{}/{}'.format(player.health_current,player.health)
+        self.enemytext.append(create_text_fit_lister(txt,75,RED,1665,605,100,'center'))
+        
+        if x.speed >= player.speed*2:
+            txt = '{}/{}'.format(player.health_current-x.check_ret(),player.health)
+            
+        self.enemytext.append(create_text_fit_lister(txt,75,RED,1505,605,100,'center'))
+        txt = '{}'.format(x.speed)
+        self.enemytext.append(create_text_fit_lister(txt,70,GREEN,1845,605,65,'center'))
+        
+        txt = '{}/{}'.format(x.health_current,x.health)
+        self.enemytext.append(create_text_fit_lister(txt,75,RED,1670,1005,100,'center'))
+        txt = '{}/{}'.format(x.health_current-self.selectedattack.check_damage(),x.health)
+        self.enemytext.append(create_text_fit_lister(txt,75,RED,1825,1005,100,'center'))
+        goal_center = int(1765), int(605)
+        if x.speed < player.speed:
+            self.enemyspeedimage = ui_slow,ui_slow.get_rect(center=goal_center)
+        elif x.speed >= player.speed*2:
+            self.enemyspeedimage = ui_fast, ui_fast.get_rect(center=goal_center)
+        else:
+            self.enemyspeedimage = ui_same, ui_same.get_rect(center=goal_center)
     def checkmove(self):
         if self.mpostopos() in self.turn_movement:
             self.temp_pos(self.selectedchar,self.mpostopos())
@@ -728,6 +800,12 @@ class animationmove:
         self.savestart = vec(L.enemywho.pos)
         self.idealpos = L.enemyidealpos
         self.ww = vec(L.untranslate(L.enemyidealpos))
+        self.selectedattack = L.selectedattack
+        self.enemyidealpos =L.enemyidealpos
+        self.whereattack = L.whereattack 
+        self.enemytarget = L.enemytarget
+        self.plaani = self.enemytarget.combat_animation
+        self.eneani = self.enemywho.combat_animation
         self.x = vec(L.enemywho.drawn_pos)
         self.xgrt = False
         if self.ww.x < self.x.x:
@@ -740,7 +818,6 @@ class animationmove:
         self.rightpart = pg.transform.chop(background_fall,rect)
         rect = pg.Rect(WIDTH*(2/3)/2,0,WIDTH*(2/3)/2,0)
         self.leftpart = pg.transform.chop(background_fall,rect)
-        print(self.leftpart.get_rect())
         self.pos = -400
         self.steptwosteps = 1
     def move(self):
@@ -796,11 +873,10 @@ class animationmove:
                     group = L.allies
                 for x in group:
                     temp = L.vectopos[(x.pos.x,x.pos.y)]
-                    L.attackarea = L.movement(temp,L.selectedattack.range+1,False,True)
-            if L.enemyidealpos == L.whereattack:
-                L.enemyselectedattack.attack(L.enemytarget,L.enemywho)
-            else:
+                    L.attackarea = L.movement(temp,self.selectedattack.range+1,False,True)
+            if self.enemyidealpos != self.whereattack:
                 self.step += 1
+                
     def steptwo(self):
         cover = pg.Surface((WIDTH,HEIGHT))
         cover.fill((128,128,128))
@@ -808,10 +884,22 @@ class animationmove:
         goal_center = int(WIDTH/2), int(HEIGHT/2)
         screen.blit(cover, cover.get_rect(center=goal_center))
         goal_center = int(self.pos), int(HEIGHT/2)
-        #print(self.leftpart.get_rect())
         screen.blit(self.leftpart, self.leftpart.get_rect(center=goal_center))
         goal_center = int(WIDTH-self.pos), int(HEIGHT/2)
         screen.blit(self.rightpart, self.rightpart.get_rect(center=goal_center))
+        
+        ani = dict(self.plaani)
+        cur = ani[self.enemytarget.animation]
+        goal_center = (int(self.pos), int(HEIGHT/2))
+        cur = pg.transform.scale(cur,(250,250))
+        screen.blit(cur, cur.get_rect(center=goal_center))
+        
+        ani = dict(self.eneani)
+        cur = ani[self.enemywho.animation]
+        #HEIGHTTILESIZE = 150
+        cur = pg.transform.scale(cur,(250,250))
+        goal_center = (int(WIDTH-self.pos), int(HEIGHT/2))
+        screen.blit(cur, cur.get_rect(center=goal_center))
         if self.steptwosteps == 1:
             if self.pos < WIDTH*1/3:
                 self.pos += 30
@@ -819,7 +907,11 @@ class animationmove:
                 self.pos = WIDTH*1/3
                 self.steptwosteps += 1
         if self.steptwosteps == 2:
+            draw_text(L.enemyselectedattack.name,50,BLACK,int(WIDTH-self.pos-100), int(HEIGHT/3))
+        if self.steptwosteps == 3:
             self.step +=1
+            print(L.enemyselectedattack)
+            L.enemyselectedattack.attack(self.enemytarget,self.enemywho)
     def enemymove(self):
         if self.step == 0:
             self.stepone()
