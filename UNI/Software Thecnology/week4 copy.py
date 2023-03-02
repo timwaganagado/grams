@@ -3,14 +3,24 @@ def play(statmanet):
     if "y" in statmanet or statmanet == '':
         return True
     return False
-playing = play(input("playing: "))
+playing = True
+print(f"{'Welcome to Guess the number':=^31}")
+print(f"{'With a twist':=^31}")
 while playing:
     guessed = False
     answer = random.randint(1,100)
     guesses = 0
     while not guessed:
         guesses += 1
-        guess = int(input("Guess a number: "))
+        check = False
+        while not check:
+            guess = input("Guess a number: ")
+            try:
+                guess = int(guess)
+                check = True
+            except :
+                pass
+        
         match [guess < answer,guess == answer]:
             case [True,False]:
                 print("Higher")
