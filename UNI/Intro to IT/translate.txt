@@ -1,0 +1,8 @@
+no:ni
+go:lo
+yes:tik
+hello:bito
+i:di
+am:mol
+with:dor
+me:rah
