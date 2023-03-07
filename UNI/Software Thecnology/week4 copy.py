@@ -29,12 +29,13 @@ while playing:
                 guessed = True
             case [False,False]:
                 print("Lower")
+        
         if random.choices([True,False],[1,4])[0]:
             move = random.randint(-99,99)
-            print(move,0 > answer+move > 100)
-            while 0 > answer+move > 100:
+            while 0 > (answer+move) or (answer+move) > 100:
                 move = random.randint(-99,99)
             answer += move
+            
             match [move<0,move>0]:
                 case [True,False]:
                     print("Oh no, the answer moved down")
