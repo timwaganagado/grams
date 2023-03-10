@@ -6,7 +6,7 @@ class MyGUI:
         self.main_window = tkinter.Tk()
         self.main_window.title("ST1 Quiz Mark Calculator")
         self.first = []
-        self.texts = ["Enter fat grams: ","Enter carb grams: "]
+        self.texts = ["Class A seats:","Class B seats:","Class C seats:"]
         for y,x in enumerate(self.texts):
             f = Frame(self.main_window)
             f.pack(padx=10)
@@ -20,6 +20,11 @@ class MyGUI:
         tkinter.Button(f,text="Calculate Sum",command=self.showinformation).pack(side="left")
         tkinter.mainloop()
     def showinformation(self):
-        tkinter.Label(self.main_window,text=f"Calories from fat: {self.first[0].get()*3.9}").pack()
-        tkinter.Label(self.main_window,text=f"Calories from carbs: {self.first[1].get()*4}").pack()
+        total = 0
+        cost = 20
+        for x in self.first:
+            total += x.get() * cost
+            cost -= 5
+
+        tkinter.Label(self.main_window,text=f"Total income: {total}").pack()
 MyGUI()

@@ -13,8 +13,6 @@ import math
 
 vec = pg.math.Vector2
 
-WIDTH = 1920
-HEIGHT = 1080
 FPS = 30
 BLUE = (0,0,255)
 BROWN = (165,42,42)
@@ -168,9 +166,10 @@ def draw_text_wraped(text=str, size=int, color=tuple, x=float, y=float, x_bound=
     screen.blit(text_surface, text_rect)
 
 pg.init()
-screen = pg.display.set_mode((WIDTH, HEIGHT),display = 0)
+screen = pg.display.set_mode((0, 0),pg.FULLSCREEN)
 clock = pg.time.Clock()
-
+WIDTH = screen.get_width()
+HEIGHT = screen.get_height()
 class defaultchar:
     def __init__(self,hp,spd,pos):
         self.speedrand = 6
