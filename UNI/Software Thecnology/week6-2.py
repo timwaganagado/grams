@@ -12,7 +12,7 @@ def square(size):
         t.forward(size)
         t.left(90)
 t.pencolor("white")
-for x in range(random.randint(5,5)):
+for x in range(random.randint(10,15)):
     
     t.penup()
     t.setpos(random.randint(-size[0],size[0]),random.randint(-size[1],size[1]))
@@ -50,7 +50,18 @@ t.setpos((-size[0],-size[1]-100))
 
 t.end_fill()
 
-t.penup()
+def window(spotx,spoty):
+    t.penup()
+    t.goto(spotx,spoty)
+    t.pendown()
 
+    t.pen(fillcolor= "white",pensize="2")
+
+    t.begin_fill()
+    square(15)
+    t.end_fill()
+
+window(-100,100)
+window(100,150)
 
 turtle.done()
