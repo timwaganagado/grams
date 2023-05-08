@@ -5,7 +5,7 @@ import tkinter
 class MyGUI:
     def __init__(self):
         self.main_window =tkinter.Tk()
-        self.main_window.title("Week 3 - Problem 1")
+        self.main_window.title("Week 3 - Problem 2")
         
         self.var_sale = tkinter.StringVar(self.main_window)
         

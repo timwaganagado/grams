@@ -5,14 +5,15 @@ t = turtle.Turtle()
 
 turtle.bgcolor("black")
 t.penup()
+turtle.screensize(canvwidth=400,canvheight=400)
 size = turtle.screensize()
-
+size = (size[0]+100,size[1])
 def square(size):
     for x in range(4):
         t.forward(size)
         t.left(90)
 t.pencolor("white")
-for x in range(random.randint(10,15)):
+for x in range(random.randint(10,25)):
     
     t.penup()
     t.setpos(random.randint(-size[0],size[0]),random.randint(-size[1],size[1]))
@@ -23,14 +24,14 @@ for x in range(random.randint(10,15)):
     square(3)
     t.end_fill()
 t.penup()
-t.setpos((-size[0],0))
+t.setpos((-size[0]-50,0))
 print(size)
 print(t.pos())
 t.pendown()
 t.pencolor("grey")
 t.pen(fillcolor = "grey",pensize="5")
 
-instruc = [(50,True,50),(40,False,30),(20,True,80),(40,False,30),(40,False,30),(50,True,50),(40,False,30),(20,True,80),(40,False,30),(40,False,30),(50,True,50),(40,False,30),(20,True,80),(40,False,30),(40,False,30), (40,False,30),(50,True,20),(40,False,30),(50,True,20),(40,False,30),(50,True,20)]
+instruc = [(50,True,50),(40,False,30),(20,True,80),(40,False,30),(40,False,30),(50,True,50),(40,False,30),(20,True,80),(40,False,30),(40,False,30),(50,True,50),(40,False,30),(20,True,80),(40,False,30),(40,False,30), (40,False,30),(50,True,20),(40,False,30),(50,True,20),(40,False,30),(50,True,20),(40,False,30),(50,True,50),(40,False,30),(20,True,80),(40,False,30),(40,False,30)]
 
 t.begin_fill()
 for x in instruc:
@@ -62,6 +63,9 @@ def window(spotx,spoty):
     t.end_fill()
 
 window(-100,100)
-window(100,150)
+window(100,50)
+window(50,75)
+window(200,50)
+window(-300,50)
 
 turtle.done()

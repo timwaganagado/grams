@@ -4,7 +4,7 @@ from tkinter import *
 class MyGUI:
     def __init__(self):
         self.main_window = tkinter.Tk()
-        self.main_window.title("ST1 Quiz Mark Calculator")
+        self.main_window.title("ST1 week 5 - 1")
         self.first = []
         self.second = tkinter.IntVar(self.main_window)
         f = Frame(self.main_window)

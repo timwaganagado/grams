@@ -6,7 +6,7 @@ print(massconversion)
 class MyGUI:
     def __init__(self):
         self.main_window =tkinter.Tk()
-        self.main_window.title("Week 3 - Problem 1")
+        self.main_window.title("Week 3 - Problem 3")
         
         self.var_weight = tkinter.StringVar(self.main_window)
         

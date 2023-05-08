@@ -4,7 +4,7 @@ from tkinter import *
 class MyGUI:
     def __init__(self):
         self.main_window = tkinter.Tk()
-        self.main_window.title("ST1 Quiz Mark Calculator")
+        self.main_window.title("ST1 Seat Calculator")
         self.first = []
         self.texts = ["Class A seats:","Class B seats:","Class C seats:"]
         for y,x in enumerate(self.texts):
