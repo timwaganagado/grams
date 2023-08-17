@@ -1,0 +1,17 @@
+
+
+body {background-color: rgb(208, 95, 95);
+color: black;}
+h1 {background-color: blueviolet;
+color: rgba(255, 255, 255, 0.614);
+line-height: 200%;
+font-family: Georgia, 'Times New Roman', Times, serif;}
+h2 {background-color: rgb(174, 129, 216);
+color: rgb(12, 12, 87);
+text-align: center;
+font-family: Georgia, 'Times New Roman', Times, serif;}
+p {color: rgb(12, 12, 87);
+}
+.me {font-weight: bold;
+font-family: Georgia, 'Times New Roman', Times, serif;
+font-size: 1.25em;}

@@ -1,7 +1,6 @@
 #spell auto battler
 from email.policy import default
 from re import X
-from matplotlib.pyplot import text
 import pygame as pg
 from os import path
 from collections import deque

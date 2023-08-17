@@ -2,7 +2,6 @@ from cmath import rect
 from this import d
 from tkinter import Y
 from tkinter.messagebox import YES
-from gevent import idle
 import pygame as pg
 from os import path
 from collections import deque
