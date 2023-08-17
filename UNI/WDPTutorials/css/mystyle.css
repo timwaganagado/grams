@@ -1,0 +1,110 @@
+body{
+    font-family: Arial, Helvetica, sans-serif;
+    background-image: url(../images/canberra.jpg);
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+}
+section{
+    background-color: rgba(255,244,233,0.5);
+    margin: 20px;
+    padding: 20px;
+    border-style: outset;
+    border-width: 7px;
+}
+header{
+    font-size: 20px;
+    font-weight: bold;
+    color: brown;
+}
+h1, h2, h3, h4, h5, h6, p {
+    margin-left: 20px;
+    }
+ul > li{
+    font-weight: bold;
+}
+#linearshadow{
+    background-image: linear-gradient(to right, lightgray, lightblue);
+    box-shadow: 10px 10px navy;
+    border-radius: 0px 25px 25px 0px;
+    border-style: none;
+}
+#s5 > p, #s6 > p{
+    margin: 10px;
+    font-weight: bold;
+    font-size: 18px;
+    color: navy;
+}
+.niconne {
+    font-family: 'Niconne', cursive;
+    font-size: xx-large;
+    color: navy;
+}
+.oxygen {
+    font-family: "Oxygen", sans-serif;
+    letter-spacing: 7px;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+figure {
+    height: auto;
+    width: 300px;
+    position: relative;
+}
+img {
+    width: 100%;
+    height: auto;
+}
+figcaption {
+    top: 0px;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+    position: absolute;
+    background-image: linear-gradient(to right, red, green, blue);
+    box-shadow: 10px 10px navy;
+    font-family: Arial, sans-serif;
+    font-size: 3em;
+    text-align: center;
+    text-shadow: 4px 3px white;
+    padding-top: 20%;
+    visibility: hidden;
+    opacity: 0.8;
+}
+figure:hover > figcaption {
+    visibility: visible;
+}
+#canberra {
+    font-size: 70px;
+    text-shadow: none;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.video-container{
+    position: relative;
+    width: 40vw;
+    height: 20vw;
+
+}
+    .video-container:hover > video + div{
+        visibility: hidden;
+    }
+video{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+    video + div{
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        padding-left: 7vw;
+        padding-top: 10vw;
+        background: #2545c269;
+        font: bold 3vw 'niconne';
+        color: navy;
+        visibility: visible;
+    }

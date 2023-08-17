@@ -3,7 +3,7 @@ import csv
 with open("numders.csv","w",newline='') as file:
     writer = csv.writer(file)
     writer.writerow(["Start","Times"])
-    for x in range(1,1000):
+    for x in range(999,2000):
         start = x
         new = x
         times = 0
