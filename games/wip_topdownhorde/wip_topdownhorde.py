@@ -1301,8 +1301,11 @@ class settings:
         self.volume_effects = 0.3
 
 skills.test()
-
-skill_dict = skills.get_skills(highscores)[0]
+try:
+    skill_dict = skills.get_skills(highscores)[0]
+except:
+    skills.redo()
+    skill_dict = skills.get_skills(highscores)[0]
 skill = skills.get_skills(highscores)[1]
 specific_skill_dict = skills.get_skills(highscores)[2]
 
@@ -1328,7 +1331,7 @@ while running:
     current_time = pg.time.get_ticks()
     
     #pg.display.set_caption("{:.2f}".format(clock.get_fps())) # changes the name of the application
-    screen.fill(WHITE) # fills screnn with color
+    screen.fill(BLACK) # fills screnn with color
     state.statesbottom()
     # anything down here will be displayed ontop of anything above
     pg.display.flip() # dose the changes goto doccumentation for other ways

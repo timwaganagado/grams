@@ -29,8 +29,9 @@ def get_skills(highscores):
 def Special_investment():
     pass
 spec = [Special_investment]
-    
-if __name__ == '__main__':
+
+def redo():
+    global skill_dict , skill, specific_skill_dict
     skill_dict = {} 
     skill = []
     specific_skill_dict = {}
@@ -51,4 +52,7 @@ if __name__ == '__main__':
     highscores['skill_dict'] = skill_dict
     highscores['skill'] = skill
     highscores['specific_skill_dict'] = specific_skill_dict
+    
+if __name__ == '__main__':
+    redo()
         

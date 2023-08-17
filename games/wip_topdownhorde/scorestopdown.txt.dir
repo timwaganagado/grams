@@ -1,11 +1,4 @@
-<<<<<<< HEAD
-'highscores', (0, 114)
-'skill_dict', (4096, 922)
-'skill', (1536, 94)
-'specific_skill_dict', (2048, 180)
-=======
-'highscores', (0, 63)
-'skill_dict', (4096, 1072)
-'skill', (1536, 102)
-'specific_skill_dict', (2048, 211)
->>>>>>> ea465569453446e98970537dcd2642bbe95dfca1
+'skill_dict', (2048, 922)
+'skill', (3072, 94)
+'specific_skill_dict', (3584, 180)
+'highscores', (4096, 79)
