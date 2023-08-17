@@ -490,9 +490,9 @@ G = game()
 S = state()
 M = menu()
 name1 = 'burton'
-name2 = 'p2'
-name3 = 'p3'
-name4 = 'p4'
+name2 = 'ava'
+name3 = 'mum'
+name4 = 'dad'
 
 G.playerorder = {name1:0, name2:0, name3:0, name4:0}
 G.players = {name1:vec(-1,-1), name2:vec(-1,-1),name3:vec(-1,-1),name4:vec(-1,-1)}
