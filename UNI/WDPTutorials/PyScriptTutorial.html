@@ -1,0 +1,23 @@
+<link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+<link rel="stylesheet" type="text/css" href="css/mystyle.css" />
+<script defer src="https://pyscript.net/latest/pyscript.js"></script>
+<py-config>
+    packages = ["matplotlib", "pandas", "seaborn"]
+</py-config>
+<py-script>
+    import pandas as pd
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    from pyodide.http import open_url
+    url = open_url('csv/salaries2023.csv')
+    df = pd.read_csv(url)
+    display(df.head(n=10), target="output", append=True)
+    top_jobs = df.job_title.value_counts()[: 7]
+    m = df.shape[0]
+    job_distribution = top_jobs*100/m
+    job_distribution.plot(kind = 'pie', autopct = '%1.0f%%', figsize = (18, 10))
+    plt.title('Job distribution among top 10 in demand job title')
+    display(plt, target="output", append=True)
+</py-script>
+
+<div id="output"></div>
