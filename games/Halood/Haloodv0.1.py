@@ -1,6 +1,5 @@
 from pickle import TRUE
 from tempfile import tempdir
-from numpy import place
 import pygame as pg
 import pygame.freetype
 from os import path, times

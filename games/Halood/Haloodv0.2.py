@@ -2,7 +2,6 @@ from pickle import TRUE
 from tempfile import tempdir
 from tkinter import CENTER
 from turtle import pos
-from numpy import place
 import pygame as pg
 import pygame.freetype
 from os import path, times

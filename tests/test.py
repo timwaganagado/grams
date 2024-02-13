@@ -9,9 +9,6 @@ screen = pygame.display.set_mode((WIDTH,HEIGHT))
 
 screen.fill((255,255,255))
 
-hero = pygame.sprite.Sprite()
-hero.image = pygame.image.load('grams/hero.png')
-hero.rect = hero.image.get_rect()
 
 TILE_SIZE = 50
 NUM_TILES_WIDTH = WIDTH / TILE_SIZE

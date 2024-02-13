@@ -3,3 +3,5 @@ w = [{'l':2},{'k':1}]
 
 for x in w:
     print(x)
+
+print(1.5 % 1)

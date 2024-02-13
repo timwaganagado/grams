@@ -18,6 +18,7 @@ class map:
             rect = pygame.Rect(wall * tilesize, (tilesize, tilesize))
             pygame.draw.rect(screen, (140,140,140), rect)
     def enemy():
+        pass
             
 def player(pp):
     for axis in pp:
