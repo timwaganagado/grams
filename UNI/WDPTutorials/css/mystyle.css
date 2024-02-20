@@ -6,16 +6,16 @@ body{
     background-attachment: fixed;
 }
 section{
-    background-color: rgba(255,244,233,0.5);
-    margin: 20px;
-    padding: 20px;
-    border-style: outset;
-    border-width: 7px;
+    background-color: #100c3c70;
+    /*margin: 20px;*/
+    box-shadow: 7px 7px #94b44f;
+
+    color: white;
 }
 header{
-    font-size: 20px;
+    font-size: 2em;
     font-weight: bold;
-    color: brown;
+    color: white;
 }
 h1, h2, h3, h4, h5, h6, p {
     margin-left: 20px;
@@ -108,3 +108,110 @@ video{
         color: navy;
         visibility: visible;
     }
+/* Media queries */
+/* Very large laptop and desktop screens*/
+@media (min-width: 1200px) {
+    figure {
+    width: 300px;
+}
+figcaption {
+font-size: 3em;
+}
+#canberra {
+font-size: 60px;
+}
+}
+/*Large laptop/desktop screens*/
+@media (min-width: 992px) and (max-width: 1200px) {
+figure {
+width: 250px;
+}
+figcaption {
+font-size: 2.5em;
+}
+#canberra {
+font-size: 40px;
+}
+}
+/*Standard laptop/desktop screens*/
+@media (min-width: 768px) and (max-width: 992px) {
+figure {
+width: 200px;
+}
+figcaption {
+font-size: 2em;
+}
+#canberra {
+font-size: 30px;
+}
+}
+/*Tablet screens*/
+@media (min-width: 576px) and (max-width: 768px) {
+figure {
+width: 200px;
+}
+figcaption {
+font-size: 1.5em;
+}
+#canberra {
+font-size: 30px;
+}
+}
+/*Mobile phone screens*/
+@media (max-width: 576px) {
+figure {
+width: 250px;
+}
+figcaption {
+font-size: 2em;
+}
+#canberra {
+font-size: 40px;
+}
+}
+
+.fa {
+    width: 30px;
+    height: 30px;
+    padding: 7.5px;
+    text-align: center;
+    font-size: 15px;
+    }
+    .fa-twitter {
+    background: #55ACEE;
+    color: white;
+    }
+    .fa-facebook {
+    background: #3B5998;
+    color: white;
+    }
+.display{
+    opacity:1;
+    transition: opacity 3.0s;
+}
+.hidden{
+    opacity: 0;
+}
+
+table, td, th {
+    border: 1px solid black;
+    }
+    table {
+    border-collapse: collapse;
+    width: 100%;
+    }
+    th, td {
+    padding: 5px;
+    }
+    th {
+    background-color: navy;
+    color: yellow;
+    text-align: center;
+    }
+    tr {
+    background-color: white;
+    color: navy;
+}
+tr:hover {
+background-color: #f5f5f5;
+}

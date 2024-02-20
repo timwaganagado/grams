@@ -1331,7 +1331,7 @@ while running:
     current_time = pg.time.get_ticks()
     
     #pg.display.set_caption("{:.2f}".format(clock.get_fps())) # changes the name of the application
-    screen.fill(BLACK) # fills screnn with color
+    screen.fill(WHITE) # fills screnn with color
     state.statesbottom()
     # anything down here will be displayed ontop of anything above
     pg.display.flip() # dose the changes goto doccumentation for other ways

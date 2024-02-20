@@ -9,10 +9,9 @@ def draw(c,d,drawn,hand):
     c = random.choice(bj_cards)
     lop = 1
     while lop > 0:
+      print("herre")
       if len(drawn) == len(bj_cards):
-        time.sleep(1)
         print('Reshuffling')
-        time.sleep(1)
         print()
         drawn = []
         lop = 1
