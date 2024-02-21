@@ -71,6 +71,8 @@ class wall():
         self.pos_y = pos_y
         self.ori = ori
         self.passable = True
+    def __str__(self):
+        return f"grid = {self.x,self.y}, ori = {self.ori}, pass = {self.passable}"
 
 def vectotup(vect):
     return vect.x,vect.y
@@ -86,7 +88,6 @@ class Grid():
         
         self.init_walls()
 
-        print(self.cells)
         self.update_cell_occupy(vec(0,0),defpla(vec(0,0)))
 
         for x in self.cells:
@@ -115,9 +116,9 @@ class Grid():
                     wally += 0.5
                     wallypos = wally*self.cell_size+self.grid_pos_y
 
-                    ori = "horizontal"
+                    ori = "vertical"
                     if wallx % 1 == 0.5:
-                        ori = "vertical"
+                        ori = "horizontal"
 
                     temp_connections.update({cellcon:wall(wallx,wally,wallxpos,wallypos,ori)})
             cell.connections = temp_connections
@@ -161,7 +162,6 @@ class Grid():
                 x = (pos[0]+x[0],pos[1]+x[1])
                 if x in self.walls:
                     temp_connections.update({x:self.walls[x]})
-            print(temp_connections)
             cell.connections = temp_connections
     def update_cells(self):
         self.cells = {}
@@ -235,9 +235,7 @@ class Grid():
                 shortest = length
                 target = x
         self.close = target
-        print(self.close.x,self.close.y)
         for y in self.close.connections:
-            print(y)
             y = self.close.connections[y]
     def show_connections(self):
         if self.close:
@@ -246,8 +244,19 @@ class Grid():
             pg.draw.circle(screen,GREEN,(m[0],m[1]),5)
             for y in self.close.connections:
                 y = self.close.connections[y]
-                
                 pg.draw.line(screen,RED, (self.close.pos_x,self.close.pos_y), (y.pos_x,y.pos_y))
+
+    def make_wall(self,dir):
+        dir = vec(dir)
+        if self.close:
+            dir += vec(self.close.x,self.close.y)
+            vecdir = vectotup(dir)
+            if vecdir in self.close.connections:
+                print(self.close.connections[vecdir])
+                self.close.connections[vecdir].passable = False
+                print(self.close.connections[vecdir])
+            self.close = False
+
     def update_cell_occupy(self,cell,target):
         for x in self.cells:
             tile = self.cells[x]
@@ -255,6 +264,7 @@ class Grid():
                 tile.occupying = 0
         self.cells[vectotup(cell)].occupying = target
     def movechar(self,dir):
+        dir = vec(dir)
         pos = self.selectedchar.pos
         dir += pos
         if vectotup(dir) in self.cells[vectotup(pos)].connections:
@@ -276,15 +286,20 @@ while running:
             if event.key == pg.K_ESCAPE:
                 running = False
                 pg.quit
+
+            dir = vec(0,0)
             if event.key == pg.K_w:
-                T.movechar(vec(0,-1))
+                dir = vec(0,-1)
             if event.key == pg.K_a:
-                T.movechar(vec(-1,0))
+                dir = vec(-1,0)
             if event.key == pg.K_s:
-                T.movechar(vec(0,1))
+                dir = vec(0,1)
             if event.key == pg.K_d:
-                T.movechar(vec(1,0))
+                dir = vec(1,0)
             
+            T.movechar(dir)
+            T.make_wall(dir)
+
         if event.type == pg.MOUSEBUTTONDOWN:  
             mpos = pg.mouse.get_pos()      
             T.find_closest()     
