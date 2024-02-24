@@ -71,6 +71,10 @@ class wall():
         self.pos_y = pos_y
         self.ori = ori
         self.passable = True
+    def draw(self):
+        if not self.passable:
+            pg.draw.circle(screen,BLACK,(self.pos_x,self.pos_y),5)
+        pg.draw.circle(screen,RED,(self.pos_x,self.pos_y),5)
     def __str__(self):
         return f"grid = {self.x,self.y}, ori = {self.ori}, pass = {self.passable}"
 
@@ -202,7 +206,7 @@ class Grid():
             pg.draw.circle(screen,BLACK,(cell.pos_x,cell.pos_y),5)
         for x in self.walls:
             wall = self.walls[x]
-            pg.draw.circle(screen,RED,(wall.pos_x,wall.pos_y),5)
+            wall.draw()
     #def draw_grid(self):
     #    for x in range(0, WIDTH, self.cell_size):
     #        pg.draw.line(screen, LIGHTGRAY, (x, 0), (x, HEIGHT))
@@ -268,7 +272,8 @@ class Grid():
         pos = self.selectedchar.pos
         dir += pos
         if vectotup(dir) in self.cells[vectotup(pos)].connections:
-            if self.cells[vectotup(dir)].occupying == 0:
+            print(self.cells[vectotup(pos)].connections[vectotup(dir)])
+            if self.cells[vectotup(dir)].occupying == 0 and self.cells[vectotup(pos)].connections[vectotup(dir)].passable == True:
                 self.selectedchar.pos = dir
                 self.update_cell_occupy(dir,self.selectedchar)
 
