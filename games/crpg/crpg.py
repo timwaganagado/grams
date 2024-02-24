@@ -39,9 +39,17 @@ clock = pg.time.Clock()
 check_cell_connections = ((0,-1),(1,0),(0,1),(-1,0))
 check_tile_connections = ((0,-0.5),(0.5,0),(0,0.5),(-0.5,0))
 
+filename = os.path.dirname(sys.argv[0])
+gridinfo = shelve.open(filename+'/gridinfo.txt',writeback=True)
 
 
 cell_size = 50
+
+rundefaultgridgen = False
+
+def check_gridinfo():
+    if "0" not in gridinfo:
+        rundefaultgridgen = True
 
 class defpla():
     def __init__(self,pos):
@@ -73,7 +81,8 @@ class wall():
         self.passable = True
     def draw(self):
         if not self.passable:
-            pg.draw.circle(screen,BLACK,(self.pos_x,self.pos_y),5)
+            pg.draw.circle(screen,GREEN,(self.pos_x,self.pos_y),5)
+            return
         pg.draw.circle(screen,RED,(self.pos_x,self.pos_y),5)
     def __str__(self):
         return f"grid = {self.x,self.y}, ori = {self.ori}, pass = {self.passable}"
@@ -101,7 +110,8 @@ class Grid():
     def translate_gridtopos(self):
         pass
     def init_walls(self):
-
+        
+        self.walls = {}
         for pos in self.cells:
             temp_connections = {}
             cell = self.cells[pos]
@@ -124,16 +134,22 @@ class Grid():
                     if wallx % 1 == 0.5:
                         ori = "horizontal"
 
-                    temp_connections.update({cellcon:wall(wallx,wally,wallxpos,wallypos,ori)})
+                    if (wallx,wally) not in self.walls:
+                        wallactual = wall(wallx,wally,wallxpos,wallypos,ori)
+                        self.walls.update({(wallx,wally):wallactual})
+                        temp_connections.update({cellcon:wallactual})
+                    else:
+                        wallactual = self.walls[(wallx,wally)]
+                        temp_connections.update({cellcon:wallactual})
             cell.connections = temp_connections
 
         #draw wall
-        self.walls = {}
-        for pos in self.cells:
-            connections = self.cells[pos].connections
-            for othercell in connections:
-                wallactual = connections[othercell]
-                self.walls.update({(wallactual.x,wallactual.y):wallactual})
+        
+        #for pos in self.cells:
+        #    connections = self.cells[pos].connections
+        #    for othercell in connections:
+        #        wallactual = connections[othercell]
+        #        self.walls.update({(wallactual.x,wallactual.y):wallactual})
 
 
 
@@ -200,6 +216,12 @@ class Grid():
                 cons.append((targetwall))
         return cons
     
+    def draw(self):
+        self.draw_grid()
+        self.shows_places()
+        self.show_connections()
+        self.draw_playercharater()
+
     def shows_places(self): 
         for x in self.cells:
             cell = self.cells[x]
@@ -207,11 +229,13 @@ class Grid():
         for x in self.walls:
             wall = self.walls[x]
             wall.draw()
-    #def draw_grid(self):
-    #    for x in range(0, WIDTH, self.cell_size):
-    #        pg.draw.line(screen, LIGHTGRAY, (x, 0), (x, HEIGHT))
-    #    for y in range(0, HEIGHT, self.cell_size):
-    #        pg.draw.line(screen, LIGHTGRAY, (0, y), (WIDTH, y))
+    
+    def save_grid_info(self):
+        gridinfo_temp = {}
+        for x in self.walls:
+            wallclass = self.walls[x]
+            gridinfo.update({x:(wallclass.x,wallclass.y,wallclass.ori,wallclass.passable)})
+
     def draw_playercharater(self):
         xcentering = self.grid_pos_x 
         ycentering = self.grid_pos_y 
@@ -314,9 +338,7 @@ while running:
             pg.quit() 
     pg.display.set_caption("{:.2f}".format(clock.get_fps())) # changes the name of the application
     screen.fill(WHITE) # fills screnn with color
-    T.draw_grid()
-    T.shows_places()
-    T.show_connections()
-    T.draw_playercharater()
+    T.draw()
     # anything down here will be displayed ontop of anything above
     pg.display.flip() # dose the changes goto doccumentation for other ways
+T.save_grid_info()
