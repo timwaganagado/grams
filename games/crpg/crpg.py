@@ -33,7 +33,7 @@ def draw_text(text, size, color, x, y, align="topleft"):
     screen.blit(text_surface, text_rect)
 
 pg.init()
-screen = pg.display.set_mode((WIDTH, HEIGHT))
+screen = pg.display.set_mode((WIDTH, HEIGHT),display=0)
 clock = pg.time.Clock()
 
 check_cell_connections = ((0,-1),(1,0),(0,1),(-1,0))
