@@ -7,8 +7,16 @@ import os , sys
 import math
 vec = pg.math.Vector2
 
-WIDTH = 1920
-HEIGHT = 1080
+
+pg.init()
+infoobject = pg.display.Info()
+
+WIDTH = infoobject.current_w
+HEIGHT = infoobject.current_h
+
+screen = pg.display.set_mode((WIDTH, HEIGHT),display=0)
+
+
 FPS = 30
 BLUE = (0,0,255)
 BROWN = (165,42,42)
@@ -32,8 +40,13 @@ def draw_text(text, size, color, x, y, align="topleft"):
     text_rect = text_surface.get_rect(**{align: (x, y)})
     screen.blit(text_surface, text_rect)
 
-pg.init()
-screen = pg.display.set_mode((WIDTH, HEIGHT),display=0)
+def draw_text_center(text=str, size=int, color=tuple, x=int, y=int):
+    font = pg.font.Font(font_name, size)
+    text_surface = font.render(text, True, color)
+    text_rect = text_surface.get_rect(center=(x,y))
+    screen.blit(text_surface, text_rect)
+
+
 clock = pg.time.Clock()
 
 check_cell_connections = ((0,-1),(1,0),(0,1),(-1,0))
@@ -51,25 +64,60 @@ def check_gridinfo():
     if "0" not in gridinfo:
         rundefaultgridgen = True
 
-class defpla():
-    def __init__(self,pos):
+class defaultbutton:
+    def __init__(self,name,pos,sizex = 300,sizey= 50):
+        self.name = name
+        self.pos = pos
+        self.rect = pg.Rect((self.pos.x-sizex/2), (self.pos.y-sizey/2), sizex, sizey)
+    def draw(self):
+        pg.draw.rect(screen,BLACK,self.rect)
+        draw_text_center(self.name,40,WHITE,self.pos.x,self.pos.y)
+        
+
+class Play(defaultbutton):
+    def pressed(self,mpos):
+        pass
+
+
+class defpla:
+    def __init__(self,pos,centering):
         self.pos = pos
         self.testsize = cell_size - 6
-    def draw_test(self,xcenter,ycenter):
+        self.centering = centering
+        
+        self.create_buttons()
+    
+    def draw(self):
+        self.draw_test()
+        self.draw_buttons()
+    def draw_test(self):
+        xcenter,ycenter = self.centering.x,self.centering.y
         rect = pg.Surface((int(self.testsize), int(self.testsize)))
         rect.fill(RED)
         x = (self.pos.x*cell_size+xcenter+cell_size/2) - self.testsize/2
         y = (self.pos.y*cell_size+ycenter+cell_size/2) - self.testsize/2
         screen.blit(rect,(int(x),int(y))) 
 
+    def create_buttons(self):
+        self.buttons = [Play("punch",vec(WIDTH/2,HEIGHT*(4/5)))]
+    
+    def draw_buttons(self,spec=5):
+        for x in self.buttons:
+            x.draw()
+    def press_buttons(self,mpos):
+        for x in self.buttons:
+            if x.rect.collidepoint((mpos.x,mpos.y)):
+                x.pressed(mpos)
+
 class tile():
-    def __init__(self,grid_x,grid_y,pos_x,pos_y):
+    def __init__(self,grid_x,grid_y,pos_x,pos_y,elev=0):
         self.x = grid_x
         self.y = grid_y
         self.pos_x = pos_x
         self.pos_y = pos_y
         self.connections = []
         self.occupying = 0
+        self.elevation = elev
 
 class wall():
     def __init__(self,grid_x,grid_y,pos_x,pos_y,ori) -> None:
@@ -90,6 +138,7 @@ class wall():
 def vectotup(vect):
     return vect.x,vect.y
 
+
 class Grid():
     def __init__(self) -> None:
 
@@ -101,11 +150,15 @@ class Grid():
         
         self.init_walls()
 
-        self.update_cell_occupy(vec(0,0),defpla(vec(0,0)))
+        self.centering = vec(self.grid_pos_x,self.grid_pos_y)
+
+        self.update_cell_occupy(vec(0,0),defpla(vec(0,0),self.centering))
 
         for x in self.cells:
             if self.cells[x].occupying != 0:
                 self.selectedchar = self.cells[x].occupying
+        
+        
 
     def translate_gridtopos(self):
         pass
@@ -237,12 +290,10 @@ class Grid():
             gridinfo.update({x:(wallclass.x,wallclass.y,wallclass.ori,wallclass.passable)})
 
     def draw_playercharater(self):
-        xcentering = self.grid_pos_x 
-        ycentering = self.grid_pos_y 
         for pos in self.cells:
             character = self.cells[pos].occupying
             if character:
-                character.draw_test(xcentering,ycentering)
+                character.draw()
     def draw_grid(self):
         #vertical lines
         for x in range(int(self.grid_pos_x), int(self.grid_pos_x+self.grid_size_x+1), self.cell_size):
@@ -300,6 +351,10 @@ class Grid():
             if self.cells[vectotup(dir)].occupying == 0 and self.cells[vectotup(pos)].connections[vectotup(dir)].passable == True:
                 self.selectedchar.pos = dir
                 self.update_cell_occupy(dir,self.selectedchar)
+
+class combat:
+    def __init__(self):
+        pass
 
 T = Grid()
 
