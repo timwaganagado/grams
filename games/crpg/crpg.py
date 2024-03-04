@@ -287,7 +287,7 @@ class Grid():
         gridinfo_temp = {}
         for x in self.walls:
             wallclass = self.walls[x]
-            gridinfo.update({x:(wallclass.x,wallclass.y,wallclass.ori,wallclass.passable)})
+            gridinfo["grid"].update({x:(wallclass.x,wallclass.y,wallclass.ori,wallclass.passable)})
 
     def draw_playercharater(self):
         for pos in self.cells:
