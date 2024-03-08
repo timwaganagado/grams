@@ -154,12 +154,6 @@ class Grid():
 
         self.update_cell_occupy(vec(0,0),defpla(vec(0,0),self.centering))
 
-        for x in self.cells:
-            if self.cells[x].occupying != 0:
-                self.selectedchar = self.cells[x].occupying
-        
-        
-
     def translate_gridtopos(self):
         pass
     def init_walls(self):
@@ -352,11 +346,12 @@ class Grid():
                 self.selectedchar.pos = dir
                 self.update_cell_occupy(dir,self.selectedchar)
 
-class combat:
+class game:
     def __init__(self):
-        pass
+        self.G = Grid()
+        self.G.update_cell_occupy(vec(0,0),defpla(vec(0,0),self.G.centering))
 
-T = Grid()
+Gm = game()
 
 mpos = False
 
@@ -381,19 +376,20 @@ while running:
             if event.key == pg.K_d:
                 dir = vec(1,0)
             
-            T.movechar(dir)
-            T.make_wall(dir)
+            if Gm.G.selectedchar != 0:
+                Gm.G.movechar(dir)
+            Gm.G.make_wall(dir)
 
         if event.type == pg.MOUSEBUTTONDOWN:  
             mpos = pg.mouse.get_pos()      
-            T.find_closest()     
+            Gm.G.find_closest()     
                 
         if event.type == pg.QUIT: # allows for quit when clicking on the X 
             running = False
             pg.quit() 
     pg.display.set_caption("{:.2f}".format(clock.get_fps())) # changes the name of the application
     screen.fill(WHITE) # fills screnn with color
-    T.draw()
+    Gm.G.draw()
     # anything down here will be displayed ontop of anything above
     pg.display.flip() # dose the changes goto doccumentation for other ways
-T.save_grid_info()
+Gm.G.save_grid_info()
