@@ -8,6 +8,11 @@ import math
 vec = pg.math.Vector2
 
 
+# continue with interacting with combat
+# switch movemnt in to game
+#lock movemnt on attack select
+# get attack inputs
+
 pg.init()
 infoobject = pg.display.Info()
 
@@ -79,17 +84,13 @@ class Play(defaultbutton):
         pass
 
 
-class defpla:
+class defcha:
     def __init__(self,pos,centering):
         self.pos = pos
         self.testsize = cell_size - 6
         self.centering = centering
-        
-        self.create_buttons()
-    
     def draw(self):
         self.draw_test()
-        self.draw_buttons()
     def draw_test(self):
         xcenter,ycenter = self.centering.x,self.centering.y
         rect = pg.Surface((int(self.testsize), int(self.testsize)))
@@ -97,6 +98,15 @@ class defpla:
         x = (self.pos.x*cell_size+xcenter+cell_size/2) - self.testsize/2
         y = (self.pos.y*cell_size+ycenter+cell_size/2) - self.testsize/2
         screen.blit(rect,(int(x),int(y))) 
+
+class defpla(defcha):    
+    def __init__(self, pos, centering):
+        super().__init__(pos, centering)    
+        self.create_buttons()
+    
+    def draw(self):
+        self.draw_buttons()
+        super().draw()
 
     def create_buttons(self):
         self.buttons = [Play("punch",vec(WIDTH/2,HEIGHT*(4/5)))]
@@ -108,6 +118,12 @@ class defpla:
         for x in self.buttons:
             if x.rect.collidepoint((mpos.x,mpos.y)):
                 x.pressed(mpos)
+
+class defene(defcha):
+    def __init__(self, pos, centering):
+        super().__init__(pos, centering)
+
+
 
 class tile():
     def __init__(self,grid_x,grid_y,pos_x,pos_y,elev=0):
@@ -152,7 +168,7 @@ class Grid():
 
         self.centering = vec(self.grid_pos_x,self.grid_pos_y)
 
-        self.update_cell_occupy(vec(0,0),defpla(vec(0,0),self.centering))
+        self.selectedchar = 0
 
     def translate_gridtopos(self):
         pass
@@ -267,7 +283,6 @@ class Grid():
         self.draw_grid()
         self.shows_places()
         self.show_connections()
-        self.draw_playercharater()
 
     def shows_places(self): 
         for x in self.cells:
@@ -283,11 +298,6 @@ class Grid():
             wallclass = self.walls[x]
             gridinfo["grid"].update({x:(wallclass.x,wallclass.y,wallclass.ori,wallclass.passable)})
 
-    def draw_playercharater(self):
-        for pos in self.cells:
-            character = self.cells[pos].occupying
-            if character:
-                character.draw()
     def draw_grid(self):
         #vertical lines
         for x in range(int(self.grid_pos_x), int(self.grid_pos_x+self.grid_size_x+1), self.cell_size):
@@ -349,8 +359,39 @@ class Grid():
 class game:
     def __init__(self):
         self.G = Grid()
-        self.G.update_cell_occupy(vec(0,0),defpla(vec(0,0),self.G.centering))
+        G = self.G
 
+        self.playerCha = {}
+        self.addtogrid_player(vec(0,0),defpla(vec(0,0),G.centering))
+        
+        for x in G.cells:
+            tile = G.cells[x]
+            if tile.occupying != 0:
+                G.selectedchar = tile.occupying
+                break
+        self.enemyCha = {}
+        self.addtogrid_enemy(vec(2,2),defene(vec(2,2),G.centering))
+    def addtogrid_player(self,pos,ent):
+        self.addtogrid(pos,ent)
+        self.playerCha.update({ent:pos})
+    
+    def addtogrid_enemy(self,pos,ent):
+        self.addtogrid(pos,ent)
+        self.enemyCha.update({ent:pos})
+
+    def addtogrid(self,pos,ent):
+        G = self.G
+        G.update_cell_occupy(pos,ent)
+
+    def draw(self):
+        self.draw_charaters()
+
+    def draw_charaters(self):
+        for ent in self.playerCha:
+            ent.draw()
+        for ent in self.enemyCha:
+            ent.draw()
+        
 Gm = game()
 
 mpos = False
@@ -390,6 +431,7 @@ while running:
     pg.display.set_caption("{:.2f}".format(clock.get_fps())) # changes the name of the application
     screen.fill(WHITE) # fills screnn with color
     Gm.G.draw()
+    Gm.draw()
     # anything down here will be displayed ontop of anything above
     pg.display.flip() # dose the changes goto doccumentation for other ways
 Gm.G.save_grid_info()
