@@ -10,8 +10,7 @@ vec = pg.math.Vector2
 
 # continue with interacting with combat
 # switch movemnt in to game
-#lock movemnt on attack select
-# get attack inputs
+# lock movemnt on attack select
 
 pg.init()
 infoobject = pg.display.Info()
@@ -52,6 +51,8 @@ def draw_text_center(text=str, size=int, color=tuple, x=int, y=int):
     screen.blit(text_surface, text_rect)
 
 
+
+
 clock = pg.time.Clock()
 
 check_cell_connections = ((0,-1),(1,0),(0,1),(-1,0))
@@ -79,9 +80,9 @@ class defaultbutton:
         draw_text_center(self.name,40,WHITE,self.pos.x,self.pos.y)
         
 
-class Play(defaultbutton):
+class attack(defaultbutton):
     def pressed(self,mpos):
-        pass
+        Gm.addtoconsole(self.name)
 
 
 class defcha:
@@ -109,15 +110,19 @@ class defpla(defcha):
         super().draw()
 
     def create_buttons(self):
-        self.buttons = [Play("punch",vec(WIDTH/2,HEIGHT*(4/5)))]
+        self.buttons = [attack("punch",vec(WIDTH/2,HEIGHT*(4/6))),attack("blunch",vec(WIDTH/2,HEIGHT*(5/6)))]
     
     def draw_buttons(self,spec=5):
         for x in self.buttons:
             x.draw()
-    def press_buttons(self,mpos):
+    def press_buttons(self,selected):
         for x in self.buttons:
             if x.rect.collidepoint((mpos.x,mpos.y)):
-                x.pressed(mpos)
+                if x == selected:    
+                    x.pressed(mpos)
+                    return 0
+                else:
+                    return x
 
 class defene(defcha):
     def __init__(self, pos, centering):
@@ -323,7 +328,6 @@ class Grid():
     def show_connections(self):
         if self.close:
             m = mpos
-            m = (m[0]),(m[1])
             pg.draw.circle(screen,GREEN,(m[0],m[1]),5)
             for y in self.close.connections:
                 y = self.close.connections[y]
@@ -361,14 +365,18 @@ class game:
         self.G = Grid()
         G = self.G
 
+        self.consoletext = []
+
         self.playerCha = {}
         self.addtogrid_player(vec(0,0),defpla(vec(0,0),G.centering))
         
         for x in G.cells:
             tile = G.cells[x]
             if tile.occupying != 0:
+                self.selectedchar = tile.occupying
                 G.selectedchar = tile.occupying
                 break
+        self.selectedattack = 0
         self.enemyCha = {}
         self.addtogrid_enemy(vec(2,2),defene(vec(2,2),G.centering))
     def addtogrid_player(self,pos,ent):
@@ -383,14 +391,35 @@ class game:
         G = self.G
         G.update_cell_occupy(pos,ent)
 
+    def movechar(self,dir):
+        if self.selectedattack == 0:
+            self.G.movechar(dir)
+
+
+    def buttonpress(self):
+        if self.selectedchar:
+            self.selectedattack = self.selectedchar.press_buttons(self.selectedattack)
+            
+
     def draw(self):
         self.draw_charaters()
+        self.draw_console()
 
     def draw_charaters(self):
         for ent in self.playerCha:
             ent.draw()
         for ent in self.enemyCha:
             ent.draw()
+    
+    def addtoconsole(self,text):
+        self.consoletext.append(text)
+        if len(self.consoletext) > 10:
+            self.consoletext.pop(0)
+    
+    def draw_console(self):
+        for x,y in enumerate(self.consoletext):
+            print(x,y)
+            draw_text(f"{y}",20,BLACK,WIDTH*(6/7),HEIGHT*(1/5)+HEIGHT*(1/20)*x)
         
 Gm = game()
 
@@ -418,11 +447,12 @@ while running:
                 dir = vec(1,0)
             
             if Gm.G.selectedchar != 0:
-                Gm.G.movechar(dir)
+                Gm.movechar(dir)
             Gm.G.make_wall(dir)
 
         if event.type == pg.MOUSEBUTTONDOWN:  
-            mpos = pg.mouse.get_pos()      
+            mpos = vec(pg.mouse.get_pos())
+            Gm.buttonpress()     
             Gm.G.find_closest()     
                 
         if event.type == pg.QUIT: # allows for quit when clicking on the X 
