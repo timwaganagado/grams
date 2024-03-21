@@ -90,6 +90,7 @@ class defcha:
         self.pos = pos
         self.testsize = cell_size - 6
         self.centering = centering
+        self.health = 10
     def draw(self):
         self.draw_test()
     def draw_test(self):
@@ -120,9 +121,9 @@ class defpla(defcha):
             if x.rect.collidepoint((mpos.x,mpos.y)):
                 if x == selected:    
                     x.pressed(mpos)
-                    return 0
                 else:
                     return x
+            return 0
 
 class defene(defcha):
     def __init__(self, pos, centering):
@@ -159,13 +160,36 @@ class wall():
 def vectotup(vect):
     return vect.x,vect.y
 
-
-class Grid():
-    def __init__(self) -> None:
-
-        self.close = False  
-
+class grid:
+    def __init__(self):
         self.update_grid()
+    
+    def update_grid(self):
+        self.cell_size = cell_size 
+        self.cell_amo_x = 20
+        self.cell_amo_y = 8
+
+        self.grid_size_x = self.cell_size * self.cell_amo_x
+        self.grid_size_x = round(self.grid_size_x/self.cell_size) * self.cell_size
+
+        self.grid_size_y = self.cell_size * self.cell_amo_y
+        self.grid_size_y = round(self.grid_size_y/self.cell_size) * self.cell_size
+
+        self.grid_pos_x = WIDTH/2 - self.grid_size_x/2
+        self.grid_pos_y = 50
+
+    def draw_grid(self,gridposx,gridposy,gridsizex,gridsizey,cellsize):
+        #vertical lines
+        for x in range(int(gridposx), int(gridposx+gridsizex+1), cellsize):
+            pg.draw.line(screen, BLACK, (x, int(gridposy)), (x, int(gridposy+gridsizey-1)))
+        #horizontal lines
+        for y in range(int(gridposy), int(gridposy+gridsizey+1), cellsize):
+            pg.draw.line(screen, BLACK, (int(gridposx), y), (int(gridposx+gridsizex-1), y))
+
+class board(grid):
+    def __init__(self) -> None:
+        grid.__init__(self)
+        self.close = False  
 
         self.update_cells()
         
@@ -174,7 +198,6 @@ class Grid():
         self.centering = vec(self.grid_pos_x,self.grid_pos_y)
 
         self.selectedchar = 0
-
     def translate_gridtopos(self):
         pass
     def init_walls(self):
@@ -262,20 +285,6 @@ class Grid():
                 y = y*self.cell_size+self.grid_pos_y + self.cell_size/2
                 self.cells.update({(rawx,rawy):tile(rawx,rawy,x,y)})
 
-    def update_grid(self):
-        self.cell_size = cell_size 
-        self.cell_amo_x = 20
-        self.cell_amo_y = 8
-
-        self.grid_size_x = self.cell_size * self.cell_amo_x
-        self.grid_size_x = round(self.grid_size_x/self.cell_size) * self.cell_size
-
-        self.grid_size_y = self.cell_size * self.cell_amo_y
-        self.grid_size_y = round(self.grid_size_y/self.cell_size) * self.cell_size
-
-        self.grid_pos_x = WIDTH/2 - self.grid_size_x/2
-        self.grid_pos_y = 50
-
     def checkcon(self,tartile):
         cons = []
         for x in check_tile_connections:
@@ -285,7 +294,7 @@ class Grid():
         return cons
     
     def draw(self):
-        self.draw_grid()
+        grid.draw_grid(self,self.grid_pos_x,self.grid_pos_y,self.grid_size_x,self.grid_size_y,self.cell_size)
         self.shows_places()
         self.show_connections()
 
@@ -301,15 +310,8 @@ class Grid():
         gridinfo_temp = {}
         for x in self.walls:
             wallclass = self.walls[x]
-            gridinfo["grid"].update({x:(wallclass.x,wallclass.y,wallclass.ori,wallclass.passable)})
+            #gridinfo["grid"].update({x:(wallclass.x,wallclass.y,wallclass.ori,wallclass.passable)})
 
-    def draw_grid(self):
-        #vertical lines
-        for x in range(int(self.grid_pos_x), int(self.grid_pos_x+self.grid_size_x+1), self.cell_size):
-            pg.draw.line(screen, BLACK, (x, int(self.grid_pos_y)), (x, int(self.grid_pos_y+self.grid_size_y-1)))
-        #horizontal lines
-        for y in range(int(self.grid_pos_y), int(self.grid_pos_y+self.grid_size_y+1), self.cell_size):
-            pg.draw.line(screen, BLACK, (int(self.grid_pos_x), y), (int(self.grid_pos_x+self.grid_size_x-1), y))
     def find_closest(self):
         m = mpos
         m = (m[0]),(m[1])
@@ -339,9 +341,9 @@ class Grid():
             dir += vec(self.close.x,self.close.y)
             vecdir = vectotup(dir)
             if vecdir in self.close.connections:
-                print(self.close.connections[vecdir])
+                Gm.addtoconsole(f"wallbefore, {self.close.connections[vecdir]}")
                 self.close.connections[vecdir].passable = False
-                print(self.close.connections[vecdir])
+                Gm.addtoconsole(f"wallafter, {self.close.connections[vecdir]}")
             self.close = False
 
     def update_cell_occupy(self,cell,target):
@@ -355,14 +357,14 @@ class Grid():
         pos = self.selectedchar.pos
         dir += pos
         if vectotup(dir) in self.cells[vectotup(pos)].connections:
-            print(self.cells[vectotup(pos)].connections[vectotup(dir)])
+            Gm.addtoconsole(self.cells[vectotup(pos)].connections[vectotup(dir)])
             if self.cells[vectotup(dir)].occupying == 0 and self.cells[vectotup(pos)].connections[vectotup(dir)].passable == True:
                 self.selectedchar.pos = dir
                 self.update_cell_occupy(dir,self.selectedchar)
 
 class game:
     def __init__(self):
-        self.G = Grid()
+        self.G = board()
         G = self.G
 
         self.consoletext = []
@@ -392,6 +394,7 @@ class game:
         G.update_cell_occupy(pos,ent)
 
     def movechar(self,dir):
+        self.addtoconsole(f"selectedatack, {self.selectedattack}")
         if self.selectedattack == 0:
             self.G.movechar(dir)
 
@@ -418,8 +421,8 @@ class game:
     
     def draw_console(self):
         for x,y in enumerate(self.consoletext):
-            print(x,y)
-            draw_text(f"{y}",20,BLACK,WIDTH*(6/7),HEIGHT*(1/5)+HEIGHT*(1/20)*x)
+            #print(x,y)
+            draw_text(f"{y}",20,BLACK,WIDTH*(8/10),HEIGHT*(1/5)+HEIGHT*(1/20)*x)
         
 Gm = game()
 
