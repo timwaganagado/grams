@@ -11,6 +11,8 @@ vec = pg.math.Vector2
 # continue with interacting with combat
 # switch movemnt in to game
 # lock movemnt on attack select
+# create system for actions with restructure of grid system
+# change update cells 
 
 pg.init()
 infoobject = pg.display.Info()
@@ -161,13 +163,16 @@ def vectotup(vect):
     return vect.x,vect.y
 
 class grid:
-    def __init__(self):
-        self.update_grid()
-    
-    def update_grid(self):
+    def __init__(self,cell_size,sizex,sizey,posx,posy,center='true'):
         self.cell_size = cell_size 
-        self.cell_amo_x = 20
-        self.cell_amo_y = 8
+        self.cell_amo_x = sizex
+        self.cell_amo_y = sizey
+        self.update_grid()
+        self.grid_pos_x = posx
+        if center == 'true':
+            self.grid_pos_x -= self.grid_size_x/2
+        self.grid_pos_y = posy
+    def update_grid(self):
 
         self.grid_size_x = self.cell_size * self.cell_amo_x
         self.grid_size_x = round(self.grid_size_x/self.cell_size) * self.cell_size
@@ -175,20 +180,30 @@ class grid:
         self.grid_size_y = self.cell_size * self.cell_amo_y
         self.grid_size_y = round(self.grid_size_y/self.cell_size) * self.cell_size
 
-        self.grid_pos_x = WIDTH/2 - self.grid_size_x/2
-        self.grid_pos_y = 50
+    def update_cells(self):
+        self.cells = {}
 
-    def draw_grid(self,gridposx,gridposy,gridsizex,gridsizey,cellsize):
+        for x in range(0,self.cell_amo_x):
+            rawx = x
+            x = x*self.cell_size+self.grid_pos_x + self.cell_size/2
+            for y in range(0,self.cell_amo_y):
+                rawy = y
+                y = y*self.cell_size+self.grid_pos_y + self.cell_size/2
+                self.cells.update({(rawx,rawy):tile(rawx,rawy,x,y)})
+
+    def draw_grid(self):
         #vertical lines
-        for x in range(int(gridposx), int(gridposx+gridsizex+1), cellsize):
-            pg.draw.line(screen, BLACK, (x, int(gridposy)), (x, int(gridposy+gridsizey-1)))
+        for x in range(int(self.grid_pos_x), int(self.grid_pos_x+self.grid_size_x+1), self.cell_size):
+            pg.draw.line(screen, BLACK, (x, int(self.grid_pos_y)), (x, int(self.grid_pos_y+self.grid_size_y-1)))
         #horizontal lines
-        for y in range(int(gridposy), int(gridposy+gridsizey+1), cellsize):
-            pg.draw.line(screen, BLACK, (int(gridposx), y), (int(gridposx+gridsizex-1), y))
+        for y in range(int(self.grid_pos_y), int(self.grid_pos_y+self.grid_size_y+1), self.cell_size):
+            pg.draw.line(screen, BLACK, (int(self.grid_pos_x), y), (int(self.grid_pos_x+self.grid_size_x-1), y))
 
 class board(grid):
     def __init__(self) -> None:
-        grid.__init__(self)
+        posx = WIDTH/2
+        posy = 50
+        grid.__init__(self,cell_size,20,8,posx,posy)
         self.close = False  
 
         self.update_cells()
@@ -274,16 +289,6 @@ class board(grid):
                 if x in self.walls:
                     temp_connections.update({x:self.walls[x]})
             cell.connections = temp_connections
-    def update_cells(self):
-        self.cells = {}
-
-        for x in range(0,self.cell_amo_x):
-            rawx = x
-            x = x*self.cell_size+self.grid_pos_x + self.cell_size/2
-            for y in range(0,self.cell_amo_y):
-                rawy = y
-                y = y*self.cell_size+self.grid_pos_y + self.cell_size/2
-                self.cells.update({(rawx,rawy):tile(rawx,rawy,x,y)})
 
     def checkcon(self,tartile):
         cons = []
@@ -294,7 +299,7 @@ class board(grid):
         return cons
     
     def draw(self):
-        grid.draw_grid(self,self.grid_pos_x,self.grid_pos_y,self.grid_size_x,self.grid_size_y,self.cell_size)
+        grid.draw_grid(self)
         self.shows_places()
         self.show_connections()
 
