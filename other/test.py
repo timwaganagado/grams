@@ -1,4 +1,4 @@
-print("year    Rise in ml")
-print("------------------")
-for x in range(10):
-    print(f"{x+1}     {round(1.6+(1.6*x),2)}")
+phones = {'John' : '5555555', 'Julie' : '5557777'}
+
+
+phones['John'] = 5556666'
