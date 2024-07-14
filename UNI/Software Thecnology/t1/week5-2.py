@@ -18,7 +18,10 @@ class MyGUI:
         f = Frame(self.main_window)
         f.pack(padx=10)
         tkinter.Button(f,text="Calculate Sum",command=self.showinformation).pack(side="left")
+        tkinter.Button(f,text="Remove calculations",command=self.calculations).pack(side="left")
         tkinter.mainloop()
+    def calculations(self):
+        self.first = []
     def showinformation(self):
         tkinter.Label(self.main_window,text=f"Calories from fat: {self.first[0].get()*3.9}").pack()
         tkinter.Label(self.main_window,text=f"Calories from carbs: {self.first[1].get()*4}").pack()
