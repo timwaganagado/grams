@@ -1,0 +1,166 @@
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>property_type</th>
+      <th>room_type</th>
+      <th>amenities</th>
+      <th>accommodates</th>
+      <th>bathrooms</th>
+      <th>bed_type</th>
+      <th>cancellation_policy</th>
+      <th>cleaning_fee</th>
+      <th>city</th>
+      <th>host_has_profile_pic</th>
+      <th>...</th>
+      <th>host_response_rate</th>
+      <th>instant_bookable</th>
+      <th>latitude</th>
+      <th>longitude</th>
+      <th>number_of_reviews</th>
+      <th>review_scores_rating</th>
+      <th>bedrooms</th>
+      <th>beds</th>
+      <th>log_price</th>
+      <th>Predictedlog_price</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>22986</th>
+      <td>0</td>
+      <td>1</td>
+      <td>325</td>
+      <td>2</td>
+      <td>1.0</td>
+      <td>4</td>
+      <td>1</td>
+      <td>1</td>
+      <td>3</td>
+      <td>1</td>
+      <td>...</td>
+      <td>80</td>
+      <td>0</td>
+      <td>33.986854</td>
+      <td>-118.444650</td>
+      <td>1</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>4.174387</td>
+      <td>4.0</td>
+    </tr>
+    <tr>
+      <th>58564</th>
+      <td>11</td>
+      <td>0</td>
+      <td>346</td>
+      <td>2</td>
+      <td>2.0</td>
+      <td>4</td>
+      <td>0</td>
+      <td>1</td>
+      <td>3</td>
+      <td>1</td>
+      <td>...</td>
+      <td>80</td>
+      <td>0</td>
+      <td>34.021512</td>
+      <td>-118.507665</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>6.204558</td>
+      <td>5.0</td>
+    </tr>
+    <tr>
+      <th>44938</th>
+      <td>17</td>
+      <td>0</td>
+      <td>317</td>
+      <td>2</td>
+      <td>1.0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>3</td>
+      <td>1</td>
+      <td>...</td>
+      <td>80</td>
+      <td>0</td>
+      <td>34.634175</td>
+      <td>-118.251396</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>4.0</td>
+      <td>1.0</td>
+      <td>4.605170</td>
+      <td>6.0</td>
+    </tr>
+    <tr>
+      <th>68730</th>
+      <td>0</td>
+      <td>1</td>
+      <td>216</td>
+      <td>2</td>
+      <td>1.0</td>
+      <td>4</td>
+      <td>2</td>
+      <td>1</td>
+      <td>4</td>
+      <td>1</td>
+      <td>...</td>
+      <td>2</td>
+      <td>1</td>
+      <td>40.691319</td>
+      <td>-73.944936</td>
+      <td>1</td>
+      <td>100.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>5.010635</td>
+      <td>4.0</td>
+    </tr>
+    <tr>
+      <th>32368</th>
+      <td>0</td>
+      <td>1</td>
+      <td>114</td>
+      <td>3</td>
+      <td>1.0</td>
+      <td>4</td>
+      <td>2</td>
+      <td>1</td>
+      <td>3</td>
+      <td>1</td>
+      <td>...</td>
+      <td>2</td>
+      <td>0</td>
+      <td>33.898229</td>
+      <td>-118.292912</td>
+      <td>3</td>
+      <td>93.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>3.526361</td>
+      <td>4.0</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows × 21 columns</p>
+</div>
