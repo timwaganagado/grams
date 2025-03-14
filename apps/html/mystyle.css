@@ -1,24 +1,25 @@
 
 
 body {background-color: #eaeaea;
-color: #000033;}
-h1 {background-color: blueviolet;
-color: rgba(255, 255, 255, 0.614);
-line-height: 200%;
-font-family: Georgia, 'Times New Roman', Times, serif;}
-h2 {background-color: rgb(174, 129, 216);
-color: rgb(12, 12, 87);
-text-align: center;
-font-family: Georgia, 'Times New Roman', Times, serif;}
-p {color: rgb(12, 12, 87);
-}
-.me {color: brown;
-font-family: Georgia, 'Times New Roman', Times, serif;
-font-size: 1.2em;}
-menu {list-style-type: none;
-display: flex;
-padding: 0;
-margin-bottom: 0;
-gap: 1em;
-}
-a {text-decoration: none;}
+    color: #000033;}
+    h1 {background-color: blueviolet;
+    color: rgba(255, 255, 255, 0.614);
+    line-height: 200%;
+    font-family: Georgia, 'Times New Roman', Times, serif;}
+    h2 {background-color: rgb(174, 129, 216);
+    color: rgb(12, 12, 87);
+    text-align: center;
+    font-family: Georgia, 'Times New Roman', Times, serif;}
+    p {color: rgb(12, 12, 87);
+    }
+    .me {color: brown;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-size: 1.2em;}
+    menu {list-style-type: none;
+    display: flex;
+    padding: 0;
+    margin-bottom: 0;
+    gap: 1em;
+    }
+    a {text-decoration: none;}
+    
