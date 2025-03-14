@@ -88,12 +88,14 @@ class MyGUI:
         tkinter.Label(f,text=f"burton Dnd").pack()
 
         f = self.create_frame(self.controlframe)
+        tkinter.Button(f,text="Players", command=self.playeradd).pack()
+        tkinter.Button(f,text="Enemies", command=self.enemyadd).pack()
         tkinter.Button(f,text="roll init",command=self.rollinit).pack()
 
         self.entframe = self.create_frame(self.downframe,"left")
         tkinter.Label(self.entframe,text=f"Players").pack()
 
-        self.enetframe = self.create_frame(self.downframe,"left")
+        self.enetframe = self.create_frame(self.main_window,"left")
         f = self.create_frame(self.enetframe)
         tkinter.Label(f,text=f"enemies").pack(side='left')
         tkinter.Button(f,text="Clear",command=self.clearframes).pack(side='left')
