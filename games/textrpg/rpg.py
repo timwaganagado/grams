@@ -7,15 +7,34 @@ Body = Enum('Body',[("Head",1),("Arms",2),("Torso",3),("Legs",4)])
 
 hitChance_default = {Body.Head: 70, Body.Arms: 20, Body.Torso: 20, Body.Legs: 40}
 
-class Unarmed:
+class test_chest:
     def __init__(self):
-        self.attack_damage = 3
+        self.name = "Test Chest"
+        self.description = "A test chest for testing purposes."
+        self.armour_type = Armour.Chest
+        self.armour_value = 1
+        self.health = 10
+        self.health_max = 10
+        self.speed = 0
+        self.accuracy = 0
+        self.effects = []
+
+
+class Weapon_base:
+    def __init__(self):
+        self.attack_damage = 0
         self.effects = []
         self.speed = 0
-        self.accuracy = 10
+        self.accuracy = 0
     def get_damage(self):
         return self.attack_damage
+    def get_effects(self):
+        return self.effects
 
+class Unarmed(Weapon_base):
+    def __init__(self):
+        super().__init__()
+    
 
 class character_base:
     def __init__(self, name="none", health=10):
@@ -24,6 +43,8 @@ class character_base:
         self.health_max = health
 
         self.speed = 10
+        self.dodge = 0
+        self.speed_current = 0
         self.weapon = Unarmed()
         self.update_speed()
 
@@ -39,23 +60,42 @@ class character_base:
     def damage(self, attack_received, attacker, targeting):
         hit = random.randint(attack_received.accuracy + attacker.accuracy, 100)
         if self.get_hit_chance(targeting) < hit:
-            damage = attack_received.get_damage()
             critical_body_damage = self.body_health[targeting] / self.body_max_current_health[targeting]
             if critical_body_damage < 0.5:
                 chance_fatal = critical_body_damage/0.5*100
                 outome_fatal = random.randint(1, 100)
 
-            self.body_health[targeting] -= damage
-            self.update_health(damage)
+            self.body_part_damage(targeting, attack_received)
+            self.update_health(attack_received)
             return damage, chance_fatal if critical_body_damage < 0.5 else 1, outome_fatal if critical_body_damage < 0.5 else 0
         return 0, 100, 0  # No damage, always fatal chance is 100% and outcome is 0 (no fatal outcome)
+    
+    def body_part_damage(self, body_part, attack_received):
+        damage = attack_received.get_damage()
+        match body_part != 0:
+            case Body.Head:
+                armour_targeted = self.armour[Armour.Helmet]
+                damage -= armour_targeted.armour_value
+            case Body.Arms:
+                armour_targeted = self.armour[Armour.Gloves]
+                damage -= armour_targeted.armour_value
+            case Body.Torso:
+                armour_targeted = self.armour[Armour.Chest]
+                damage -= armour_targeted.armour_value
+            case Body.Legs:
+                armour_targeted = self.armour[Armour.Shoes]
+                damage -= armour_targeted.armour_value
+
+        self.body_health[body_part] -= damage
+        if self.body_health[body_part] < 0:
+            self.body_health[body_part] = 0
     
     def attack(self, target, aim):
         return target.damage(self.weapon,self, aim)    
 
     def get_hit_chance(self, targeting):
         if targeting in self.hit_chance:
-            return self.hit_chance[targeting]
+            return self.hit_chance[targeting] + self.dodge
         else:
             return 0
     def get_health(self):
@@ -64,8 +104,8 @@ class character_base:
     def update_speed(self):
         self.speed = self.speed + self.weapon.speed
 
-    def update_health(self, damage):
-        self.health -= damage
+    def update_health(self, attack_received):
+        self.health -= attack_received.get_damage()
 
 class Player(character_base):
     def __init__(self):
@@ -87,8 +127,11 @@ class Player(character_base):
 class Test_enemy(character_base):
     def __init__(self, name, health):
         super().__init__(name, health)
+        self.armour[Armour.Chest] = test_chest()
+        self.dodge = 10
     
 
+buffer = 18
 
 running = True
 while running:
@@ -98,44 +141,69 @@ while running:
         Enemy = Test_enemy("Goblin", 10)
         battle = True
         while battle:
-            print(f"Enemy {Enemy.name} has {Enemy.health} health.")
-            print(f"head: {Enemy.body_health[Body.Head]} | arms: {Enemy.body_health[Body.Arms]} | torso: {Enemy.body_health[Body.Torso]} | legs: {Enemy.body_health[Body.Legs]}")
-            print()
-            print(f"You have {player.health} health.")
-            print(f"head: {player.body_health[Body.Head]} | arms: {player.body_health[Body.Arms]} | torso: {player.body_health[Body.Torso]} | legs: {player.body_health[Body.Legs]}")
-            print()
-            print("Aim at")
-            print("(h)ead, (a)rms, (t)orso, (l)egs")
-            print(f"{100-Enemy.get_hit_chance(Body.Head)}% | {100-Enemy.get_hit_chance(Body.Arms)}% | {100-Enemy.get_hit_chance(Body.Torso)}% | {100-Enemy.get_hit_chance(Body.Legs)}%")
-            turn = input("Your turn: ").lower()
-            if turn == 'a':
-                aim = Body.Arms
-            elif turn == 't':
-                aim = Body.Torso
-            elif turn == 'l':
-                aim = Body.Legs
-            else:
-                aim = Body.Head
-            damage = player.attack(Enemy,aim)[0]
-            print(f"You attacked {Enemy.name} for {damage} damage." if damage else "You missed!")
-            if Enemy.health <= 0:
-                print(f"You defeated {Enemy.name}!")
-                battle = False
-                continue
-            aim = random.choice(list(Body))
-            damage, fatal_chance, fatal_outcome = Enemy.attack(player,aim)
-            if damage:
-                print(f"{Enemy.name} attacked your {aim.name} for {damage} damage.")
-                print(f"TEST: {fatal_chance} | {fatal_outcome}")
-                if fatal_outcome:
-                    time.sleep(1)
-                    print(f"You are taking a fatal blow to your {aim.name}!")
-                    time.sleep(1)
-                    if fatal_chance < 100 and fatal_outcome >= fatal_chance:
-                        print(f"{Enemy.name} has dealt a fatal blow to your {aim.name}!")
-                        battle = False
-                        adventure = False
-                    else:
-                        print(f"You SURVIVED the fatal blow to your {aim.name}!")
-            else:
-                print(f"{Enemy.name} missed!")
+
+            
+
+            player.speed_current += player.speed
+            Enemy.speed_current += Enemy.speed
+            if player.speed_current > 100:
+                player.speed_current = 0
+
+                print(f"Enemy {Enemy.name} has {Enemy.health} health.")
+                string_head_hp = "head: " + str(Enemy.body_health[Body.Head])
+                string_arms_hp = "arms: " + str(Enemy.body_health[Body.Arms])
+                string_torso_hp = "torso: " + str(Enemy.body_health[Body.Torso])
+                string_legs_hp = "legs: " + str(Enemy.body_health[Body.Legs])
+
+                string_head = "head: " + str(Enemy.armour[Armour.Helmet].name if Enemy.armour[Armour.Helmet] else 0)
+                string_arms = "arms: " + str(Enemy.armour[Armour.Gloves].name if Enemy.armour[Armour.Gloves] else 0)
+                string_torso = "torso: " + str(Enemy.armour[Armour.Chest].name if Enemy.armour[Armour.Chest] else 0)
+                string_legs = "legs: " + str(Enemy.armour[Armour.Shoes].name if Enemy.armour[Armour.Shoes] else 0)
+                
+
+                print(f"{string_head_hp:<{buffer}} | {string_arms_hp:<{buffer}} | {string_torso_hp:<{buffer}} | {string_legs_hp:<{buffer}}")
+                print(f"{string_head:<{buffer}} | {string_arms:<{buffer}} | {string_torso:<{buffer}} | {string_legs:<{buffer}}")
+                print()
+                print(f"You have {player.health} health.")
+                print(f"head: {player.body_health[Body.Head]} | arms: {player.body_health[Body.Arms]} | torso: {player.body_health[Body.Torso]} | legs: {player.body_health[Body.Legs]}")
+                print()
+                print("Aim at")
+                print("(h)ead, (a)rms, (t)orso, (l)egs")
+                print(f"{100-Enemy.get_hit_chance(Body.Head)}% | {100-Enemy.get_hit_chance(Body.Arms)}% | {100-Enemy.get_hit_chance(Body.Torso)}% | {100-Enemy.get_hit_chance(Body.Legs)}%")
+                turn = input("Your turn: ").lower()
+                if turn == 'a':
+                    aim = Body.Arms
+                elif turn == 't':
+                    aim = Body.Torso
+                elif turn == 'l':
+                    aim = Body.Legs
+                else:
+                    aim = Body.Head
+                damage = player.attack(Enemy,aim)[0]
+                print(f"You attacked {Enemy.name} for {damage} damage." if damage else "You missed!")
+                if Enemy.health <= 0:
+                    print(f"You defeated {Enemy.name}!")
+                    battle = False
+                    continue
+            
+            if Enemy.speed_current > 100:
+                Enemy.speed_current = 0
+                print(f"{Enemy.name} is attacking!")
+                aim = random.choice(list(Body))
+                damage, fatal_chance, fatal_outcome = Enemy.attack(player,aim)
+                time.sleep(1)
+                if damage:
+                    print(f"{Enemy.name} attacked your {aim.name} for {damage} damage.")
+                    print(f"TEST: {fatal_chance} | {fatal_outcome}")
+                    if fatal_outcome:
+                        time.sleep(1)
+                        print(f"You are taking a fatal blow to your {aim.name}!")
+                        time.sleep(1)
+                        if fatal_chance < 100 and fatal_outcome >= fatal_chance:
+                            print(f"{Enemy.name} has dealt a fatal blow to your {aim.name}!")
+                            battle = False
+                            adventure = False
+                        else:
+                            print(f"You SURVIVED the fatal blow to your {aim.name}!")
+                else:
+                    print(f"{Enemy.name} missed!")
