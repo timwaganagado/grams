@@ -1,0 +1,10 @@
+John, 100, 18, Male, UG
+Emily, 90, 25, Female, PG
+Michael, 77, 16, Male, UG
+Sophia, 45, 24, Female, PG
+William, 29, 22, Male, UG
+Emma, 35, 21, Female, UG
+James, 85, 18, Male, UG
+Olivia, 19, 23, Female, PG
+Benjamin, 62, 26, Male, PG
+Ava, 54, 20, Female, UG
