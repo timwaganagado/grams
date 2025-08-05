@@ -723,7 +723,7 @@ class boss():
                 target.damage(damage,self,ll)
         def support(self,target):
             if target[0] == 0:
-                M.enemy[self][0][1] += M.enemy[self][0][1]*4/10
+                M.enemy[self][0][1] += 30
         def damage(self,dup,damage,inin):
             M.enemy[self][dup][1] -= damage
     class selloquie():
