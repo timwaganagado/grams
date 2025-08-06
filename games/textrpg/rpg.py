@@ -34,6 +34,7 @@ class Weapon_base:
 class Unarmed(Weapon_base):
     def __init__(self):
         super().__init__()
+        self.attack_damage = 3
     
 
 class character_base:
@@ -58,38 +59,41 @@ class character_base:
         self.body_health = {Body.Head: health, Body.Arms: health, Body.Torso: health, Body.Legs: health}
 
     def damage(self, attack_received, attacker, targeting):
-        hit = random.randint(attack_received.accuracy + attacker.accuracy, 100)
+        hit = random.randint(attack_received.accuracy + attacker.accuracy, 100+ attack_received.accuracy + attacker.accuracy)
+        print(self.get_hit_chance(targeting) < hit)
         if self.get_hit_chance(targeting) < hit:
+            print(f"{self.name} has been hit!")
             critical_body_damage = self.body_health[targeting] / self.body_max_current_health[targeting]
             if critical_body_damage < 0.5:
                 chance_fatal = critical_body_damage/0.5*100
                 outome_fatal = random.randint(1, 100)
-
-            self.body_part_damage(targeting, attack_received)
-            self.update_health(attack_received)
+            damage = attack_received.get_damage()
+            self.body_part_damage(targeting, damage, attack_received)
+            self.update_health(damage, attack_received)
             return damage, chance_fatal if critical_body_damage < 0.5 else 1, outome_fatal if critical_body_damage < 0.5 else 0
-        return 0, 100, 0  # No damage, always fatal chance is 100% and outcome is 0 (no fatal outcome)
+        return "miss", 100, 0  # No damage, always fatal chance is 100% and outcome is 0 (no fatal outcome)
     
-    def body_part_damage(self, body_part, attack_received):
-        damage = attack_received.get_damage()
-        match body_part != 0:
-            case Body.Head:
+    def body_part_damage(self, body_part, damage, attack_received):
+        body_damage = int(damage)
+        match body_part:
+            case Body.Head if self.armour[Armour.Helmet] != 0:
                 armour_targeted = self.armour[Armour.Helmet]
-                damage -= armour_targeted.armour_value
-            case Body.Arms:
+                body_damage -= armour_targeted.armour_value
+            case Body.Arms if self.armour[Armour.Gloves] != 0:
                 armour_targeted = self.armour[Armour.Gloves]
-                damage -= armour_targeted.armour_value
-            case Body.Torso:
+                body_damage -= armour_targeted.armour_value
+            case Body.Torso if self.armour[Armour.Chest] != 0:
+                print("Torso hit")
                 armour_targeted = self.armour[Armour.Chest]
-                damage -= armour_targeted.armour_value
-            case Body.Legs:
+                body_damage -= armour_targeted.armour_value
+            case Body.Legs if self.armour[Armour.Shoes] != 0:
                 armour_targeted = self.armour[Armour.Shoes]
-                damage -= armour_targeted.armour_value
+                body_damage -= armour_targeted.armour_value
 
-        self.body_health[body_part] -= damage
+        self.body_health[body_part] -= body_damage
         if self.body_health[body_part] < 0:
             self.body_health[body_part] = 0
-    
+        
     def attack(self, target, aim):
         return target.damage(self.weapon,self, aim)    
 
@@ -104,21 +108,22 @@ class character_base:
     def update_speed(self):
         self.speed = self.speed + self.weapon.speed
 
-    def update_health(self, attack_received):
-        self.health -= attack_received.get_damage()
+    def update_health(self, damage, attack_received):
+        self.health -= damage
 
 class Player(character_base):
     def __init__(self):
         super().__init__()
         self.armour = {Armour.Helmet:0,Armour.Gloves:0,Armour.Chest:0,Armour.Shoes:0}
         self.weapon = Unarmed()
+        self.selected_weapon = self.weapon
         self.health_max = 0
         self.health = 0
         self.update_health(0)
         self.speed = 10
         self.accuracy = 10
         self.update_speed()
-    def update_health(self,damage):
+    def update_health(self,damage, attack_received=None):
         self.health = 0
         for part in self.body_health:
             self.health += self.body_health[part]
@@ -169,7 +174,11 @@ while running:
                 print()
                 print("Aim at")
                 print("(h)ead, (a)rms, (t)orso, (l)egs")
-                print(f"{100-Enemy.get_hit_chance(Body.Head)}% | {100-Enemy.get_hit_chance(Body.Arms)}% | {100-Enemy.get_hit_chance(Body.Torso)}% | {100-Enemy.get_hit_chance(Body.Legs)}%")
+                acc = player.accuracy + player.selected_weapon.accuracy
+                for x in Body:
+                    print(f"{((100+acc)-Enemy.get_hit_chance(x))/((100+acc)-(0+acc))}%", end=" |")
+                print()
+                print(f"{(100-Enemy.get_hit_chance(Body.Head))}% | {100-Enemy.get_hit_chance(Body.Arms)}% | {100-Enemy.get_hit_chance(Body.Torso)}% | {100-Enemy.get_hit_chance(Body.Legs)}%")
                 turn = input("Your turn: ").lower()
                 if turn == 'a':
                     aim = Body.Arms
