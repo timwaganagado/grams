@@ -1,33 +1,50 @@
 import random
 from enum import Enum
 import time
+import Effects 
 
 Armour = Enum('Armour',[("Helmet",1),("Gloves",2),("Chest",3),("Shoes",4)])
 Body = Enum('Body',[("Head",1),("Arms",2),("Torso",3),("Legs",4)])
+DamageType = Enum('DamageType',[("Physical",1),("Fire",2),("Ice",3),("Poison",4),("Slash",5),("Pierce",6),("Blunt",7),("Cleave",8)])
+
+
 
 hitChance_default = {Body.Head: 70, Body.Arms: 20, Body.Torso: 20, Body.Legs: 40}
 
-class test_chest:
+
+
+class Armour_base:
     def __init__(self):
+        self.name = "Base Armour"
+        self.description = "A base armour for testing purposes."
+        self.armour_type = Armour.Chest
+        self.armour_value = 0
+        self.health = 0
+        self.health_max = 0
+        self.speed = 0
+        self.accuracy = 0
+        self.effects = []
+
+class test_chest(Armour_base):
+    def __init__(self):
+        super().__init__()
         self.name = "Test Chest"
         self.description = "A chest chest for chesting purposes."
         self.armour_type = Armour.Chest
         self.armour_value = 1
         self.health = 10
         self.health_max = 10
-        self.speed = 0
-        self.accuracy = 0
-        self.effects = []
 
 
 class Weapon_base:
     def __init__(self):
         self.attack_damage = 0
+        self.limb_damage = 0
         self.effects = []
         self.speed = 0
         self.accuracy = 0
     def get_damage(self):
-        return self.attack_damage
+        return self.attack_damage, self.effects
     def get_effects(self):
         return self.effects
 
@@ -35,6 +52,38 @@ class Unarmed(Weapon_base):
     def __init__(self):
         super().__init__()
         self.attack_damage = 3
+        self.limb_damage = 1
+        self.effects = [DamageType.Physical, DamageType.Blunt, Effects.Fire()]
+
+
+class broken_sword(Weapon_base):
+    def __init__(self):
+        super().__init__()
+        self.attack_damage = 2
+        self.limb_damage = 2
+        self.effects = [DamageType.Physical, DamageType.Slash]
+        self.speed = 0
+        self.accuracy = 0
+
+
+class broken_axe(Weapon_base):
+    def __init__(self):
+        super().__init__()
+        self.attack_damage = 3
+        self.limb_damage = 3
+        self.effects = [DamageType.Physical, DamageType.Cleave]
+        self.speed = -1
+        self.accuracy = -5
+
+
+class broken_spear(Weapon_base):
+    def __init__(self):
+        super().__init__()
+        self.attack_damage = 3
+        self.limb_damage = 2
+        self.effects = [DamageType.Physical, DamageType.Pierce]
+        self.speed = -1
+        self.accuracy = 5
     
 
 class character_base:
@@ -59,22 +108,50 @@ class character_base:
         self.body_max_current_health = {Body.Head: health, Body.Arms: health, Body.Torso: health, Body.Legs: health}   
         self.body_health = {Body.Head: health, Body.Arms: health, Body.Torso: health, Body.Legs: health}
 
-    def damage(self, attack_received, attacker, targeting):
+        self.effects = []
+        self.body_part_effects = {Body.Head: [], Body.Arms: [], Body.Torso: [], Body.Legs: []}
+        self.weakness = []
+
+    def hit(self, attack_received, attacker, targeting):
         hit = attacker.get_attack_accuracy()
-        print(self.get_hit_chance(targeting) < hit)
+        print(f"Hit chance: {self.get_hit_chance(targeting)}% vs {hit}%")
         if self.get_hit_chance(targeting) < hit:
-            critical_body_damage = self.body_health[targeting] / self.body_max_current_health[targeting]
-            if critical_body_damage < 0.5:
-                chance_fatal = critical_body_damage/0.5*100
-                outome_fatal = random.randint(1, 100)
-            damage = attack_received.get_damage()
-            self.body_part_damage(targeting, damage, attack_received)
-            self.update_health(damage, attack_received)
-            return damage, chance_fatal if critical_body_damage < 0.5 else 1, outome_fatal if critical_body_damage < 0.5 else 0
+            self.apply_effects(attack_received,targeting)
+            damage = self.damage(attack_received, targeting)
+            chance_fatal, outcome_fatal = self.fatal(targeting)
+            return damage, chance_fatal, outcome_fatal
         return "miss", 100, 0  # No damage, always fatal chance is 100% and outcome is 0 (no fatal outcome)
     
+    def apply_effects(self, attack_received,targeting):
+        for effect in attack_received.get_effects():
+            if isinstance(effect, Effects.effect_base):
+                if effect not in self.body_part_effects[targeting]:
+                    self.body_part_effects[targeting].append(effect.apply_effect())
+                else:
+                    self.body_part_effects[targeting].duration += effect.apply_effect().duration
+                #self.effects.append(effect)
+                print(f"{self.name} is affected by {effect.name}.")
+
+    def fatal(self, targeting):
+        critical_body_damage = self.body_health[targeting] / self.body_max_current_health[targeting]
+        if critical_body_damage < 0.5:
+            return critical_body_damage/0.5*100,random.randint(1, 100)
+        return 100, 0  # Always fatal chance is 100% and outcome is 0 (no fatal outcome)    
+
+    def damage(self, attack_received, targeting):
+        attack = attack_received.get_damage()
+        damage = int(attack[0])
+        effects = attack[1]
+        for effect in effects:
+            if effect in self.weakness:
+                damage += 1
+        #limb_damage = attack_received.get_limb_damage()
+        self.body_part_damage(targeting, damage, attack_received)
+        self.update_health(damage)
+        return damage
+    
     def body_part_damage(self, body_part, damage, attack_received):
-        body_damage = int(damage)
+        body_damage = damage
         match body_part:
             case Body.Head if self.armour[Armour.Helmet] != 0:
                 armour_targeted = self.armour[Armour.Helmet]
@@ -95,7 +172,7 @@ class character_base:
             self.body_health[body_part] = 0
         
     def attack(self, target, aim):
-        return target.damage(self.weapon,self, aim)    
+        return target.hit(self.weapon,self, aim)    
 
     def get_hit_chance(self, targeting):
         if targeting in self.hit_chance:
@@ -115,7 +192,7 @@ class character_base:
     def update_speed(self):
         self.speed = self.speed + self.weapon.speed
 
-    def update_health(self, damage, attack_received):
+    def update_health(self, damage):
         self.health -= damage
 
 class Player(character_base):
@@ -141,6 +218,7 @@ class Test_enemy(character_base):
         super().__init__(name, health)
         self.armour[Armour.Chest] = test_chest()
         self.dodge = 10
+        self.weakness = [DamageType.Blunt]
     
 if __name__ == "__main__":
     buffer = 18
@@ -158,6 +236,19 @@ if __name__ == "__main__":
 
                 player.speed_current += player.speed
                 Enemy.speed_current += Enemy.speed
+
+                for body_part in Enemy.body_part_effects:
+                    for effect in Enemy.body_part_effects[body_part]:
+                        if hasattr(effect, 'over_time'):
+                            outcome = effect.over_time(Enemy,body_part)
+                            print(f"{Enemy.name} is affected by {effect.name} on {body_part.name}. Damage: {outcome[0]}, Duration: {outcome[1]}")
+                            if outcome[1] <= 0:
+                                Enemy.body_part_effects[body_part].remove(effect)
+                                print(f"{Enemy.name} is no longer affected by {effect.name} on {body_part.name}.")
+                if Enemy.health <= 0:
+                    print(f"You defeated {Enemy.name}!")
+                    battle = False
+                    continue
                 if player.speed_current > 100:
                     player.speed_current = 0
 
