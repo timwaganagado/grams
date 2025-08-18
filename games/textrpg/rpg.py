@@ -219,7 +219,29 @@ class Test_enemy(character_base):
         self.armour[Armour.Chest] = test_chest()
         self.dodge = 10
         self.weakness = [DamageType.Blunt]
-    
+
+#system that handles room selection and creation
+#picks a random room from a list or randomly generates a room
+#then selects whats in the room
+#saves the room
+
+
+
+class Room:
+    def __init__(self, name="Default Room", description="A room for testing purposes."):
+        self.name = name
+        self.description = description
+        self.items = []
+    def content(self,player):
+        #choose from three weapons
+        print(f"You are in {self.name}. {self.description}")
+        print("choose a weapon:")
+        for i, item in enumerate(self.items):
+            print(f"{i}. {item.name} - {item.description}")
+        choice = input("Choose a weapon: ")
+
+        
+
 if __name__ == "__main__":
     buffer = 18
 
@@ -227,6 +249,7 @@ if __name__ == "__main__":
     while running:
         player = Player()
         adventure = True
+        rooms = []
         while adventure:
             Enemy = Test_enemy("Goblin", 10)
             battle = True
