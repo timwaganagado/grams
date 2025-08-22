@@ -102,10 +102,10 @@ class character_base:
         self.health = health
         self.health_max = health
 
-        self.speed = 10
-        self.dodge = 0
-        self.speed_current = 0
+        self.stat_speed = 10
+        self.stat_dodge = 0
         self.selected_weapon = Unarmed()
+        self.speed = 0
         self.update_speed()
 
         self.accuracy = 10
@@ -182,7 +182,7 @@ class character_base:
             self.body_health[body_part] = 0
         
     def attack(self, target, aim):
-        return target.hit(self.weapon,self, aim)    
+        return target.hit(self.selected_weapon,self, aim)    
 
     def get_hit_chance(self, targeting):
         if targeting in self.hit_chance:
@@ -200,7 +200,7 @@ class character_base:
         return self.accuracy + self.selected_weapon.accuracy
 
     def update_speed(self):
-        self.speed = self.speed + self.weapon.speed
+        self.speed = self.speed + self.selected_weapon.speed
 
     def update_health(self, damage):
         self.health -= damage
@@ -209,7 +209,7 @@ class Player(character_base):
     def __init__(self):
         super().__init__()
         self.armour = {Armour.Helmet:0,Armour.Gloves:0,Armour.Chest:0,Armour.Shoes:0}
-        self.selected_weapon = self.weapon
+        self.selected_weapon = Unarmed()
         self.health_max = 0
         self.health = 0
         self.update_health(0)
