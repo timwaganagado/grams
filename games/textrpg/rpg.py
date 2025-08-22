@@ -38,6 +38,8 @@ class test_chest(Armour_base):
 
 class Weapon_base:
     def __init__(self):
+        self.name = "Base Weapon"
+        self.description = "A base weapon for testing purposes."
         self.attack_damage = 0
         self.limb_damage = 0
         self.effects = []
@@ -51,6 +53,8 @@ class Weapon_base:
 class Unarmed(Weapon_base):
     def __init__(self):
         super().__init__()
+        self.name = "Unarmed"
+        self.description = "A base weapon for testing purposes."
         self.attack_damage = 3
         self.limb_damage = 1
         self.effects = [DamageType.Physical, DamageType.Blunt, Effects.Fire()]
@@ -59,6 +63,8 @@ class Unarmed(Weapon_base):
 class broken_sword(Weapon_base):
     def __init__(self):
         super().__init__()
+        self.name = "Broken Sword"
+        self.description = "A broken sword"
         self.attack_damage = 2
         self.limb_damage = 2
         self.effects = [DamageType.Physical, DamageType.Slash]
@@ -69,6 +75,8 @@ class broken_sword(Weapon_base):
 class broken_axe(Weapon_base):
     def __init__(self):
         super().__init__()
+        self.name = "Broken Axe"
+        self.description = "A broken axe"
         self.attack_damage = 3
         self.limb_damage = 3
         self.effects = [DamageType.Physical, DamageType.Cleave]
@@ -79,6 +87,8 @@ class broken_axe(Weapon_base):
 class broken_spear(Weapon_base):
     def __init__(self):
         super().__init__()
+        self.name = "Broken Spear"
+        self.description = "A broken spear"
         self.attack_damage = 3
         self.limb_damage = 2
         self.effects = [DamageType.Physical, DamageType.Pierce]
@@ -95,8 +105,7 @@ class character_base:
         self.speed = 10
         self.dodge = 0
         self.speed_current = 0
-        self.weapon = Unarmed()
-        self.selected_weapon = self.weapon
+        self.selected_weapon = Unarmed()
         self.update_speed()
 
         self.accuracy = 10
@@ -144,6 +153,7 @@ class character_base:
         effects = attack[1]
         for effect in effects:
             if effect in self.weakness:
+                print(f"{self.name} is weak to {effect.name} damage!")
                 damage += 1
         #limb_damage = attack_received.get_limb_damage()
         self.body_part_damage(targeting, damage, attack_received)
@@ -199,7 +209,6 @@ class Player(character_base):
     def __init__(self):
         super().__init__()
         self.armour = {Armour.Helmet:0,Armour.Gloves:0,Armour.Chest:0,Armour.Shoes:0}
-        self.weapon = Unarmed()
         self.selected_weapon = self.weapon
         self.health_max = 0
         self.health = 0
@@ -231,7 +240,7 @@ class Room:
     def __init__(self, name="Default Room", description="A room for testing purposes."):
         self.name = name
         self.description = description
-        self.items = []
+        self.items = [broken_axe(), broken_sword(), broken_spear()]
     def content(self,player):
         #choose from three weapons
         print(f"You are in {self.name}. {self.description}")
@@ -239,6 +248,8 @@ class Room:
         for i, item in enumerate(self.items):
             print(f"{i}. {item.name} - {item.description}")
         choice = input("Choose a weapon: ")
+        player.selected_weapon = self.items[int(choice)]
+        print(f"You have selected {player.selected_weapon.name}.")
 
         
 
@@ -251,11 +262,14 @@ if __name__ == "__main__":
         adventure = True
         rooms = []
         while adventure:
+            room = Room("Test Room", "A room for testing purposes.")
+            room.content(player)
+            rooms.append(room)
+            
             Enemy = Test_enemy("Goblin", 10)
             battle = True
+            
             while battle:
-
-                
 
                 player.speed_current += player.speed
                 Enemy.speed_current += Enemy.speed
