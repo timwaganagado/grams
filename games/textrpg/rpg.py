@@ -38,6 +38,8 @@ class test_chest(Armour_base):
 
 class Weapon_base:
     def __init__(self):
+        self.name = "Base Weapon"
+        self.description = "A base weapon for testing purposes."
         self.attack_damage = 0
         self.limb_damage = 0
         self.effects = []
@@ -51,14 +53,18 @@ class Weapon_base:
 class Unarmed(Weapon_base):
     def __init__(self):
         super().__init__()
+        self.name = "Unarmed"
+        self.description = "A base weapon for testing purposes."
         self.attack_damage = 3
         self.limb_damage = 1
-        self.effects = [DamageType.Physical, DamageType.Blunt, Effects.Fire()]
+        self.effects = [DamageType.Physical, DamageType.Blunt]
 
 
 class broken_sword(Weapon_base):
     def __init__(self):
         super().__init__()
+        self.name = "Broken Sword"
+        self.description = "A broken sword"
         self.attack_damage = 2
         self.limb_damage = 2
         self.effects = [DamageType.Physical, DamageType.Slash]
@@ -69,6 +75,8 @@ class broken_sword(Weapon_base):
 class broken_axe(Weapon_base):
     def __init__(self):
         super().__init__()
+        self.name = "Broken Axe"
+        self.description = "A broken axe"
         self.attack_damage = 3
         self.limb_damage = 3
         self.effects = [DamageType.Physical, DamageType.Cleave]
@@ -79,6 +87,8 @@ class broken_axe(Weapon_base):
 class broken_spear(Weapon_base):
     def __init__(self):
         super().__init__()
+        self.name = "Broken Spear"
+        self.description = "A broken spear"
         self.attack_damage = 3
         self.limb_damage = 2
         self.effects = [DamageType.Physical, DamageType.Pierce]
@@ -86,17 +96,29 @@ class broken_spear(Weapon_base):
         self.accuracy = 5
     
 
+loot_table = {
+    1: {
+        "weapons": [(broken_sword, 0.5), (broken_axe, 0.3), (broken_spear, 0.2)],
+        "armour": [(test_chest, 1.0)]
+    },
+    2: {
+        "weapons": [("iron_sword", 0.4), ("iron_axe", 0.4), ("iron_spear", 0.2)],
+        "armour": [("iron_chest", 1.0)]
+    },
+    # Add more levels as needed
+}
+
 class character_base:
-    def __init__(self, name="none", health=10):
+    def __init__(self, name="none", health=10, difficulty=1):
         self.name = name
         self.health = health
         self.health_max = health
 
-        self.speed = 10
-        self.dodge = 0
+        self.stat_speed = 10
+        self.stat_dodge = 0
+        self.selected_weapon = Unarmed()
+        self.speed = 0
         self.speed_current = 0
-        self.weapon = Unarmed()
-        self.selected_weapon = self.weapon
         self.update_speed()
 
         self.accuracy = 10
@@ -111,6 +133,10 @@ class character_base:
         self.effects = []
         self.body_part_effects = {Body.Head: [], Body.Arms: [], Body.Torso: [], Body.Legs: []}
         self.weakness = []
+
+        self.difficulty = difficulty
+        self.loot = []
+        self.loot_chance = 0.1 * difficulty
 
     def hit(self, attack_received, attacker, targeting):
         hit = attacker.get_attack_accuracy()
@@ -144,6 +170,7 @@ class character_base:
         effects = attack[1]
         for effect in effects:
             if effect in self.weakness:
+                print(f"{self.name} is weak to {effect.name} damage!")
                 damage += 1
         #limb_damage = attack_received.get_limb_damage()
         self.body_part_damage(targeting, damage, attack_received)
@@ -172,11 +199,11 @@ class character_base:
             self.body_health[body_part] = 0
         
     def attack(self, target, aim):
-        return target.hit(self.weapon,self, aim)    
+        return target.hit(self.selected_weapon,self, aim)    
 
     def get_hit_chance(self, targeting):
         if targeting in self.hit_chance:
-            return self.hit_chance[targeting] + self.dodge
+            return self.hit_chance[targeting] + self.stat_dodge
         else:
             return 0
     def get_health(self):
@@ -190,27 +217,61 @@ class character_base:
         return self.accuracy + self.selected_weapon.accuracy
 
     def update_speed(self):
-        self.speed = self.speed + self.weapon.speed
+        self.speed = self.stat_speed + self.selected_weapon.speed
 
     def update_health(self, damage):
         self.health -= damage
+    
 
 class Player(character_base):
-    def __init__(self):
+    def __init__(self,):
         super().__init__()
+        self.name = "Player"
         self.armour = {Armour.Helmet:0,Armour.Gloves:0,Armour.Chest:0,Armour.Shoes:0}
-        self.weapon = Unarmed()
-        self.selected_weapon = self.weapon
+        self.selected_weapon = Unarmed()
         self.health_max = 0
         self.health = 0
         self.update_health(0)
         self.speed = 10
         self.accuracy = 10
+        self.inventory = []
         self.update_speed()
     def update_health(self,damage, attack_received=None):
         self.health = 0
         for part in self.body_health:
             self.health += self.body_health[part]
+    def show_inventory(self):
+        print("Inventory:")
+        for i, item in enumerate(self.inventory):
+            print(f"{i}. {item.name} - {item.description}")
+        print("Select an item to equip or 'x' to exit:")
+        choice = input()
+        if choice.lower() == 'x':
+            return
+        try:
+            choice = int(choice)
+            if choice >= 0 and choice < len(self.inventory):
+                item = self.inventory[choice]
+                print(f"Equipping {item.name}...")
+                print(f"Item type: {type(item)}")
+                print(f"Item description: {item.description}")
+                confirm = input("Are you sure? (y/n): ")
+                if confirm.lower() != 'y':
+                    print("Equip cancelled.")
+                    return
+                if isinstance(item, Weapon_base):
+                    self.selected_weapon = item
+                    self.update_speed()
+                    print(f"You have equipped {item.name}.")
+                elif isinstance(item, Armour_base):
+                    self.armour[item.armour_type] = item
+                    print(f"You have equipped {item.name}.")
+                else:
+                    print("You can't equip that item.")
+            else:
+                print("Invalid choice.")
+        except ValueError:
+            print("Invalid choice.")
 
 
 class Test_enemy(character_base):
@@ -231,15 +292,35 @@ class Room:
     def __init__(self, name="Default Room", description="A room for testing purposes."):
         self.name = name
         self.description = description
-        self.items = []
+        self.items = [broken_axe(), broken_sword(), broken_spear()]
     def content(self,player):
         #choose from three weapons
         print(f"You are in {self.name}. {self.description}")
         print("choose a weapon:")
         for i, item in enumerate(self.items):
             print(f"{i}. {item.name} - {item.description}")
-        choice = input("Choose a weapon: ")
-
+    def interact(self,choice,player):
+        if choice >= 0 and choice <= len(self.items):
+            player.selected_weapon = self.items[int(choice)]
+            print(f"You have selected {player.selected_weapon.name}.")
+            return True
+        print("Invalid choice, try again.")
+        return False
+    
+class Room2:
+    def __init__(self, name="Default Room", description="A room for testing purposes."):
+        self.name = name
+        self.description = description
+        self.items = [test_chest()]
+    def content(self,player):
+        #choose from three weapons
+        print(f"You are in {self.name}. {self.description}")
+        print("choose an armour:")
+        for i, item in enumerate(self.items):
+            print(f"{i}. {item.name} - {item.description}")
+        choice = input("Choose an armour: ")
+        player.armour[Armour.Chest] = self.items[int(choice)]
+        print(f"You have selected {player.armour[Armour.Chest].name}.")
         
 
 if __name__ == "__main__":
@@ -251,11 +332,21 @@ if __name__ == "__main__":
         adventure = True
         rooms = []
         while adventure:
-            Enemy = Test_enemy("Goblin", 10)
+            room = Room("Test Room", "A room for testing purposes.")
+            room.content(player)
+            roomcomplete = False
+            while not roomcomplete:
+                choice = input()
+                if choice == 'i':
+                    Player.show_inventory()
+                roomcomplete = room.interact(int(choice),player)
+                    
+            rooms.append(room)
+            
+            Enemy = Test_enemy("Goblin", 10, 1)
             battle = True
+            
             while battle:
-
-                
 
                 player.speed_current += player.speed
                 Enemy.speed_current += Enemy.speed
@@ -337,3 +428,5 @@ if __name__ == "__main__":
                                 print(f"You SURVIVED the fatal blow to your {aim.name}!")
                     else:
                         print(f"{Enemy.name} missed!")
+            player.speed_current = 0
+            player.inventory.append(loot_table["weapons"][random.choices(range(len(loot_table["weapons"])), weights=[item[1] for item in loot_table["weapons"]])[0]][0])
