@@ -289,10 +289,13 @@ class Test_enemy(character_base):
 
 
 class Room:
-    def __init__(self, name="Default Room", description="A room for testing purposes."):
+    def __init__(self, name="Default Room", description="A room for testing purposes.",items=[], enemy=None):
         self.name = name
         self.description = description
-        self.items = [broken_axe(), broken_sword(), broken_spear()]
+        self.items = items
+        self.enemy = enemy
+        self.doors = []
+        self.completed = False
     def content(self,player):
         #choose from three weapons
         print(f"You are in {self.name}. {self.description}")
@@ -303,25 +306,27 @@ class Room:
         if choice >= 0 and choice <= len(self.items):
             player.selected_weapon = self.items[int(choice)]
             print(f"You have selected {player.selected_weapon.name}.")
+            self.completed = True
             return True
         print("Invalid choice, try again.")
         return False
     
-class Room2:
-    def __init__(self, name="Default Room", description="A room for testing purposes."):
-        self.name = name
-        self.description = description
-        self.items = [test_chest()]
-    def content(self,player):
-        #choose from three weapons
-        print(f"You are in {self.name}. {self.description}")
-        print("choose an armour:")
-        for i, item in enumerate(self.items):
-            print(f"{i}. {item.name} - {item.description}")
-        choice = input("Choose an armour: ")
-        player.armour[Armour.Chest] = self.items[int(choice)]
-        print(f"You have selected {player.armour[Armour.Chest].name}.")
-        
+    def getdoors(self):
+        pass
+
+class room_manager:
+    def __init__(self):
+        self.rooms = []
+        self.roomnumber = 1
+        self.current_room = None
+        self.add_room(Room("Room 1", "The place you Began",[broken_axe(), broken_sword(), broken_spear()], None))
+        self.create_room()
+    def add_room(self, room):
+        self.rooms.append(room)
+    def create_room(self):
+        self.roomnumber += 1
+        room = Room(f"Room {self.roomnumber}", "A randomly generated room.",[], Test_enemy("Goblin", 10))
+        self.add_room(room)
 
 if __name__ == "__main__":
     buffer = 18
@@ -329,21 +334,37 @@ if __name__ == "__main__":
     running = True
     while running:
         player = Player()
+        R = room_manager()
+        R.current_room = R.rooms[0]
         adventure = True
-        rooms = []
+        R.current_room.content(player)
+        roomcomplete = False
+        while not roomcomplete:
+            choice = input()
+            if choice == 'i':
+                Player.show_inventory()
+            else:
+                roomcomplete = R.current_room.interact(int(choice),player)
+                explore = True
+
         while adventure:
-            room = Room("Test Room", "A room for testing purposes.")
-            room.content(player)
-            roomcomplete = False
-            while not roomcomplete:
-                choice = input()
+
+            while explore:
+                print("Do you want to Move (f)orward/(b)ack/(meditate) or (i)nventory?")
+                choice = input().lower()
                 if choice == 'i':
                     Player.show_inventory()
-                roomcomplete = room.interact(int(choice),player)
-                    
-            rooms.append(room)
-            
-            Enemy = Test_enemy("Goblin", 10, 1)
+                else:
+                    if choice == 'f':
+                        if R.current_room == R.rooms[-1]:
+                            R.create_room()
+                            R.current_room = R.rooms[-1]
+                        else:
+                            R.current_room = R.rooms[R.rooms.index(R.current_room)+1]
+                        explore = False
+
+
+            Enemy = R.current_room.enemy
             battle = True
             
             while battle:
@@ -429,4 +450,15 @@ if __name__ == "__main__":
                     else:
                         print(f"{Enemy.name} missed!")
             player.speed_current = 0
-            player.inventory.append(loot_table["weapons"][random.choices(range(len(loot_table["weapons"])), weights=[item[1] for item in loot_table["weapons"]])[0]][0])
+            #player.inventory.append(loot_table["weapons"][random.choices(range(len(loot_table["weapons"])), weights=[item[1] for item in loot_table["weapons"]])[0]][0])
+            if R.current_room.completed == False:
+                R.current_room.content(player)
+                roomcomplete = False
+            while not roomcomplete:
+                choice = input()
+                if choice == 'i':
+                    Player.show_inventory()
+                else:
+                    roomcomplete = R.current_room.interact(int(choice),player)
+                    explore = True
+            
