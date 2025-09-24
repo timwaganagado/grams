@@ -1,4 +1,5 @@
 from time import sleep
+import random
 tasks = {}
 
 class Task:
@@ -41,10 +42,9 @@ class RoundRobinScheduler:
         if self.current_index >= len(self.task_list):
             self.current_index = 0
 
+for x in range(0,20,2):
+    tasks.update({x:Task(service_time=random.randint(5,15))})
 
-tasks.update({0:Task(service_time=5)})
-tasks.update({2:Task(service_time=3)})
-tasks.update({4:Task(service_time=4)})
 
 def clear_last_lines(num_lines):
     """
@@ -61,7 +61,9 @@ while running:
     if RRS.next_task():
         running = False
     for time,task in tasks.items():
-        print(task)
+        amount = task.blocks_completed/task.service_time
+        string = round(amount*50)*"█"
+        print(f"{string:-<50}", f" {int(amount*100):<3}% {task}")
     sleep(0.5)
     if running:
         print("\033[H\033[J", end="")

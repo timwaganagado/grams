@@ -1,0 +1,4 @@
+pdfplumber
+sentence-transformers
+numpy
+requests
