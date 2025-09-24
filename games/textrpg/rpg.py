@@ -369,7 +369,9 @@ if __name__ == "__main__":
                 explore = True
 
         while adventure:
-
+            
+            #loot drop decided after battle
+            #can still have special rooms
             if R.current_room.completed == False:
                 R.current_room.content(player)
                 roomcomplete = False
